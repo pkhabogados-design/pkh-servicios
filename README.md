@@ -1,1 +1,2411 @@
-# pkh-servicios
+# pkh-servicios[index.html](https://github.com/user-attachments/files/26148358/index.html)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PKH Servicios S.A.S — Sistema de Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#0d0f14; --surface:#161921; --surface2:#1e222d; --surface3:#252a38;
+  --border:#2a2f3d; --accent:#e8b84b; --accent2:#5b9cf6; --green:#3ecf8e;
+  --red:#f26b6b; --orange:#f59e42; --purple:#a78bfa;
+  --text:#e2e6f0; --muted:#6b7280;
+  --fh:'Barlow Condensed',sans-serif; --fb:'Barlow',sans-serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden;}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* HEADER */
+header{background:linear-gradient(135deg,#0d0f14,#161921);border-bottom:2px solid var(--accent);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-hex{width:42px;height:42px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:900;font-size:16px;color:#0d0f14;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);}
+.logo-name{font-family:var(--fh);font-size:20px;font-weight:700;letter-spacing:2px;}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:3px;font-family:var(--fm);}
+.header-kpis{display:flex;gap:20px;flex-wrap:wrap;}
+.hkpi{text-align:center;padding:0 12px;border-left:1px solid var(--border);}
+.hkpi:first-child{border-left:none;}
+.hkpi-val{font-family:var(--fm);font-size:18px;color:var(--accent);font-weight:500;}
+.hkpi-lbl{font-size:9px;color:var(--muted);letter-spacing:2px;font-family:var(--fm);}
+/* ALERT BANNER */
+#alertBanner{display:none;background:linear-gradient(90deg,#f26b6b22,#f59e4222);border-bottom:1px solid var(--red);padding:8px 28px;font-size:12px;font-family:var(--fm);}
+#alertBanner.show{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.alert-pill{background:var(--red);color:white;padding:2px 8px;border-radius:10px;font-size:11px;cursor:pointer;white-space:nowrap;}
+.alert-pill.warn{background:var(--orange);}
+/* LAYOUT */
+.app{display:flex;min-height:calc(100vh - 70px);}
+/* SIDEBAR */
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;position:sticky;top:70px;height:calc(100vh - 70px);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-section{margin-bottom:4px;}
+.sidebar-label{font-size:9px;letter-spacing:3px;color:var(--muted);padding:12px 18px 6px;font-family:var(--fm);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-family:var(--fh);font-size:14px;letter-spacing:1.5px;color:var(--muted);transition:.15s;border-left:3px solid transparent;}
+.nav-item:hover{color:var(--text);background:#ffffff06;}
+.nav-item.active{color:var(--accent);background:linear-gradient(90deg,#e8b84b15,transparent);border-left-color:var(--accent);}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-family:var(--fm);}
+.nav-badge.warn{background:var(--orange);}
+/* MAIN */
+.main{flex:1;padding:24px;overflow-x:hidden;min-width:0;}
+/* PANEL */
+.panel{display:none;animation:fadeIn .2s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* SECTION HEADER */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.section-title{font-family:var(--fh);font-size:26px;font-weight:700;letter-spacing:2px;}
+.section-title span{color:var(--accent);}
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:22px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden;cursor:default;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi.gold::before{background:var(--accent);}
+.kpi.green::before{background:var(--green);}
+.kpi.red::before{background:var(--red);}
+.kpi.blue::before{background:var(--accent2);}
+.kpi.purple::before{background:var(--purple);}
+.kpi.orange::before{background:var(--orange);}
+.kpi-val{font-family:var(--fm);font-size:22px;font-weight:500;margin-bottom:4px;}
+.kpi-lbl{font-size:10px;color:var(--muted);letter-spacing:2px;font-family:var(--fm);}
+.kpi-delta{font-size:11px;margin-top:4px;font-family:var(--fm);}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.down{color:var(--red);}
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;border-top:3px solid var(--accent);transition:.2s;}
+.card:hover{transform:translateY(-2px);border-color:var(--accent);}
+.card.blue-top{border-top-color:var(--accent2);}
+.card.red-top{border-top-color:var(--red);}
+.card.green-top{border-top-color:var(--green);}
+.card.orange-top{border-top-color:var(--orange);}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--surface2);}
+th{padding:11px 13px;font-family:var(--fh);font-size:12px;letter-spacing:2px;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 13px;font-size:13px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#ffffff04;}
+.mono{font-family:var(--fm);font-size:12px;}
+.amt{font-family:var(--fm);text-align:right;}
+.c-green{color:var(--green);} .c-red{color:var(--red);} .c-gold{color:var(--accent);} .c-blue{color:var(--accent2);} .c-muted{color:var(--muted);} .c-orange{color:var(--orange);} .c-purple{color:var(--purple);}
+/* BADGES */
+.badge{padding:2px 9px;border-radius:3px;font-size:10px;font-family:var(--fm);letter-spacing:1px;display:inline-block;}
+.badge-paid{background:#3ecf8e22;color:var(--green);border:1px solid #3ecf8e44;}
+.badge-pend{background:#f26b6b22;color:var(--red);border:1px solid #f26b6b44;}
+.badge-warn{background:#f59e4222;color:var(--orange);border:1px solid #f59e4244;}
+.badge-nota{background:#a78bfa22;color:var(--purple);border:1px solid #a78bfa44;}
+.badge-own{background:#e8b84b22;color:var(--accent);border:1px solid #e8b84b44;}
+.badge-sub{background:#5b9cf622;color:var(--accent2);border:1px solid #5b9cf644;}
+.badge-info{background:#ffffff11;color:var(--muted);border:1px solid #ffffff22;}
+/* FORM */
+.form-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:22px;margin-bottom:20px;}
+.form-panel h3{font-family:var(--fh);font-size:17px;letter-spacing:2px;margin-bottom:16px;color:var(--accent);}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.form-group{display:flex;flex-direction:column;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:5px;font-family:var(--fm);}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 12px;color:var(--text);font-family:var(--fb);font-size:13px;transition:.2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);background:#0d0f1488;}
+select option{background:var(--bg);}
+textarea{resize:vertical;min-height:70px;}
+.form-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;}
+/* BUTTONS */
+.btn{padding:9px 20px;border:none;border-radius:4px;cursor:pointer;font-family:var(--fh);font-size:13px;letter-spacing:2px;transition:.2s;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--accent);color:#0d0f14;}
+.btn-primary:hover{background:#d4a43e;}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);font-size:11px;padding:4px 10px;}
+.btn-danger:hover{background:var(--red);color:white;}
+.btn-sm{padding:6px 14px;font-size:11px;}
+.btn-ghost{background:transparent;color:var(--muted);border:none;font-size:11px;padding:4px 8px;}
+.btn-ghost:hover{color:var(--text);}
+/* FILTERS */
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.filters input,.filters select{width:auto;flex:1;min-width:130px;}
+.filter-label{font-size:10px;color:var(--muted);letter-spacing:2px;font-family:var(--fm);white-space:nowrap;}
+/* CHART */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px;margin-bottom:20px;}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;}
+.chart-box h4{font-family:var(--fh);font-size:15px;letter-spacing:2px;margin-bottom:14px;color:var(--muted);}
+.chart-wrap{position:relative;height:220px;}
+/* PROGRESS */
+.progress-wrap{background:var(--bg);border-radius:4px;height:8px;overflow:hidden;margin-top:6px;}
+.progress-bar{height:100%;border-radius:4px;transition:width .8s ease;}
+/* TABS (inline) */
+.inline-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px;width:fit-content;}
+.itab{padding:8px 18px;font-family:var(--fh);font-size:12px;letter-spacing:1.5px;cursor:pointer;color:var(--muted);background:var(--surface);border:none;transition:.15s;}
+.itab.active{background:var(--accent);color:#0d0f14;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:#00000088;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:28px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal h2{font-family:var(--fh);font-size:22px;letter-spacing:2px;margin-bottom:20px;color:var(--accent);}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:6px;font-family:var(--fh);font-size:14px;letter-spacing:1px;transform:translateY(60px);opacity:0;transition:.3s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.error{border-color:var(--red);color:var(--red);}
+/* TIMELINE */
+.timeline{padding:0 0 0 20px;border-left:2px solid var(--border);}
+.tl-item{position:relative;padding:0 0 18px 20px;}
+.tl-dot{position:absolute;left:-29px;top:2px;width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:var(--bg);}
+.tl-dot.gold{border-color:var(--accent);background:var(--accent);}
+.tl-dot.green{border-color:var(--green);background:var(--green);}
+.tl-dot.red{border-color:var(--red);background:var(--red);}
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .chart-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .header-kpis{display:none;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .main{padding:14px;}
+}
+/* SPECIAL */
+.plate{font-family:var(--fm);font-size:16px;letter-spacing:3px;color:var(--accent);}
+.plate.blue{color:var(--accent2);}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.empty{text-align:center;padding:40px;color:var(--muted);font-family:var(--fm);}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-family:var(--fm);background:var(--surface2);color:var(--muted);margin:2px;}
+.highlight-row td{background:#e8b84b08!important;}
+.overdue-row td{background:#f26b6b08!important;}
+/* CHEQUES */
+.cheque-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;border-left:4px solid var(--accent2);}
+.cheque-card.vencido{border-left-color:var(--green);}
+.cheque-card.urgente{border-left-color:var(--orange);}
+/* SOCIOS */
+.socio-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.socio-avatar{width:36px;height:36px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:700;font-size:14px;color:var(--accent);}
+/* DASHBOARD special */
+.dash-hero{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden;}
+.dash-hero::after{content:'PKH';position:absolute;right:-10px;bottom:-20px;font-family:var(--fh);font-size:120px;font-weight:900;color:#ffffff04;pointer-events:none;}
+.dash-alert-list{display:flex;flex-direction:column;gap:8px;}
+.dash-alert{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:6px;padding:10px 14px;border-left:3px solid var(--red);font-size:13px;}
+.dash-alert.warn{border-left-color:var(--orange);}
+.dash-alert.info{border-left-color:var(--accent2);}
+</style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-hex">PKH</div>
+    <div>
+      <div class="logo-name">PKH SERVICIOS S.A.S</div>
+      <div class="logo-sub">SISTEMA DE GESTIÓN INTEGRAL</div>
+    </div>
+  </div>
+  <div class="header-kpis">
+    <div class="hkpi"><div class="hkpi-val" id="hk-flota">7</div><div class="hkpi-lbl">UNIDADES</div></div>
+    <div class="hkpi"><div class="hkpi-val" id="hk-fac">—</div><div class="hkpi-lbl">FACTURADO</div></div>
+    <div class="hkpi"><div class="hkpi-val" id="hk-cobrado">—</div><div class="hkpi-lbl">COBRADO</div></div>
+    <div class="hkpi"><div class="hkpi-val c-red" id="hk-pend">—</div><div class="hkpi-lbl">PENDIENTE</div></div>
+    <div class="hkpi"><div class="hkpi-val c-orange" id="hk-alertas">0</div><div class="hkpi-lbl">ALERTAS</div></div>
+  </div>
+  <div id="sync-status" style="padding:0 8px">
+    <span style="color:var(--muted);font-size:11px;font-family:var(--fm)">🔴 LOCAL</span>
+  </div>
+</header>
+
+<div id="alertBanner">
+  <span style="color:var(--muted);font-size:11px;letter-spacing:2px;">⚠ ALERTAS:</span>
+  <div id="alertPills" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+</div>
+
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
+  <div style="text-align:center;margin-bottom:10px">
+    <div style="width:60px;height:60px;background:var(--accent);clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:900;font-size:22px;color:#0d0f14;margin:0 auto 12px">PKH</div>
+    <div style="font-family:var(--fh);font-size:28px;font-weight:700;letter-spacing:3px">PKH SERVICIOS S.A.S</div>
+    <div style="font-size:12px;color:var(--muted);letter-spacing:3px;font-family:var(--fm);margin-top:4px">SISTEMA DE GESTIÓN INTEGRAL</div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px;width:320px;text-align:center">
+    <div style="font-family:var(--fh);font-size:15px;letter-spacing:2px;color:var(--muted);margin-bottom:16px">INGRESÁ EL PIN DE ACCESO</div>
+    <input id="pin-input" type="password" placeholder="••••••••" style="width:100%;text-align:center;font-size:22px;letter-spacing:8px;padding:12px;margin-bottom:14px;font-family:var(--fm)" onkeydown="if(event.key==='Enter')checkPin()">
+    <button class="btn btn-primary" style="width:100%;font-size:15px;padding:12px" onclick="checkPin()">INGRESAR</button>
+    <div id="pin-error" style="color:var(--red);font-size:12px;margin-top:10px;font-family:var(--fm);display:none">PIN INCORRECTO</div>
+  </div>
+  <div style="font-size:11px;color:var(--muted);font-family:var(--fm)" id="login-status">Conectando...</div>
+</div>
+
+<div class="app">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">PRINCIPAL</div>
+    <div class="nav-item active" data-panel="dashboard"><span class="icon">📊</span>DASHBOARD</div>
+    <div class="nav-item" data-panel="alertas"><span class="icon">🔔</span>ALERTAS <span class="nav-badge" id="nb-alertas">0</span></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">FLOTA</div>
+    <div class="nav-item" data-panel="flota"><span class="icon">🚛</span>UNIDADES</div>
+    <div class="nav-item" data-panel="kilometros"><span class="icon">📍</span>KILÓMETROS</div>
+    <div class="nav-item" data-panel="mantenimiento"><span class="icon">🔧</span>MANTENIMIENTO</div>
+    <div class="nav-item" data-panel="documentos"><span class="icon">📋</span>DOCUMENTACIÓN</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">FINANZAS</div>
+    <div class="nav-item" data-panel="facturacion"><span class="icon">💰</span>FACTURACIÓN</div>
+    <div class="nav-item" data-panel="clientes"><span class="icon">🏢</span>CLIENTES</div>
+    <div class="nav-item" data-panel="contratos"><span class="icon">📄</span>CONTRATOS</div>
+    <div class="nav-item" data-panel="cheques"><span class="icon">🏦</span>CHEQUES</div>
+    <div class="nav-item" data-panel="homebanking"><span class="icon">🏧</span>HOME BANKING</div>
+    <div class="nav-item" data-panel="gastos"><span class="icon">📤</span>GASTOS</div>
+    <div class="nav-item" data-panel="costos"><span class="icon">📈</span>COSTOS MENSUALES</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">SOCIEDAD</div>
+    <div class="nav-item" data-panel="socios"><span class="icon">👥</span>SOCIOS</div>
+    <div class="nav-item" data-panel="subalquiler"><span class="icon">🔄</span>SUBALQUILER</div>
+    <div class="nav-item" data-panel="proyeccion"><span class="icon">🔭</span>PROYECCIÓN</div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="padding:12px 18px;border-top:1px solid var(--border);">
+    <button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportarTodo()">💾 EXPORTAR DATOS</button>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ======= DASHBOARD ======= -->
+<div class="panel active" id="panel-dashboard">
+  <div class="dash-hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-family:var(--fh);font-size:13px;letter-spacing:3px;color:var(--muted);margin-bottom:4px;">RESUMEN EJECUTIVO</div>
+        <div style="font-family:var(--fh);font-size:32px;font-weight:700;" id="dash-fecha">—</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="dash-estado">Cargando...</div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;" id="dash-hero-kpis"></div>
+    </div>
+  </div>
+  <div class="kpi-grid" id="dash-kpis"></div>
+  <div class="chart-grid" id="dash-charts"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="dash-bottom">
+    <div>
+      <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">🔔 ALERTAS RECIENTES</div>
+      <div class="dash-alert-list" id="dash-alerts-list"></div>
+    </div>
+    <div>
+      <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">🏦 PRÓXIMOS COBROS</div>
+      <div id="dash-cobros"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ALERTAS ======= -->
+<div class="panel" id="panel-alertas">
+  <div class="section-hdr">
+    <div class="section-title">CENTRO DE <span>ALERTAS</span></div>
+  </div>
+  <div id="alertas-content"></div>
+</div>
+
+<!-- ======= FLOTA ======= -->
+<div class="panel" id="panel-flota">
+  <div class="section-hdr">
+    <div class="section-title">GESTIÓN DE <span>FLOTA</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-unidad')">+ NUEVA UNIDAD</button>
+  </div>
+  <div class="kpi-grid" id="flota-kpis"></div>
+  <div class="cards" id="flotaCards"></div>
+</div>
+
+<!-- ======= KILÓMETROS ======= -->
+<div class="panel" id="panel-kilometros">
+  <div class="section-hdr">
+    <div class="section-title">REGISTRO DE <span>KILÓMETROS</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-km')">+ REGISTRAR KM</button>
+  </div>
+  <div class="chart-grid" id="km-charts"></div>
+  <div id="km-cards"></div>
+</div>
+
+<!-- ======= MANTENIMIENTO ======= -->
+<div class="panel" id="panel-mantenimiento">
+  <div class="section-hdr">
+    <div class="section-title">MANTENIMIENTO Y <span>SERVICIOS</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-mant')">+ REGISTRAR SERVICE</button>
+  </div>
+  <div class="kpi-grid" id="mant-kpis"></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>UNIDAD</th><th>TIPO</th><th>FECHA</th><th>KM AL SERVICE</th><th>PRÓX. KM</th><th>COSTO</th><th>TALLER</th><th>OBSERVACIONES</th><th></th></tr></thead>
+    <tbody id="mantTbody"></tbody>
+  </table></div>
+</div>
+
+<!-- ======= DOCUMENTACIÓN ======= -->
+<div class="panel" id="panel-documentos">
+  <div class="section-hdr">
+    <div class="section-title">DOCUMENTACIÓN <span>VENCIMIENTOS</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-doc')">+ AGREGAR DOCUMENTO</button>
+  </div>
+  <div id="docs-grid"></div>
+</div>
+
+<!-- ======= FACTURACIÓN ======= -->
+<div class="panel" id="panel-facturacion">
+  <div class="section-hdr">
+    <div class="section-title">FACTURACIÓN <span>PKH</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-factura')">+ NUEVA FACTURA</button>
+  </div>
+  <div class="kpi-grid" id="fac-kpis"></div>
+  <div class="filters">
+    <input id="fac-q" placeholder="🔍 Buscar..." oninput="renderFacturacion()">
+    <select id="fac-fest" onchange="renderFacturacion()">
+      <option value="">TODOS</option><option value="PAGO">PAGADO</option>
+      <option value="PENDIENTE">PENDIENTE</option><option value="NOTA">NOTA CRÉDITO</option>
+    </select>
+    <select id="fac-femp" onchange="renderFacturacion()"><option value="">TODAS LAS EMPRESAS</option></select>
+    <select id="fac-fanio" onchange="renderFacturacion()"><option value="">TODOS LOS AÑOS</option></select>
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>N°</th><th>FECHA</th><th>EMPRESA</th><th>NETO</th><th>IVA</th><th>TOTAL</th><th>VENCE</th><th>ESTADO</th><th>F.PAGO</th><th>FORMA</th><th></th></tr></thead>
+    <tbody id="facTbody"></tbody>
+  </table></div>
+</div>
+
+<!-- ======= CLIENTES ======= -->
+<div class="panel" id="panel-clientes">
+  <div class="section-hdr"><div class="section-title">ESTADO DE <span>CLIENTES</span></div></div>
+  <div id="clientes-content"></div>
+</div>
+
+<!-- ======= CHEQUES ======= -->
+<!-- ======= CONTRATOS ======= -->
+<div class="panel" id="panel-contratos">
+  <div class="section-hdr">
+    <div class="section-title">GESTIÓN DE <span>CONTRATOS</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-contrato')">+ NUEVO CONTRATO</button>
+  </div>
+  <div class="kpi-grid" id="cont-kpis"></div>
+  <div id="cont-cards"></div>
+</div>
+
+<div class="panel" id="panel-cheques">
+  <div class="section-hdr">
+    <div class="section-title">CHEQUES <span>DIFERIDOS</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-cheque')">+ AGREGAR CHEQUE</button>
+  </div>
+  <div class="kpi-grid" id="cheq-kpis"></div>
+  <div class="inline-tabs">
+    <button class="itab active" data-ct="pendientes" onclick="switchChequeTab('pendientes',this)">A COBRAR</button>
+    <button class="itab" data-ct="cobrados" onclick="switchChequeTab('cobrados',this)">COBRADOS</button>
+    <button class="itab" data-ct="todos" onclick="switchChequeTab('todos',this)">TODOS</button>
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>N° CHEQUE</th><th>BANCO</th><th>EMPRESA</th><th>MONTO</th><th>FECHA COBRO</th><th>DÍAS</th><th>ESTADO</th><th></th></tr></thead>
+    <tbody id="cheqTbody"></tbody>
+  </table></div>
+</div>
+
+<!-- ======= GASTOS ======= -->
+<div class="panel" id="panel-gastos">
+  <div class="section-hdr">
+    <div class="section-title">GASTOS <span>SOCIEDAD</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-gasto')">+ NUEVO GASTO</button>
+  </div>
+  <div class="kpi-grid" id="gas-kpis"></div>
+  <div class="chart-grid"><div class="chart-box"><h4>GASTOS POR MES</h4><div class="chart-wrap"><canvas id="gasChart"></canvas></div></div>
+  <div class="chart-box"><h4>GASTOS POR ORIGEN</h4><div class="chart-wrap"><canvas id="gasOriChart"></canvas></div></div></div>
+  <div class="filters">
+    <input id="g-q" placeholder="🔍 Buscar..." oninput="renderGastos()">
+    <select id="g-orig" onchange="renderGastos()"><option value="">TODOS LOS ORÍGENES</option></select>
+    <input id="g-desde" type="month" onchange="renderGastos()">
+    <input id="g-hasta" type="month" onchange="renderGastos()">
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>CONCEPTO</th><th>FECHA</th><th>MONTO</th><th>ORIGEN</th><th>CATEGORÍA</th><th></th></tr></thead>
+    <tbody id="gasTbody"></tbody>
+  </table></div>
+</div>
+
+<!-- ======= COSTOS MENSUALES ======= -->
+<div class="panel" id="panel-costos">
+  <div class="section-hdr">
+    <div class="section-title">COSTOS <span>MENSUALES</span></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="costos-mes" onchange="renderCostos()" style="width:auto;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:4px;font-family:var(--fh);font-size:13px;letter-spacing:1px;"></select>
+    </div>
+  </div>
+  <div class="chart-grid"><div class="chart-box" style="grid-column:1/-1"><h4>EVOLUCIÓN INGRESOS VS EGRESOS</h4><div class="chart-wrap" style="height:260px"><canvas id="costosChart"></canvas></div></div></div>
+  <div id="costos-display"></div>
+</div>
+
+<!-- ======= SOCIOS ======= -->
+<div class="panel" id="panel-socios">
+  <div class="section-hdr">
+    <div class="section-title">GESTIÓN DE <span>SOCIOS</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-aporte')">+ REGISTRAR APORTE</button>
+  </div>
+  <div class="kpi-grid" id="socios-kpis"></div>
+  <div id="socios-content"></div>
+</div>
+
+<!-- ======= SUBALQUILER ======= -->
+<div class="panel" id="panel-subalquiler">
+  <div class="section-hdr"><div class="section-title">GESTIÓN DE <span>SUBALQUILER</span></div></div>
+  <div class="kpi-grid" id="sa-kpis"></div>
+  <div class="cards" id="sa-cards"></div>
+  <div class="form-panel">
+    <h3>CALCULADORA</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>VALOR ALQUILADO ($)</label><input id="sa-val" type="number" value="2000000" oninput="calcSA()"></div>
+      <div class="form-group"><label>MARGEN (%)</label><input id="sa-mg" type="number" value="12" oninput="calcSA()"></div>
+    </div>
+    <div class="kpi-grid" id="sa-calc" style="margin-top:14px;margin-bottom:0"></div>
+  </div>
+</div>
+
+<!-- ======= PROYECCIÓN ======= -->
+<div class="panel" id="panel-proyeccion">
+  <div class="section-hdr"><div class="section-title">PROYECCIÓN <span>FINANCIERA</span></div></div>
+  <div class="kpi-grid" id="proy-kpis"></div>
+  <div class="chart-grid"><div class="chart-box" style="grid-column:1/-1"><h4>PROYECCIÓN DE CAJA — 12 MESES</h4><div class="chart-wrap" style="height:280px"><canvas id="proyChart"></canvas></div></div></div>
+  <div id="proy-content"></div>
+</div>
+
+
+<!-- ======= HOME BANKING ======= -->
+<div class="panel" id="panel-homebanking">
+  <div class="section-hdr">
+    <div class="section-title">HOME <span>BANKING</span></div>
+  </div>
+  <div class="kpi-grid" id="hb-kpis"></div>
+  <div class="chart-grid">
+    <div class="chart-box" style="grid-column:1/-1"><h4>MOVIMIENTOS POR MES (DÉBITOS VS CRÉDITOS)</h4>
+    <div class="chart-wrap" style="height:240px"><canvas id="hbChart"></canvas></div></div>
+  </div>
+  <div class="filters">
+    <input id="hb-q" placeholder="🔍 Buscar descripción..." oninput="renderHB()">
+    <select id="hb-tipo" onchange="renderHB()">
+      <option value="">TODOS</option>
+      <option value="debito">DÉBITOS</option>
+      <option value="credito">CRÉDITOS</option>
+    </select>
+    <select id="hb-grupo" onchange="renderHB()"><option value="">TODOS LOS GRUPOS</option></select>
+    <input id="hb-desde" type="month" onchange="renderHB()">
+    <input id="hb-hasta" type="month" onchange="renderHB()">
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>FECHA</th><th>DESCRIPCIÓN</th><th>CONCEPTO</th><th>DÉBITO</th><th>CRÉDITO</th></tr></thead>
+    <tbody id="hbTbody"></tbody>
+  </table></div>
+</div>
+
+</main>
+</div>
+
+<!-- ======= MODALS ======= -->
+<div class="modal-overlay" id="modal-unidad">
+  <div class="modal">
+    <h2>NUEVA UNIDAD</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>PATENTE</label><input id="mu-pat" placeholder="AB-123-CD"></div>
+      <div class="form-group"><label>TIPO</label><select id="mu-tipo"><option value="propia">Propia</option><option value="subalquilada">Subalquilada</option></select></div>
+      <div class="form-group"><label>CLIENTE / ALQUILADA A</label><input id="mu-cli" placeholder="Empresa"></div>
+      <div class="form-group"><label>FECHA ENTREGA</label><input id="mu-fecha" type="date"></div>
+      <div class="form-group"><label>KM ENTREGA</label><input id="mu-km" type="number" placeholder="0"></div>
+      <div class="form-group"><label>MARCA/MODELO</label><input id="mu-modelo" placeholder="Toyota Hilux..."></div>
+      <div class="form-group"><label>AÑO</label><input id="mu-anio" type="number" placeholder="2023"></div>
+      <div class="form-group"><label>VALOR COMPRA ($)</label><input id="mu-valor" type="number" placeholder="0"></div>
+      <div class="form-group full"><label>NOTAS</label><textarea id="mu-notas" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-unidad')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addUnidad()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-km">
+  <div class="modal">
+    <h2>REGISTRAR KILÓMETROS</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>UNIDAD</label><select id="mkm-pat"></select></div>
+      <div class="form-group"><label>MES</label><select id="mkm-mes"><option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option><option>MAYO</option><option>JUNIO</option><option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option></select></div>
+      <div class="form-group"><label>AÑO</label><select id="mkm-anio"><option>2024</option><option>2025</option><option selected>2026</option></select></div>
+      <div class="form-group"><label>KILÓMETROS DEL MES</label><input id="mkm-val" type="number" placeholder="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-km')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addKm()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-mant">
+  <div class="modal">
+    <h2>REGISTRAR MANTENIMIENTO</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>UNIDAD</label><select id="mm-pat"></select></div>
+      <div class="form-group"><label>TIPO</label><select id="mm-tipo"><option>Service general</option><option>Cambio de aceite</option><option>Cubiertas</option><option>Frenos</option><option>Transmisión</option><option>Motor</option><option>Reparación</option><option>Otro</option></select></div>
+      <div class="form-group"><label>FECHA</label><input id="mm-fecha" type="date"></div>
+      <div class="form-group"><label>KM AL SERVICE</label><input id="mm-km" type="number" placeholder="0"></div>
+      <div class="form-group"><label>PRÓXIMO SERVICE (KM)</label><input id="mm-proxkm" type="number" placeholder="0"></div>
+      <div class="form-group"><label>COSTO ($)</label><input id="mm-costo" type="number" placeholder="0"></div>
+      <div class="form-group"><label>TALLER</label><input id="mm-taller" placeholder="Nombre taller"></div>
+      <div class="form-group full"><label>OBSERVACIONES</label><textarea id="mm-obs" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-mant')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addMantenimiento()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-doc">
+  <div class="modal">
+    <h2>DOCUMENTO / VENCIMIENTO</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>UNIDAD</label><select id="md-pat"><option value="SOCIEDAD">SOCIEDAD</option></select></div>
+      <div class="form-group"><label>TIPO</label><select id="md-tipo"><option>VTV</option><option>Seguro</option><option>Patente</option><option>Habilitación</option><option>RTO</option><option>Licencia</option><option>Otro</option></select></div>
+      <div class="form-group"><label>FECHA VENCIMIENTO</label><input id="md-venc" type="date"></div>
+      <div class="form-group"><label>PROVEEDOR/ENTIDAD</label><input id="md-prov" placeholder="Triunfo Coop. Seg..."></div>
+      <div class="form-group"><label>COSTO ANUAL ($)</label><input id="md-costo" type="number" placeholder="0"></div>
+      <div class="form-group full"><label>NOTAS</label><input id="md-notas" placeholder="Observaciones"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-doc')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addDoc()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-factura">
+  <div class="modal">
+    <h2>NUEVA FACTURA</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>N° FACTURA</label><input id="nf-num" placeholder="Auto"></div>
+      <div class="form-group"><label>TIPO</label><select id="nf-tipo"><option value="">Factura</option><option value="NOTA">Nota de Crédito</option></select></div>
+      <div class="form-group"><label>FECHA EMISIÓN</label><input id="nf-fecha" type="date"></div>
+      <div class="form-group"><label>EMPRESA</label><input id="nf-emp" placeholder="Nombre empresa" list="emp-list"></div>
+      <datalist id="emp-list"></datalist>
+      <div class="form-group"><label>CUIT</label><input id="nf-cuit" placeholder="30-XXXXXXXX-X"></div>
+      <div class="form-group"><label>MONTO NETO ($)</label><input id="nf-monto" type="number" oninput="calcIVA()" placeholder="0"></div>
+      <div class="form-group"><label>IVA (21% auto si dejás 0)</label><input id="nf-iva" type="number" placeholder="auto"></div>
+      <div class="form-group"><label>VENCIMIENTO</label><input id="nf-venc" type="date"></div>
+      <div class="form-group"><label>ESTADO</label><select id="nf-est"><option value="">PENDIENTE</option><option value="PAGO">PAGADO</option></select></div>
+      <div class="form-group"><label>FECHA PAGO</label><input id="nf-fpago" type="date"></div>
+      <div class="form-group"><label>FORMA DE PAGO</label><input id="nf-forma" placeholder="Transferencia / Cheque..."></div>
+      <div class="form-group full"><label>OBSERVACIONES</label><input id="nf-obs" placeholder="Notas internas"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-factura')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addFactura()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-cheque">
+  <div class="modal">
+    <h2>REGISTRAR CHEQUE DIFERIDO</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>N° CHEQUE</label><input id="nc-num" placeholder="28903918"></div>
+      <div class="form-group"><label>BANCO</label><input id="nc-banco" placeholder="BCO GALICIA"></div>
+      <div class="form-group"><label>EMPRESA EMISORA</label><input id="nc-emp" placeholder="Nombre empresa"></div>
+      <div class="form-group"><label>MONTO ($)</label><input id="nc-monto" type="number" placeholder="0"></div>
+      <div class="form-group"><label>FECHA DE COBRO</label><input id="nc-fecha" type="date"></div>
+      <div class="form-group"><label>FACTURA ASOCIADA (N°)</label><input id="nc-fac" placeholder="Opcional"></div>
+      <div class="form-group full"><label>OBSERVACIONES</label><input id="nc-obs" placeholder="Notas"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-cheque')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addCheque()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-gasto">
+  <div class="modal">
+    <h2>NUEVO GASTO</h2>
+    <div class="form-grid">
+      <div class="form-group full"><label>CONCEPTO</label><input id="ng-con" placeholder="Descripción del gasto"></div>
+      <div class="form-group"><label>FECHA</label><input id="ng-fecha" type="date"></div>
+      <div class="form-group"><label>MONTO ($)</label><input id="ng-monto" type="number" placeholder="0"></div>
+      <div class="form-group"><label>ORIGEN / CUENTA</label><input id="ng-orig" placeholder="HB JULI, CAJA SOCIEDAD..."></div>
+      <div class="form-group"><label>CATEGORÍA</label><select id="ng-cat"><option>Administrativo</option><option>Operativo</option><option>Impuestos</option><option>Seguros</option><option>Mantenimiento</option><option>Patentes</option><option>Contador</option><option>Otro</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-gasto')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addGasto()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-aporte">
+  <div class="modal">
+    <h2>REGISTRAR APORTE DE SOCIO</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>SOCIO</label><select id="na-socio"></select></div>
+      <div class="form-group"><label>CONCEPTO</label><input id="na-con" placeholder="Camioneta 5 - Aporte inicial"></div>
+      <div class="form-group"><label>MONTO ($ARS)</label><input id="na-monto" type="number" placeholder="0"></div>
+      <div class="form-group"><label>MONTO (USD)</label><input id="na-usd" type="number" placeholder="0"></div>
+      <div class="form-group"><label>FECHA</label><input id="na-fecha" type="date"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-aporte')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addAporte()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="modal-contrato">
+  <div class="modal">
+    <h2>NUEVO CONTRATO</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>EMPRESA / CLIENTE</label><input id="nc2-emp" placeholder="Nombre empresa" list="emp-list2"><datalist id="emp-list2"></datalist></div>
+      <div class="form-group"><label>UNIDAD (PATENTE)</label><select id="nc2-pat"></select></div>
+      <div class="form-group"><label>PRECIO NETO MENSUAL ($)</label><input id="nc2-precio" type="number" placeholder="0"></div>
+      <div class="form-group"><label>IVA</label><select id="nc2-iva"><option value="0.21">21%</option><option value="0.105">10.5%</option><option value="0">Exento</option></select></div>
+      <div class="form-group"><label>FECHA INICIO</label><input id="nc2-inicio" type="date"></div>
+      <div class="form-group"><label>FECHA FIN (opcional)</label><input id="nc2-fin" type="date"></div>
+      <div class="form-group"><label>DÍA DE FACTURACIÓN</label><input id="nc2-dia" type="number" placeholder="1-31" min="1" max="31"></div>
+      <div class="form-group"><label>ESTADO</label><select id="nc2-est"><option value="activo">Activo</option><option value="suspendido">Suspendido</option><option value="finalizado">Finalizado</option></select></div>
+      <div class="form-group full"><label>OBSERVACIONES</label><textarea id="nc2-obs" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-contrato')">CANCELAR</button>
+      <button class="btn btn-primary" onclick="addContrato()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const MESES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+const MESES_SHORT = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const COLORES = ['#e8b84b','#5b9cf6','#3ecf8e','#f26b6b','#a78bfa','#f59e42','#22d3ee','#fb7185'];
+
+// ============================================================
+// FIREBASE CONFIG — completar con tus credenciales
+// ============================================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB_AXAYAV0ElIIDRxM7v-gt-Y62LYhEZb8",
+  authDomain: "pkhservicios-63c51.firebaseapp.com",
+  databaseURL: "https://pkhservicios-63c51-default-rtdb.firebaseio.com",
+  projectId: "pkhservicios-63c51",
+  storageBucket: "pkhservicios-63c51.firebasestorage.app",
+  messagingSenderId: "478568014632",
+  appId: "1:478568014632:web:e4ed4c79c643b7e7dce61d",
+  measurementId: "G-3L84RG440H"
+};
+
+// PIN de acceso compartido (podés cambiarlo)
+const ACCESS_PIN = "PKH2024";
+
+let db = null;
+let firebaseReady = false;
+let syncStatus = 'offline'; // 'offline' | 'syncing' | 'online'
+
+function initFirebase() {
+  try {
+    if (FIREBASE_CONFIG.apiKey === "REEMPLAZAR") {
+      console.warn("Firebase no configurado — usando localStorage");
+      firebaseReady = false;
+      return;
+    }
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    firebaseReady = true;
+    setSyncStatus('online');
+    console.log("Firebase conectado OK");
+  } catch(e) {
+    console.error("Error Firebase:", e);
+    firebaseReady = false;
+  }
+}
+
+function setSyncStatus(status) {
+  syncStatus = status;
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const icons = { online: '🟢', syncing: '🔄', offline: '🔴', error: '🔴' };
+  const labels = { online: 'SINCRONIZADO', syncing: 'GUARDANDO...', offline: 'LOCAL', error: 'ERROR' };
+  const colors = { online: 'var(--green)', syncing: 'var(--orange)', offline: 'var(--muted)', error: 'var(--red)' };
+  el.innerHTML = `<span style="color:${colors[status]};font-size:11px;font-family:var(--fm)">${icons[status]} ${labels[status]}</span>`;
+}
+
+// localStorage fallback
+function load(k, def) {
+  try {
+    const s = localStorage.getItem(k);
+    return s ? JSON.parse(s) : JSON.parse(JSON.stringify(def));
+  } catch(e) {
+    return JSON.parse(JSON.stringify(def));
+  }
+}
+
+function save(k, d) {
+  // Always save locally first (instant)
+  localStorage.setItem(k, JSON.stringify(d));
+  // Then sync to Firebase if available
+  if (firebaseReady && db) {
+    setSyncStatus('syncing');
+    db.ref('pkh/' + k).set(d)
+      .then(() => setSyncStatus('online'))
+      .catch(err => { console.error('Firebase save error:', err); setSyncStatus('error'); });
+  }
+}
+
+async function loadFromFirebase() {
+  if (!firebaseReady || !db) return false;
+  try {
+    setSyncStatus('syncing');
+    const snap = await db.ref('pkh').once('value');
+    const data = snap.val();
+    if (!data) { setSyncStatus('online'); return false; }
+    // Update all state variables from Firebase
+    const keys = ['pkhv2_flota','pkhv2_km','pkhv2_fac','pkhv2_gas','pkhv2_mant',
+                  'pkhv2_docs','pkhv2_cheq','pkhv2_hb','pkhv2_contratos',
+                  'pkhv2_socios','pkhv2_aport','pkhv2_costos'];
+    keys.forEach(k => {
+      if (data[k]) localStorage.setItem(k, JSON.stringify(data[k]));
+    });
+    setSyncStatus('online');
+    return true;
+  } catch(e) {
+    console.error('Firebase load error:', e);
+    setSyncStatus('error');
+    return false;
+  }
+}
+
+function setupRealtimeSync() {
+  if (!firebaseReady || !db) return;
+  // Listen for changes from other users
+  db.ref('pkh').on('value', (snap) => {
+    const data = snap.val();
+    if (!data) return;
+    const keys = ['pkhv2_flota','pkhv2_km','pkhv2_fac','pkhv2_gas','pkhv2_mant',
+                  'pkhv2_docs','pkhv2_cheq','pkhv2_contratos',
+                  'pkhv2_socios','pkhv2_aport','pkhv2_costos'];
+    let changed = false;
+    keys.forEach(k => {
+      if (data[k]) {
+        const current = localStorage.getItem(k);
+        const incoming = JSON.stringify(data[k]);
+        if (current !== incoming) {
+          localStorage.setItem(k, incoming);
+          changed = true;
+        }
+      }
+    });
+    if (changed) {
+      reloadAllState();
+      const panel = document.querySelector('.nav-item.active');
+      if (panel) renderPanel(panel.dataset.panel);
+      showToast('🔄 Datos actualizados por otro usuario');
+    }
+    setSyncStatus('online');
+  });
+}
+
+function reloadAllState() {
+  flota = load('pkhv2_flota', DEF_FLOTA);
+  km = load('pkhv2_km', DEF_KM);
+  facturas = load('pkhv2_fac', DEF_FAC);
+  gastos = load('pkhv2_gas', DEF_GAS);
+  mantenimiento = load('pkhv2_mant', DEF_MANT);
+  documentos = load('pkhv2_docs', DEF_DOCS);
+  cheques = load('pkhv2_cheq', DEF_CHEQUES);
+  contratos = load('pkhv2_contratos', DEF_CONTRATOS);
+  socios = load('pkhv2_socios', DEF_SOCIOS);
+  aportes = load('pkhv2_aport', DEF_APORTES);
+  costosMes = load('pkhv2_costos', DEF_COSTOS);
+}
+const $=id=>document.getElementById(id);
+
+// ---- DEFAULT DATA ----
+const DEF_FLOTA=[
+  {id:'AG-870-VZ',pat:'AG-870-VZ',tipo:'propia',cli:'SV GROUP SAS SAS',fecha:'2025-05-16',kmEnt:27850,modelo:'Toyota Hilux',anio:2023,valor:42000000,notas:''},
+  {id:'AG-455-AR',pat:'AG-455-AR',tipo:'propia',cli:'IVAN SEBASTIAN RUBILAR GUERRERO',fecha:'2025-05-28',kmEnt:36291,modelo:'Toyota Hilux',anio:2023,valor:37643120,notas:''},
+  {id:'AH-253-PY',pat:'AH-253-PY',tipo:'propia',cli:'HACER VIAL',fecha:'2026-02-20',kmEnt:22015,modelo:'Toyota Hilux',anio:2024,valor:45596880,notas:''},
+  {id:'AG-832-SV',pat:'AG-832-SV',tipo:'propia',cli:'TBH SERVICIOS SAS',fecha:'2025-09-02',kmEnt:38729,modelo:'Toyota Hilux',anio:2024,valor:47446200,notas:''},
+  {id:'AH-751-LZ',pat:'AH-751-LZ',tipo:'propia',cli:'MAGHREB S.A',fecha:'2026-03-04',kmEnt:4560,modelo:'Toyota Hilux',anio:2024,valor:49570600,notas:''},
+  {id:'AI-029-FZ',pat:'AI-029-FZ',tipo:'subalquilada',cli:'MAGHREB S.A',fecha:'2026-02-23',kmEnt:1500,modelo:'Toyota Hilux',anio:2025,valor:51147287,notas:''},
+  {id:'AH-817-LG',pat:'AH-817-LG',tipo:'subalquilada',cli:'MAGHREB S.A',fecha:'2026-03-04',kmEnt:5077,modelo:'Toyota Hilux',anio:2025,valor:0,notas:''},
+];
+const DEF_KM=[
+  {pat:'AG-870-VZ',mes:'MAYO',anio:'2025',km:1016},{pat:'AG-870-VZ',mes:'JUNIO',anio:'2025',km:1951},
+  {pat:'AG-870-VZ',mes:'JULIO',anio:'2025',km:1793},{pat:'AG-870-VZ',mes:'AGOSTO',anio:'2025',km:1822},
+  {pat:'AG-870-VZ',mes:'SEPTIEMBRE',anio:'2025',km:4121},{pat:'AG-870-VZ',mes:'OCTUBRE',anio:'2025',km:5802},
+  {pat:'AG-870-VZ',mes:'NOVIEMBRE',anio:'2025',km:4077},{pat:'AG-870-VZ',mes:'DICIEMBRE',anio:'2025',km:6561},
+  {pat:'AG-870-VZ',mes:'ENERO',anio:'2026',km:3542},{pat:'AG-870-VZ',mes:'FEBRERO',anio:'2026',km:3239},
+  {pat:'AG-455-AR',mes:'MAYO',anio:'2025',km:1575},{pat:'AG-455-AR',mes:'JUNIO',anio:'2025',km:3463},
+  {pat:'AG-455-AR',mes:'JULIO',anio:'2025',km:2542},{pat:'AG-455-AR',mes:'AGOSTO',anio:'2025',km:1761},
+  {pat:'AG-455-AR',mes:'SEPTIEMBRE',anio:'2025',km:1567},{pat:'AG-455-AR',mes:'OCTUBRE',anio:'2025',km:2791},
+  {pat:'AG-455-AR',mes:'NOVIEMBRE',anio:'2025',km:1551},{pat:'AG-455-AR',mes:'DICIEMBRE',anio:'2025',km:2724},
+  {pat:'AG-455-AR',mes:'ENERO',anio:'2026',km:5804},{pat:'AG-455-AR',mes:'FEBRERO',anio:'2026',km:2096},
+  {pat:'AH-253-PY',mes:'ABRIL',anio:'2025',km:1219},{pat:'AH-253-PY',mes:'MAYO',anio:'2025',km:2884},
+  {pat:'AH-253-PY',mes:'JUNIO',anio:'2025',km:2848},{pat:'AH-253-PY',mes:'JULIO',anio:'2025',km:3104},
+  {pat:'AH-253-PY',mes:'AGOSTO',anio:'2025',km:2947},{pat:'AH-253-PY',mes:'SEPTIEMBRE',anio:'2025',km:2322},
+  {pat:'AH-253-PY',mes:'OCTUBRE',anio:'2025',km:2061},{pat:'AH-253-PY',mes:'NOVIEMBRE',anio:'2025',km:1390},
+  {pat:'AH-253-PY',mes:'DICIEMBRE',anio:'2025',km:1152},{pat:'AH-253-PY',mes:'ENERO',anio:'2026',km:113},
+  {pat:'AH-253-PY',mes:'FEBRERO',anio:'2026',km:828},
+  {pat:'AG-832-SV',mes:'AGOSTO',anio:'2025',km:189},{pat:'AG-832-SV',mes:'SEPTIEMBRE',anio:'2025',km:5360},
+  {pat:'AG-832-SV',mes:'OCTUBRE',anio:'2025',km:6291},{pat:'AG-832-SV',mes:'NOVIEMBRE',anio:'2025',km:7692},
+  {pat:'AG-832-SV',mes:'DICIEMBRE',anio:'2025',km:8130},{pat:'AG-832-SV',mes:'ENERO',anio:'2026',km:10783},
+  {pat:'AG-832-SV',mes:'FEBRERO',anio:'2026',km:9589},
+  {pat:'AH-751-LZ',mes:'DICIEMBRE',anio:'2025',km:2998},
+];
+const DEF_FAC=[
+  {id:1,num:1,fecha:'2024-03-10',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:1850000,iva:385000,total:2238500,venc:'2024-12-03',est:'PAGO',fpago:'2025-09-12',forma:'CHEQUE - 392835651',obs:''},
+  {id:2,num:2,fecha:'2024-06-11',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:1850000,iva:385000,total:2238500,venc:'2025-06-01',est:'PAGO',fpago:'2025-01-14',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:3,num:3,fecha:'2024-03-12',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:1850000,iva:385000,total:2238500,venc:'2025-03-02',est:'PAGO',fpago:'2025-10-02',forma:'CHEQUE -40408117',obs:''},
+  {id:4,num:4,fecha:'2024-12-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-01-27',est:'PAGO',fpago:'2025-01-23',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:5,num:5,fecha:'2024-12-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-01-27',est:'PAGO',fpago:'2025-01-23',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:6,num:6,fecha:'2025-06-01',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:1988750,iva:417637,total:2406387,venc:'2025-06-03',est:'PAGO',fpago:'2025-03-15',forma:'CHEQUE -26777807',obs:''},
+  {id:7,num:7,fecha:'2025-01-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-02-27',est:'PAGO',fpago:'2025-02-27',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:8,num:8,fecha:'2025-01-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-02-27',est:'PAGO',fpago:'2025-02-27',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:9,num:9,fecha:'2025-05-02',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:1988750,iva:417637,total:2406387,venc:'2025-05-04',est:'PAGO',fpago:'2025-12-04',forma:'CHEQUE - 26927677',obs:''},
+  {id:10,num:10,fecha:'2025-02-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-03-27',est:'PAGO',fpago:'2025-03-27',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:11,num:11,fecha:'2025-02-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-03-27',est:'PAGO',fpago:'2025-03-27',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:12,num:12,fecha:'2025-06-03',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:1988750,iva:417637,total:2406387,venc:'2025-05-05',est:'PAGO',fpago:'2025-09-05',forma:'CHEQUE -10507257',obs:''},
+  {id:13,num:13,fecha:'2025-03-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-04-27',est:'PAGO',fpago:'2025-05-02',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:14,num:14,fecha:'2025-03-27',emp:'E2E SA',cuit:'30717491277',monto:1700000,iva:357000,total:2057000,venc:'2025-04-27',est:'PAGO',fpago:'2025-05-02',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:15,num:15,fecha:'2025-09-04',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:2127962,iva:446872,total:2574834,venc:'2025-06-05',est:'PAGO',fpago:'2025-06-14',forma:'CHEQUE - 272274728',obs:''},
+  {id:16,num:16,fecha:'2025-04-21',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1850000,iva:388500,total:2238500,venc:'2025-05-21',est:'',fpago:'',forma:'',obs:'FACTURA MAL HECHA'},
+  {id:'nc1',num:'NC-1',fecha:'2025-04-29',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1850000,iva:388500,total:2238500,venc:'2025-05-21',est:'NOTA',fpago:'',forma:'',obs:'NOTA CRÉDITO'},
+  {id:17,num:17,fecha:'2025-04-29',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:863333,iva:181300,total:1044633,venc:'2025-05-17',est:'PAGO',fpago:'2025-07-16',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:18,num:18,fecha:'2025-05-05',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:2127962,iva:446872,total:2574834,venc:'2025-05-07',est:'PAGO',fpago:'2025-12-07',forma:'CHEQUE - 27423934',obs:''},
+  {id:19,num:19,fecha:'2025-05-30',emp:'E2E SA',cuit:'30717491277',monto:1803150,iva:378661,total:2181811,venc:'2025-06-15',est:'PAGO',fpago:'2025-06-15',forma:'CHEQUE - 00000050',obs:''},
+  {id:20,num:20,fecha:'2025-05-30',emp:'E2E SA',cuit:'30717491277',monto:2937150,iva:616801,total:3553951,venc:'2025-07-15',est:'PAGO',fpago:'2025-07-15',forma:'CHEQUE - 00000051',obs:''},
+  {id:21,num:21,fecha:'2025-06-03',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1850000,iva:388500,total:2238500,venc:'2025-07-03',est:'PAGO',fpago:'2025-08-04',forma:'CHEQUE - 00000272',obs:''},
+  {id:22,num:22,fecha:'2025-06-03',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2025-07-18',est:'PAGO',fpago:'2025-07-18',forma:'CHEQUE -10745192',obs:''},
+  {id:23,num:23,fecha:'2025-06-03',emp:'SAM ENERGY SRL',cuit:'30717569179',monto:2127962,iva:446872,total:2574834,venc:'2025-08-03',est:'PAGO',fpago:'2025-08-02',forma:'CHEQUE - 27554903',obs:''},
+  {id:24,num:24,fecha:'2025-06-03',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2025-07-03',est:'PAGO',fpago:'2025-11-07',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:25,num:25,fecha:'2025-07-02',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:200000,iva:42000,total:242000,venc:'2025-11-07',est:'PAGO',fpago:'2025-11-07',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:26,num:26,fecha:'2025-07-03',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1850000,iva:388500,total:2238500,venc:'2025-08-03',est:'PAGO',fpago:'2025-08-04',forma:'CHEQUE - 00000272',obs:''},
+  {id:27,num:27,fecha:'2025-07-03',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2025-08-18',est:'PAGO',fpago:'2025-08-20',forma:'CHEQUE - 10745194',obs:''},
+  {id:28,num:28,fecha:'2025-07-03',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2025-08-03',est:'PAGO',fpago:'2025-08-20',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:29,num:29,fecha:'2025-08-06',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1850000,iva:388500,total:2238500,venc:'2025-09-06',est:'PAGO',fpago:'2025-09-10',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:30,num:30,fecha:'2025-08-06',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2025-09-18',est:'PAGO',fpago:'2026-11-07',forma:'CHEQUE - 10745203',obs:''},
+  {id:31,num:31,fecha:'2025-08-06',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2025-09-06',est:'PAGO',fpago:'2025-09-27',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:32,num:32,fecha:'2025-09-05',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1850000,iva:388500,total:2238500,venc:'2025-10-05',est:'PAGO',fpago:'2025-10-17',forma:'CHEQUE - 00000339',obs:''},
+  {id:33,num:33,fecha:'2025-09-05',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:1000000,iva:210000,total:1210000,venc:'2025-10-18',est:'PAGO',fpago:'2026-01-10',forma:'CHEQUE -10745197',obs:''},
+  {id:34,num:34,fecha:'2025-09-05',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2025-10-05',est:'PAGO',fpago:'2025-10-24',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:35,num:35,fecha:'2025-12-09',emp:'TBH SERVICIOS SAS',cuit:'30716418967',monto:1900000,iva:399000,total:2299000,venc:'2025-10-08',est:'PAGO',fpago:'2025-12-10',forma:'CHEQUE: 27954930 - 27954925',obs:''},
+  {id:36,num:36,fecha:'2025-10-07',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1950000,iva:409500,total:2359500,venc:'2025-11-07',est:'PAGO',fpago:'2025-11-20',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:37,num:37,fecha:'2025-10-07',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2025-11-18',est:'PAGO',fpago:'2025-12-16',forma:'CHEQUE -10745209',obs:''},
+  {id:38,num:38,fecha:'2025-10-07',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2025-11-07',est:'PAGO',fpago:'2025-11-14',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:39,num:39,fecha:'2025-10-07',emp:'TBH SERVICIOS SAS',cuit:'30716418967',monto:1900000,iva:399000,total:2299000,venc:'2025-11-07',est:'PAGO',fpago:'2026-07-12',forma:'CHEQUE: 28225958 - 28225957',obs:''},
+  {id:40,num:40,fecha:'2025-11-07',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1950000,iva:409500,total:2359500,venc:'2025-12-07',est:'PAGO',fpago:'2025-12-12',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:41,num:41,fecha:'2025-11-07',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2025-12-18',est:'PAGO',fpago:'2026-05-01',forma:'CHEQUE - 10745210',obs:''},
+  {id:42,num:42,fecha:'2025-11-07',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2025-12-07',est:'PAGO',fpago:'2026-12-01',forma:'EFECTIVO',obs:''},
+  {id:43,num:43,fecha:'2025-11-07',emp:'TBH SERVICIOS SAS',cuit:'30716418967',monto:1900000,iva:399000,total:2299000,venc:'2025-12-07',est:'PAGO',fpago:'2026-09-01',forma:'CHEQUE - 28396009',obs:''},
+  {id:44,num:44,fecha:'2025-12-09',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1950000,iva:409500,total:2359500,venc:'2026-09-01',est:'PAGO',fpago:'2026-01-15',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:45,num:45,fecha:'2025-12-09',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2026-01-18',est:'',fpago:'',forma:'',obs:'ESTA FACTURA NO LA PAGO'},
+  {id:46,num:46,fecha:'2025-12-09',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2026-09-01',est:'PAGO',fpago:'2026-01-21',forma:'BCO GALICIA - TRANSF',obs:''},
+  {id:47,num:47,fecha:'2025-12-09',emp:'TBH SERVICIOS SAS',cuit:'30716418967',monto:1900000,iva:399000,total:2299000,venc:'2026-09-01',est:'PAGO',fpago:'2026-02-20',forma:'CHEQUE - 28652072 - 28652063',obs:''},
+  {id:48,num:48,fecha:'2025-12-23',emp:'GRUPO CIMBRA SAS',cuit:'30716758369',monto:700000,iva:147000,total:847000,venc:'2026-01-10',est:'PAGO',fpago:'2025-12-26',forma:'',obs:''},
+  {id:49,num:49,fecha:'2026-01-08',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1950000,iva:409500,total:2359500,venc:'2026-02-08',est:'',fpago:'',forma:'FACTURA MAL HECHA',obs:'FACTURA MAL HECHA'},
+  {id:'nc2',num:'NC-2',fecha:'2026-01-08',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1850000,iva:388500,total:2238500,venc:'2026-02-08',est:'NOTA',fpago:'',forma:'',obs:'NOTA CRÉDITO'},
+  {id:50,num:50,fecha:'2026-01-08',emp:'GRUPO TERGO LAF SRL',cuit:'33709452539',monto:1950000,iva:409500,total:2359500,venc:'2026-02-08',est:'',fpago:'',forma:'',obs:'NO SE SI CORRESPONDE - NO LA PAGARON'},
+  {id:51,num:51,fecha:'2026-01-08',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2593180,iva:544567,total:3137747,venc:'2026-02-18',est:'PAGO',fpago:'2026-02-08',forma:'CHEQUE -10745220',obs:''},
+  {id:52,num:52,fecha:'2026-01-08',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2026-02-08',est:'PAGO',fpago:'2026-02-03',forma:'COMPENSA CON JULI SERVICES',obs:''},
+  {id:53,num:53,fecha:'2026-01-08',emp:'TBH SERVICIOS SAS',cuit:'30716418967',monto:4602940,iva:966617,total:5569557,venc:'2026-02-08',est:'',fpago:'2026-03-21',forma:'CHEQUE - 28652072',obs:''},
+  {id:54,num:54,fecha:'2026-02-09',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2026-03-18',est:'PAGO',fpago:'2026-03-13',forma:'CHEQUE - 10745226',obs:''},
+  {id:55,num:55,fecha:'2026-02-09',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2026-03-09',est:'',fpago:'',forma:'',obs:''},
+  {id:56,num:56,fecha:'2026-02-09',emp:'TBH SERVICIOS SAS',cuit:'30716418967',monto:4097540,iva:860483,total:4958023,venc:'2026-03-09',est:'',fpago:'',forma:'',obs:''},
+  {id:57,num:57,fecha:'2026-03-05',emp:'SV GROUP SAS SAS',cuit:'30718577485',monto:2000000,iva:420000,total:2420000,venc:'2026-04-18',est:'',fpago:'',forma:'',obs:''},
+  {id:58,num:58,fecha:'2026-03-05',emp:'IVAN SEBASTIAN RUBILAR GUERRERO',cuit:'20408075107',monto:2000000,iva:420000,total:2420000,venc:'2026-04-05',est:'',fpago:'',forma:'',obs:''},
+  {id:59,num:59,fecha:'2026-03-05',emp:'TBH SERVICIOS SAS',cuit:'30716418967',monto:3643440,iva:765122,total:4408562,venc:'2026-04-05',est:'',fpago:'',forma:'',obs:''},
+  {id:60,num:60,fecha:'2026-03-16',emp:'MAGHREB S.A',cuit:'30718033159',monto:900000,iva:189000,total:1089000,venc:'2026-04-16',est:'',fpago:'2026-04-15',forma:'CHEQUE - 00002527',obs:''},
+  {id:61,num:61,fecha:'2026-03-17',emp:'HACER VIAL S.A',cuit:'30717352250',monto:1750000,iva:367500,total:2117500,venc:'2026-03-28',est:'',fpago:'',forma:'',obs:'FACTURA MAL HECHA'},
+  {id:'nc3',num:'NC-3',fecha:'2026-03-18',emp:'HACER VIAL S.A',cuit:'30717352250',monto:1750000,iva:367500,total:2117500,venc:'2026-03-28',est:'NOTA',fpago:'',forma:'',obs:'NOTA CRÉDITO'},
+  {id:62,num:62,fecha:'2026-03-18',emp:'APARICIO DANIEL ALEJANDRO',cuit:'23257435849',monto:1750000,iva:367500,total:2117500,venc:'2026-03-28',est:'',fpago:'2026-03-28',forma:'CHEQUE - 28903918',obs:''},
+  {id:63,num:63,fecha:'2026-03-18',emp:'MAGHREB S.A',cuit:'30718033159',monto:5700000,iva:1197000,total:6897000,venc:'2026-04-18',est:'',fpago:'',forma:'',obs:''},
+];
+const DEF_GAS=[{"id":1,"con":"TOMA DE VISTA EXPEDIENTE REGISTRO P.COMERC","fecha":"2024-07-22","monto":1547.0,"orig":"HB DIEGO","cat":"Otro"},{"id":2,"con":"TASA DE JUSTICIA REGISTRO PUB.COMERCIO - HOMONIMOS","fecha":"2024-07-23","monto":11004.0,"orig":"HB JULI","cat":"Administrativo"},{"id":3,"con":"PUBLICACIÓN DE EDICTOS","fecha":"2024-07-24","monto":81101.0,"orig":"HB JULI","cat":"Administrativo"},{"id":4,"con":"SELLADO CONTRATO SOCIAL","fecha":"2024-07-24","monto":9800.0,"orig":"HB JULI","cat":"Administrativo"},{"id":5,"con":"CERTIFICACION DE FIRMAS CONTRATO  Y INTEGRACIÓN DE APORTES","fecha":"2024-08-02","monto":110000.0,"orig":"HB DIEGO","cat":"Administrativo"},{"id":6,"con":"TASAS INSCRIPCIÓN SOCIEDAD","fecha":"2024-08-13","monto":288860.0,"orig":"HB JULI","cat":"Administrativo"},{"id":7,"con":"RESERVA","fecha":"2024-08-14","monto":300000.0,"orig":"HB DIEGO","cat":"Administrativo"},{"id":8,"con":"EDICTO","fecha":"2024-08-27","monto":68077.1,"orig":"HB LEO","cat":"Administrativo"},{"id":9,"con":"CERTIFICACION DE DOMICILIO FISCAL","fecha":"2024-08-29","monto":90000.0,"orig":"HB LEO","cat":"Administrativo"},{"id":10,"con":"PAGO A CONTADOR - AROCENA","fecha":"2024-09-13","monto":250000.0,"orig":"HB LEO","cat":"Contador"},{"id":11,"con":"PATENTAMIENTO DE LA CAMIONETA","fecha":"2024-09-23","monto":1000000.0,"orig":"HB LEO","cat":"Patentes"},{"id":12,"con":"RSV","fecha":"2024-09-24","monto":307809.48,"orig":"HB LEO","cat":"Operativo"},{"id":13,"con":"INYECCION DE DINERO PARA SEGURO","fecha":"2024-09-25","monto":200000.0,"orig":"HB LEO","cat":"Seguros"},{"id":14,"con":"GONZALO EQUIPAMIENTO","fecha":"2024-09-25","monto":1632000.0,"orig":"HB LEO","cat":"Operativo"},{"id":15,"con":"MICROTRACK","fecha":"2024-09-27","monto":291639.0,"orig":"HB LEO","cat":"Operativo"},{"id":16,"con":"VEP HERRERA MONTOVIO","fecha":"2024-04-10","monto":84258.1,"orig":"HB LEO","cat":"Impuestos"},{"id":17,"con":"PATENTAMIENTO DE LA CAMIONETA 2","fecha":"2024-10-18","monto":888200.0,"orig":"CAJA SOCIEDAD","cat":"Patentes"},{"id":18,"con":"VUELOS A A CORDOBA","fecha":"2024-10-22","monto":260562.0,"orig":"HB LEO","cat":"Otro"},{"id":19,"con":"NAFTA","fecha":"2024-10-25","monto":206027.0,"orig":"CAJA SOCIEDAD","cat":"Otro"},{"id":20,"con":"PEAJE","fecha":"2024-10-25","monto":6200.0,"orig":"CAJA SOCIEDAD","cat":"Otro"},{"id":21,"con":"PODER GENERAL","fecha":"2024-10-28","monto":150000.0,"orig":"HB GASTON","cat":"Administrativo"},{"id":22,"con":"LAVADA CAMIONETA","fecha":"2024-10-28","monto":25000.0,"orig":"CAJA SOCIEDAD","cat":"Otro"},{"id":23,"con":"GONZALO EQUIPAMIENTO 2DA CAMIONETA","fecha":"2024-10-30","monto":1631000.0,"orig":"HB LEO","cat":"Operativo"},{"id":24,"con":"INYECCION DE DINERO PARA SEGUROS","fecha":"2024-10-31","monto":305500.0,"orig":"CAJA SOCIEDAD","cat":"Seguros"},{"id":25,"con":"VEP HERRERA MONTOVIO","fecha":"2024-05-11","monto":87771.66,"orig":"HB LEO","cat":"Impuestos"},{"id":26,"con":"LIBROS SOCIETARIOS","fecha":"2024-07-11","monto":242000.0,"orig":"HB LEO","cat":"Administrativo"},{"id":27,"con":"HONORARIOS CONTADOR","fecha":"2024-07-11","monto":310195.6,"orig":"HB LEO","cat":"Contador"},{"id":28,"con":"INGRESOS BRUTOS","fecha":"2024-11-13","monto":55725.75,"orig":"CAJA SOCIEDAD","cat":"Impuestos"},{"id":29,"con":"MICROTRACK","fecha":"2024-11-19","monto":27107.18,"orig":"CAJA SOCIEDAD","cat":"Operativo"},{"id":30,"con":"INYECCION DE DINERO PARA SEGURO","fecha":"2024-11-29","monto":100000.0,"orig":"HB LEO","cat":"Seguros"},{"id":31,"con":"VEP HERRERA MONTOVIO","fecha":"2024-04-12","monto":90817.34,"orig":"HB LEO","cat":"Impuestos"},{"id":32,"con":"2DO MICROTRACK","fecha":"2024-05-12","monto":201337.5,"orig":"HB LEO","cat":"Operativo"},{"id":33,"con":"HONORARIOS CONTADOR","fecha":"2024-09-12","monto":310195.6,"orig":"HB LEO","cat":"Contador"},{"id":34,"con":"VERIFICACIÓN NACIONAL - PROVINCIAL - 2DA CAMIONETA","fecha":"2024-10-12","monto":281500.0,"orig":"HB GASTON","cat":"Operativo"},{"id":35,"con":"VERIFICACIÓN NACIONAL - PROVINCIAL - CAMIONETA JULIAN GARCIA","fecha":"2024-10-12","monto":281500.0,"orig":"HB GASTON","cat":"Operativo"},{"id":36,"con":"VEP IIBB","fecha":"2024-11-12","monto":58521.49,"orig":"HB LEO","cat":"Impuestos"},{"id":37,"con":"INYECCION DE DINERO PARA PAGAR MICTROTRACK","fecha":"2024-12-26","monto":11000.0,"orig":"HB LEO","cat":"Otro"},{"id":38,"con":"ENVIO DE SOBRE CON CONTRATO","fecha":"2024-12-26","monto":12900.0,"orig":"HB LEO","cat":"Administrativo"},{"id":39,"con":"MICROTRACK","fecha":"2024-12-26","monto":27107.18,"orig":"CAJA SOCIEDAD","cat":"Operativo"},{"id":40,"con":"INYECCION DE DINERO PARA PAGAR SEGUROS","fecha":"2024-12-30","monto":860000.0,"orig":"HB LEO","cat":"Seguros"},{"id":41,"con":"IMP. DEB. LEY 25413 GRAL.","fecha":"2024-12-30","monto":129.0,"orig":"CAJA SOCIEDAD","cat":"Impuestos"},{"id":42,"con":"IMP. CRE. LEY 25413","fecha":"2024-12-30","monto":5160.0,"orig":"CAJA SOCIEDAD","cat":"Impuestos"},{"id":43,"con":"IMP. DEB. LEY 25413 GRAL.","fecha":"2024-12-30","monto":4.55,"orig":"CAJA SOCIEDAD","cat":"Impuestos"},{"id":44,"con":"ING. BRUTOS S/ CRED","fecha":"2024-12-30","monto":21500.0,"orig":"CAJA SOCIEDAD","cat":"Otro"},{"id":45,"con":"IMP. DEB. LEY 25413 GRAL.","fecha":"2025-02-01","monto":1601.68,"orig":"CAJA SOCIEDAD","cat":"Impuestos"},{"id":46,"con":"DEB. AUTOM. DE SERV. // SEGURO","fecha":"2025-02-01","monto":144488.0,"orig":"CAJA SOCIEDAD","cat":"Seguros"},{"id":47,"con":"DEB. AUTOM. DE SERV. // SEGURO","fecha":"2025-02-01","monto":122459.0,"orig":"CAJA SOCIEDAD","cat":"Seguros"},{"id":48,"con":"ABONO CONTADOR","fecha":"2024-06-01","monto":310195.6,"orig":"CAJA SOCIEDAD","cat":"Contador"},{"id":49,"con":"VEP HERRERA MONTOVIO","fecha":"2024-06-01","monto":93260.33,"orig":"HB LEO","cat":"Impuestos"},{"id":50,"con":"VEP IIBB DIC","fecha":"2024-01-14","monto":141408.08,"orig":"CAJA SOCIEDAD","cat":"Impuestos"},{"id":51,"con":"CONTROL DOCUMENTAL","fecha":"2024-01-17","monto":200000.0,"orig":"CAJA SOCIEDAD","cat":"Otro"},{"id":52,"con":"SEÑA 3 CAMIONETA","fecha":"2024-01-17","monto":500000.0,"orig":"CAJA SOCIEDAD","cat":"Otro"},{"id":53,"con":"DEPOSITO 3 ER CAMIONETA","fecha":"2024-01-21","monto":43410000.0,"orig":"CAJA 3 CAMIONETA","cat":"Otro"},{"id":54,"con":"PATENTE - AG-832-SV","fecha":"2024-01-24","monto":452376.0,"orig":"CAJA 3 CAMIONETA","cat":"Patentes"},{"id":55,"con":"PATENTE AG-870-VZ","fecha":"2024-01-24","monto":268129.5,"orig":"CAJA 3 CAMIONETA","cat":"Patentes"},{"id":56,"con":"SERVICES","fecha":"2024-01-24","monto":325200.0,"orig":"CAJA 3 CAMIONETA","cat":"Operativo"},{"id":57,"con":"VEP HERRERA MONTOVIO","fecha":"2025-06-03","monto":98105.78,"orig":"HB SOCIEDAD","cat":"Impuestos"},{"id":58,"con":"ABONO CONTADOR","fecha":"2025-06-03","monto":356950.0,"orig":"HB SOCIEDAD","cat":"Contador"}];
+
+const DEF_HB=[{"id":1,"fecha":"2024-10-31","desc":"Dep.efvo.autoservicio Ticket: 141221","deb":0.0,"cred":305500.0,"grupo":"000915 - Depósitos","concepto":"917302 - DEPOSITO EFECTIVO EN AUTOSERVICIO"},{"id":2,"fecha":"2024-10-31","desc":"Imp. Cre. Ley 25413","deb":1833.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":3,"fecha":"2024-01-11","desc":"Deb. Autom. De Serv.","deb":119845.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":4,"fecha":"2024-01-11","desc":"Deb. Autom. De Serv.","deb":141154.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":5,"fecha":"2024-01-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":1565.99,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":6,"fecha":"2024-12-11","desc":"Cashback Bienvenida Pyme Galicia","deb":0.0,"cred":156177.0,"grupo":"000903 - Créditos Varios","concepto":"917404 - CASHBACK BIENVENIDA PYME GALICIA"},{"id":7,"fecha":"2024-12-11","desc":"Imp. Cre. Ley 25413","deb":937.06,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":8,"fecha":"2024-11-13","desc":"Transf. Afip","deb":55725.75,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907255 - TRANSF. AFIP"},{"id":9,"fecha":"2024-11-13","desc":"Imp. Deb. Ley 25413 Gral.","deb":334.35,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":10,"fecha":"2024-11-19","desc":"Trf Inmed Proveed","deb":27107.18,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":11,"fecha":"2024-11-19","desc":"Imp. Deb. Ley 25413 Gral.","deb":162.64,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":12,"fecha":"2024-11-29","desc":"Transferencia De Terceros","deb":0.0,"cred":100000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":13,"fecha":"2024-11-29","desc":"Imp. Cre. Ley 25413","deb":600.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":14,"fecha":"2024-02-12","desc":"Deb. Autom. De Serv.","deb":122816.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":15,"fecha":"2024-02-12","desc":"Deb. Autom. De Serv.","deb":144009.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":16,"fecha":"2024-02-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":1600.95,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":17,"fecha":"2024-11-12","desc":"Transferencia De Terceros","deb":0.0,"cred":50000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":18,"fecha":"2024-11-12","desc":"Ing. Brutos S/ Cred","deb":1250.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":19,"fecha":"2024-11-12","desc":"Transf. Afip","deb":58521.49,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907255 - TRANSF. AFIP"},{"id":20,"fecha":"2024-11-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":351.13,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":21,"fecha":"2024-11-12","desc":"Imp. Cre. Ley 25413","deb":300.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":22,"fecha":"2024-11-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":7.5,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":23,"fecha":"2024-12-26","desc":"Transferencia De Terceros","deb":0.0,"cred":11000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":24,"fecha":"2024-12-26","desc":"Ing. Brutos S/ Cred","deb":275.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":25,"fecha":"2024-12-26","desc":"Trf Inmed Proveed","deb":27107.18,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":26,"fecha":"2024-12-26","desc":"Imp. Deb. Ley 25413 Gral.","deb":162.64,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":27,"fecha":"2024-12-26","desc":"Imp. Cre. Ley 25413","deb":66.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":28,"fecha":"2024-12-26","desc":"Imp. Deb. Ley 25413 Gral.","deb":1.65,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":29,"fecha":"2024-12-30","desc":"Deb. Autom. De Serv.","deb":757.81,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":30,"fecha":"2024-12-30","desc":"Transferencia De Terceros","deb":0.0,"cred":860000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":31,"fecha":"2024-12-30","desc":"Ing. Brutos S/ Cred","deb":21500.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":32,"fecha":"2024-12-30","desc":"Imp. Deb. Ley 25413 Gral.","deb":4.55,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":33,"fecha":"2024-12-30","desc":"Imp. Cre. Ley 25413","deb":5160.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":34,"fecha":"2024-12-30","desc":"Imp. Deb. Ley 25413 Gral.","deb":129.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":35,"fecha":"2025-02-01","desc":"Deb. Autom. De Serv.","deb":122459.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":36,"fecha":"2025-02-01","desc":"Deb. Autom. De Serv.","deb":144488.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":37,"fecha":"2025-02-01","desc":"Imp. Deb. Ley 25413 Gral.","deb":1601.68,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":38,"fecha":"2025-06-01","desc":"Trf Inmed Proveed","deb":310195.6,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":39,"fecha":"2025-06-01","desc":"Imp. Deb. Ley 25413 Gral.","deb":1861.17,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":40,"fecha":"2025-01-14","desc":"Transf. Afip","deb":141408.08,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907255 - TRANSF. AFIP"},{"id":41,"fecha":"2025-01-14","desc":"Transferencia De Terceros","deb":0.0,"cred":2238500.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":42,"fecha":"2025-01-14","desc":"Ing. Brutos S/ Cred","deb":55962.5,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":43,"fecha":"2025-01-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":848.45,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":44,"fecha":"2025-01-14","desc":"Imp. Cre. Ley 25413","deb":13431.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":45,"fecha":"2025-01-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":335.78,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":46,"fecha":"2025-01-17","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":47,"fecha":"2025-01-17","desc":"Trf Inmed Proveed","deb":500000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":48,"fecha":"2025-01-17","desc":"Transferencia De Terceros","deb":0.0,"cred":100000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":49,"fecha":"2025-01-17","desc":"Ing. Brutos S/ Cred","deb":2500.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":50,"fecha":"2025-01-17","desc":"Imp. Deb. Ley 25413 Gral.","deb":4200.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":51,"fecha":"2025-01-17","desc":"Imp. Cre. Ley 25413","deb":600.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":52,"fecha":"2025-01-17","desc":"Imp. Deb. Ley 25413 Gral.","deb":15.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":53,"fecha":"2025-01-23","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"000909 - Pago Proveedores","concepto":"917123 - SERVICIO PAGO A PROVEEDORES"},{"id":54,"fecha":"2025-01-23","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":55,"fecha":"2025-01-23","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"000909 - Pago Proveedores","concepto":"917123 - SERVICIO PAGO A PROVEEDORES"},{"id":56,"fecha":"2025-01-23","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":57,"fecha":"2025-01-23","desc":"Imp. Cre. Ley 25413","deb":24684.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":58,"fecha":"2025-01-23","desc":"Imp. Deb. Ley 25413 Gral.","deb":617.1,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":59,"fecha":"2025-01-27","desc":"Trf Inmed Proveed","deb":5500000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":60,"fecha":"2025-01-27","desc":"Imp. Deb. Ley 25413 Gral.","deb":33000.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":61,"fecha":"2025-05-02","desc":"Deb. Autom. De Serv.","deb":132819.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":62,"fecha":"2025-05-02","desc":"Deb. Autom. De Serv.","deb":149922.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":63,"fecha":"2025-05-02","desc":"Transferencia De Terceros","deb":0.0,"cred":20000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":64,"fecha":"2025-05-02","desc":"Ing. Brutos S/ Cred","deb":500.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":65,"fecha":"2025-05-02","desc":"Transferencias Mep (ex4090)","deb":0.0,"cred":450000.0,"grupo":"000907 - Transferencias","concepto":"917203 - TRANSFERENCIAS MEP (EX4090)"},{"id":66,"fecha":"2025-05-02","desc":"Trf Inmed Proveed","deb":131320.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":67,"fecha":"2025-05-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":2484.37,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":68,"fecha":"2025-05-02","desc":"Imp. Cre. Ley 25413","deb":120.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":69,"fecha":"2025-05-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":3.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":70,"fecha":"2025-07-02","desc":"Transferencias Mep (ex4090)","deb":0.0,"cred":350000.0,"grupo":"000907 - Transferencias","concepto":"917203 - TRANSFERENCIAS MEP (EX4090)"},{"id":71,"fecha":"2025-07-02","desc":"Trf Inmed Proveed","deb":356950.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":72,"fecha":"2025-07-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":2141.7,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":73,"fecha":"2025-11-02","desc":"Transf. Afip","deb":52930.97,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907255 - TRANSF. AFIP"},{"id":74,"fecha":"2025-11-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":317.59,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":75,"fecha":"2025-02-14","desc":"Dep.efvo.autoservicio Ticket: 60362","deb":0.0,"cred":140000.0,"grupo":"000915 - Depósitos","concepto":"917302 - DEPOSITO EFECTIVO EN AUTOSERVICIO"},{"id":76,"fecha":"2025-02-14","desc":"Ing. Brutos S/ Cred","deb":3500.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":77,"fecha":"2025-02-14","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":78,"fecha":"2025-02-14","desc":"Transferencias Mep (ex4090)","deb":0.0,"cred":1000000.0,"grupo":"000907 - Transferencias","concepto":"917203 - TRANSFERENCIAS MEP (EX4090)"},{"id":79,"fecha":"2025-02-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":1200.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":80,"fecha":"2025-02-14","desc":"Imp. Cre. Ley 25413","deb":840.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":81,"fecha":"2025-02-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":21.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":82,"fecha":"2025-02-19","desc":"Suscripcion Fima","deb":900000.0,"cred":0.0,"grupo":"000916 - Inversiones","concepto":"907237 - SUSCRIPCION FIMA"},{"id":83,"fecha":"2025-02-27","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"","concepto":""},{"id":84,"fecha":"2025-02-27","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"","concepto":""},{"id":85,"fecha":"2025-02-27","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"","concepto":""},{"id":86,"fecha":"2025-02-27","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"","concepto":""},{"id":87,"fecha":"2025-02-27","desc":"Imp. Cre. Ley 25413","deb":24684.0,"cred":0.0,"grupo":"","concepto":""},{"id":88,"fecha":"2025-02-27","desc":"Imp. Deb. Ley 25413 Gral.","deb":617.1,"cred":0.0,"grupo":"","concepto":""},{"id":89,"fecha":"2025-02-28","desc":"Deb. Autom. De Serv.","deb":115255.84,"cred":0.0,"grupo":"","concepto":""},{"id":90,"fecha":"2025-02-28","desc":"Suscripcion Fima","deb":4022000.0,"cred":0.0,"grupo":"","concepto":""},{"id":91,"fecha":"2025-02-28","desc":"Imp. Deb. Ley 25413 Gral.","deb":691.54,"cred":0.0,"grupo":"","concepto":""},{"id":92,"fecha":"2025-05-03","desc":"Deb. Autom. De Serv.","deb":139157.0,"cred":0.0,"grupo":"","concepto":""},{"id":93,"fecha":"2025-05-03","desc":"Deb. Autom. De Serv.","deb":150980.0,"cred":0.0,"grupo":"","concepto":""},{"id":94,"fecha":"2025-05-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":1740.82,"cred":0.0,"grupo":"","concepto":""},{"id":95,"fecha":"2025-05-03","desc":"Intereses Sobre Saldos Deudores","deb":1.04,"cred":0.0,"grupo":"","concepto":""},{"id":96,"fecha":"2025-05-03","desc":"Impuesto De Sellos","deb":0.05,"cred":0.0,"grupo":"","concepto":""},{"id":97,"fecha":"2025-05-03","desc":"Iva","deb":0.11,"cred":0.0,"grupo":"","concepto":""},{"id":98,"fecha":"2025-05-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":0.01,"cred":0.0,"grupo":"","concepto":""},{"id":99,"fecha":"2025-06-03","desc":"Rescate Fima","deb":0.0,"cred":1000000.0,"grupo":"","concepto":""},{"id":100,"fecha":"2025-06-03","desc":"Trf Inmed Proveed","deb":356950.0,"cred":0.0,"grupo":"","concepto":""},{"id":101,"fecha":"2025-06-03","desc":"Trf Inmed Proveed","deb":98000.0,"cred":0.0,"grupo":"","concepto":""},{"id":102,"fecha":"2025-06-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":2729.7,"cred":0.0,"grupo":"","concepto":""},{"id":103,"fecha":"2025-10-03","desc":"Rescate Fima","deb":0.0,"cred":1419000.0,"grupo":"","concepto":""},{"id":104,"fecha":"2025-10-03","desc":"Trf Inmed Proveed","deb":1418892.2,"cred":0.0,"grupo":"","concepto":""},{"id":105,"fecha":"2025-10-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":8513.35,"cred":0.0,"grupo":"","concepto":""},{"id":106,"fecha":"2025-11-03","desc":"Transf. Afip","deb":107143.29,"cred":0.0,"grupo":"","concepto":""},{"id":107,"fecha":"2025-03-17","desc":"Deb. Autom. De Serv.","deb":86441.88,"cred":0.0,"grupo":"","concepto":""},{"id":108,"fecha":"2025-03-17","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":109,"fecha":"2025-03-17","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":110,"fecha":"2025-03-17","desc":"Imp. Deb. Ley 25413 Gral.","deb":1718.65,"cred":0.0,"grupo":"","concepto":""},{"id":111,"fecha":"2025-03-20","desc":"Rescate Fima","deb":0.0,"cred":310000.0,"grupo":"","concepto":""},{"id":112,"fecha":"2025-03-20","desc":"Trf Inmed Proveed","deb":310000.0,"cred":0.0,"grupo":"","concepto":""},{"id":113,"fecha":"2025-03-26","desc":"Rescate Fima","deb":0.0,"cred":270000.0,"grupo":"","concepto":""},{"id":114,"fecha":"2025-03-26","desc":"Trf Inmed Proveed","deb":185775.48,"cred":0.0,"grupo":"","concepto":""},{"id":115,"fecha":"2025-03-26","desc":"Trf Inmed Proveed","deb":85000.0,"cred":0.0,"grupo":"","concepto":""},{"id":116,"fecha":"2025-03-26","desc":"Imp. Deb. Ley 25413 Gral.","deb":1624.65,"cred":0.0,"grupo":"","concepto":""},{"id":117,"fecha":"2025-03-27","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"","concepto":""},{"id":118,"fecha":"2025-03-27","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"","concepto":""},{"id":119,"fecha":"2025-03-27","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"","concepto":""},{"id":120,"fecha":"2025-03-27","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"","concepto":""},{"id":121,"fecha":"2025-03-27","desc":"Suscripcion Fima","deb":4052418.0,"cred":0.0,"grupo":"","concepto":""},{"id":122,"fecha":"2025-03-27","desc":"Imp. Cre. Ley 25413","deb":24684.0,"cred":0.0,"grupo":"","concepto":""},{"id":123,"fecha":"2025-03-27","desc":"Imp. Deb. Ley 25413 Gral.","deb":617.1,"cred":0.0,"grupo":"","concepto":""},{"id":124,"fecha":"2025-03-31","desc":"Rescate Fima","deb":0.0,"cred":2100000.0,"grupo":"","concepto":""},{"id":125,"fecha":"2025-03-31","desc":"Trf Inmed Proveed","deb":1418892.2,"cred":0.0,"grupo":"","concepto":""},{"id":126,"fecha":"2025-03-31","desc":"Imp. Deb. Ley 25413 Gral.","deb":8513.35,"cred":0.0,"grupo":"","concepto":""},{"id":127,"fecha":"2025-01-04","desc":"Deb. Autom. De Serv.","deb":128512.0,"cred":0.0,"grupo":"","concepto":""},{"id":128,"fecha":"2025-01-04","desc":"Deb. Autom. De Serv.","deb":143587.0,"cred":0.0,"grupo":"","concepto":""},{"id":129,"fecha":"2025-01-04","desc":"Deb. Autom. De Serv.","deb":162417.0,"cred":0.0,"grupo":"","concepto":""},{"id":130,"fecha":"2025-01-04","desc":"Imp. Deb. Ley 25413 Gral.","deb":2607.1,"cred":0.0,"grupo":"","concepto":""},{"id":131,"fecha":"2025-01-04","desc":"Intereses Sobre Saldos Deudores","deb":737.54,"cred":0.0,"grupo":"","concepto":""},{"id":132,"fecha":"2025-01-04","desc":"Impuesto De Sellos","deb":32.54,"cred":0.0,"grupo":"","concepto":""},{"id":133,"fecha":"2025-01-04","desc":"Iva","deb":77.44,"cred":0.0,"grupo":"","concepto":""},{"id":134,"fecha":"2025-01-04","desc":"Imp. Deb. Ley 25413 Gral.","deb":5.09,"cred":0.0,"grupo":"","concepto":""},{"id":135,"fecha":"2025-07-04","desc":"Rescate Fima","deb":0.0,"cred":600000.0,"grupo":"","concepto":""},{"id":136,"fecha":"2025-08-04","desc":"Pago Visa Empresa","deb":729443.21,"cred":0.0,"grupo":"","concepto":""},{"id":137,"fecha":"2025-08-04","desc":"Imp. Deb. Ley 25413 Gral.","deb":4376.66,"cred":0.0,"grupo":"","concepto":""},{"id":138,"fecha":"2025-09-04","desc":"Rescate Fima","deb":0.0,"cred":400000.0,"grupo":"","concepto":""},{"id":139,"fecha":"2025-09-04","desc":"Trf Inmed Proveed","deb":356950.0,"cred":0.0,"grupo":"","concepto":""},{"id":140,"fecha":"2025-09-04","desc":"Trf Inmed Proveed","deb":100000.0,"cred":0.0,"grupo":"","concepto":""},{"id":141,"fecha":"2025-09-04","desc":"Imp. Deb. Ley 25413 Gral.","deb":2741.7,"cred":0.0,"grupo":"","concepto":""},{"id":142,"fecha":"2025-04-14","desc":"Deb. Autom. De Serv.","deb":86441.88,"cred":0.0,"grupo":"","concepto":""},{"id":143,"fecha":"2025-04-14","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":144,"fecha":"2025-04-14","desc":"Transf. Afip","deb":110464.06,"cred":0.0,"grupo":"","concepto":""},{"id":145,"fecha":"2025-04-14","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":146,"fecha":"2025-04-14","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":147,"fecha":"2025-04-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":2381.44,"cred":0.0,"grupo":"","concepto":""},{"id":148,"fecha":"2025-04-15","desc":"Credito Transferencia Coelsa","deb":0.0,"cred":100000.0,"grupo":"","concepto":""},{"id":149,"fecha":"2025-04-15","desc":"Ing. Brutos S/ Cred","deb":2500.0,"cred":0.0,"grupo":"","concepto":""},{"id":150,"fecha":"2025-04-15","desc":"Imp. Cre. Ley 25413","deb":600.0,"cred":0.0,"grupo":"","concepto":""},{"id":151,"fecha":"2025-04-15","desc":"Imp. Deb. Ley 25413 Gral.","deb":15.0,"cred":0.0,"grupo":"","concepto":""},{"id":152,"fecha":"2025-04-21","desc":"Rescate Fima","deb":0.0,"cred":500000.0,"grupo":"","concepto":""},{"id":153,"fecha":"2025-04-24","desc":"Rescate Fima","deb":0.0,"cred":323000.0,"grupo":"","concepto":""},{"id":154,"fecha":"2025-04-25","desc":"Transf. A Terceros","deb":935000.0,"cred":0.0,"grupo":"","concepto":""},{"id":155,"fecha":"2025-04-25","desc":"Imp. Deb. Ley 25413 Gral.","deb":5610.0,"cred":0.0,"grupo":"","concepto":""},{"id":156,"fecha":"2025-04-25","desc":"Com. Deposito De Cheque 26927677","deb":16844.71,"cred":0.0,"grupo":"","concepto":""},{"id":157,"fecha":"2025-04-25","desc":"Iva","deb":3537.39,"cred":0.0,"grupo":"","concepto":""},{"id":158,"fecha":"2025-04-25","desc":"Percep. Iva","deb":505.34,"cred":0.0,"grupo":"","concepto":""},{"id":159,"fecha":"2025-04-25","desc":"Imp. Deb. Ley 25413 Gral.","deb":125.32,"cred":0.0,"grupo":"","concepto":""},{"id":160,"fecha":"2025-04-28","desc":"G.de Echeq Q26927677 Bol75443491","deb":0.0,"cred":2406387.5,"grupo":"","concepto":""},{"id":161,"fecha":"2025-04-28","desc":"Ing. Brutos S/ Cred","deb":60159.69,"cred":0.0,"grupo":"","concepto":""},{"id":162,"fecha":"2025-04-28","desc":"Imp. Cre. Ley 25413","deb":14438.33,"cred":0.0,"grupo":"","concepto":""},{"id":163,"fecha":"2025-04-28","desc":"Imp. Deb. Ley 25413 Gral.","deb":360.96,"cred":0.0,"grupo":"","concepto":""},{"id":164,"fecha":"2025-04-29","desc":"Suscripcion Fima","deb":1700000.0,"cred":0.0,"grupo":"","concepto":""},{"id":165,"fecha":"2025-04-30","desc":"Compra Debito","deb":131500.0,"cred":0.0,"grupo":"","concepto":""},{"id":166,"fecha":"2025-04-30","desc":"Transf. A Terceros","deb":18000.0,"cred":0.0,"grupo":"","concepto":""},{"id":167,"fecha":"2025-04-30","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":168,"fecha":"2025-04-30","desc":"Imp. Deb. Ley 25413 Gral.","deb":897.0,"cred":0.0,"grupo":"","concepto":""},{"id":169,"fecha":"2025-05-05","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"","concepto":""},{"id":170,"fecha":"2025-05-05","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"","concepto":""},{"id":171,"fecha":"2025-05-05","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2057000.0,"grupo":"","concepto":""},{"id":172,"fecha":"2025-05-05","desc":"Ing. Brutos S/ Cred","deb":51425.0,"cred":0.0,"grupo":"","concepto":""},{"id":173,"fecha":"2025-05-05","desc":"Deb. Autom. De Serv.","deb":129644.0,"cred":0.0,"grupo":"","concepto":""},{"id":174,"fecha":"2025-05-05","desc":"Deb. Autom. De Serv.","deb":148250.0,"cred":0.0,"grupo":"","concepto":""},{"id":175,"fecha":"2025-05-05","desc":"Deb. Autom. De Serv.","deb":163704.0,"cred":0.0,"grupo":"","concepto":""},{"id":176,"fecha":"2025-05-05","desc":"Suscripcion Fima","deb":4000000.0,"cred":0.0,"grupo":"","concepto":""},{"id":177,"fecha":"2025-05-05","desc":"Rescate Fima","deb":0.0,"cred":240000.0,"grupo":"","concepto":""},{"id":178,"fecha":"2025-05-05","desc":"Trf Inmed Proveed","deb":356950.0,"cred":0.0,"grupo":"","concepto":""},{"id":179,"fecha":"2025-05-05","desc":"Trf Inmed Proveed","deb":102700.0,"cred":0.0,"grupo":"","concepto":""},{"id":180,"fecha":"2025-05-05","desc":"Imp. Deb. Ley 25413 Gral.","deb":5407.49,"cred":0.0,"grupo":"","concepto":""},{"id":181,"fecha":"2025-05-05","desc":"Imp. Cre. Ley 25413","deb":24684.0,"cred":0.0,"grupo":"","concepto":""},{"id":182,"fecha":"2025-05-05","desc":"Imp. Deb. Ley 25413 Gral.","deb":617.1,"cred":0.0,"grupo":"","concepto":""},{"id":183,"fecha":"2025-05-05","desc":"Iva","deb":14.8,"cred":0.0,"grupo":"","concepto":""},{"id":184,"fecha":"2025-05-05","desc":"Impuesto De Sellos","deb":6.22,"cred":0.0,"grupo":"","concepto":""},{"id":185,"fecha":"2025-05-05","desc":"Intereses Sobre Saldos Deudores","deb":140.95,"cred":0.0,"grupo":"","concepto":""},{"id":186,"fecha":"2025-05-05","desc":"Imp. Deb. Ley 25413 Gral.","deb":0.97,"cred":0.0,"grupo":"","concepto":""},{"id":187,"fecha":"2025-06-05","desc":"Rescate Fima","deb":0.0,"cred":30000.0,"grupo":"","concepto":""},{"id":188,"fecha":"2025-06-05","desc":"Rescate Fima","deb":0.0,"cred":1420000.0,"grupo":"","concepto":""},{"id":189,"fecha":"2025-06-05","desc":"Trf Inmed Proveed","deb":1418892.2,"cred":0.0,"grupo":"","concepto":""},{"id":190,"fecha":"2025-06-05","desc":"Imp. Deb. Ley 25413 Gral.","deb":8513.35,"cred":0.0,"grupo":"","concepto":""},{"id":191,"fecha":"2025-12-05","desc":"Deb. Autom. De Serv.","deb":115255.84,"cred":0.0,"grupo":"","concepto":""},{"id":192,"fecha":"2025-12-05","desc":"Rescate Fima","deb":0.0,"cred":500000.0,"grupo":"","concepto":""},{"id":193,"fecha":"2025-12-05","desc":"Imp. Deb. Ley 25413 Gral.","deb":691.54,"cred":0.0,"grupo":"","concepto":""},{"id":194,"fecha":"2025-12-05","desc":"Pago Visa Empresa","deb":281666.66,"cred":0.0,"grupo":"","concepto":""},{"id":195,"fecha":"2025-12-05","desc":"Imp. Deb. Ley 25413 Gral.","deb":1690.0,"cred":0.0,"grupo":"","concepto":""},{"id":196,"fecha":"2025-05-13","desc":"Transf. Afip","deb":56283.6,"cred":0.0,"grupo":"","concepto":""},{"id":197,"fecha":"2025-05-13","desc":"Imp. Deb. Ley 25413 Gral.","deb":337.7,"cred":0.0,"grupo":"","concepto":""},{"id":198,"fecha":"2025-05-15","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":199,"fecha":"2025-05-15","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":200,"fecha":"2025-05-15","desc":"Imp. Deb. Ley 25413 Gral.","deb":1200.0,"cred":0.0,"grupo":"","concepto":""},{"id":201,"fecha":"2025-02-06","desc":"Intereses Sobre Saldos Deudores","deb":75.51,"cred":0.0,"grupo":"","concepto":""},{"id":202,"fecha":"2025-02-06","desc":"Impuesto De Sellos","deb":3.33,"cred":0.0,"grupo":"","concepto":""},{"id":203,"fecha":"2025-02-06","desc":"Iva","deb":7.93,"cred":0.0,"grupo":"","concepto":""},{"id":204,"fecha":"2025-02-06","desc":"Imp. Deb. Ley 25413 Gral.","deb":0.52,"cred":0.0,"grupo":"","concepto":""},{"id":205,"fecha":"2025-03-06","desc":"Rescate Fima","deb":0.0,"cred":550000.0,"grupo":"","concepto":""},{"id":206,"fecha":"2025-03-06","desc":"Trf Inmed Proveed","deb":356950.0,"cred":0.0,"grupo":"","concepto":""},{"id":207,"fecha":"2025-03-06","desc":"Rescate Fima","deb":0.0,"cred":360000.0,"grupo":"","concepto":""},{"id":208,"fecha":"2025-03-06","desc":"Transf. A Terceros","deb":106510.46,"cred":0.0,"grupo":"","concepto":""},{"id":209,"fecha":"2025-03-06","desc":"Imp. Deb. Ley 25413 Gral.","deb":2780.76,"cred":0.0,"grupo":"","concepto":""},{"id":210,"fecha":"2025-04-06","desc":"Deb. Autom. De Serv.","deb":130896.0,"cred":0.0,"grupo":"","concepto":""},{"id":211,"fecha":"2025-04-06","desc":"Deb. Autom. De Serv.","deb":153141.0,"cred":0.0,"grupo":"","concepto":""},{"id":212,"fecha":"2025-04-06","desc":"Deb. Autom. De Serv.","deb":165183.0,"cred":0.0,"grupo":"","concepto":""},{"id":213,"fecha":"2025-04-06","desc":"Imp. Deb. Ley 25413 Gral.","deb":2695.32,"cred":0.0,"grupo":"","concepto":""},{"id":214,"fecha":"2025-09-06","desc":"Rescate Fima","deb":0.0,"cred":240000.0,"grupo":"","concepto":""},{"id":215,"fecha":"2025-09-06","desc":"Rescate Fima","deb":0.0,"cred":100000.0,"grupo":"","concepto":""},{"id":216,"fecha":"2025-09-06","desc":"Pago Visa Empresa","deb":360181.68,"cred":0.0,"grupo":"","concepto":""},{"id":217,"fecha":"2025-09-06","desc":"Imp. Deb. Ley 25413 Gral.","deb":2161.09,"cred":0.0,"grupo":"","concepto":""},{"id":218,"fecha":"2025-06-13","desc":"Rescate Fima","deb":0.0,"cred":170000.0,"grupo":"","concepto":""},{"id":219,"fecha":"2025-06-13","desc":"Transf. Afip","deb":169659.9,"cred":0.0,"grupo":"","concepto":""},{"id":220,"fecha":"2025-06-13","desc":"Imp. Deb. Ley 25413 Gral.","deb":1017.96,"cred":0.0,"grupo":"","concepto":""},{"id":221,"fecha":"2025-06-17","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":222,"fecha":"2025-06-17","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":223,"fecha":"2025-06-17","desc":"Imp. Deb. Ley 25413 Gral.","deb":1200.0,"cred":0.0,"grupo":"","concepto":""},{"id":224,"fecha":"2025-01-07","desc":"Deb. Autom. De Serv.","deb":130896.0,"cred":0.0,"grupo":"","concepto":""},{"id":225,"fecha":"2025-01-07","desc":"Deb. Autom. De Serv.","deb":154445.0,"cred":0.0,"grupo":"","concepto":""},{"id":226,"fecha":"2025-01-07","desc":"Deb. Autom. De Serv.","deb":167011.0,"cred":0.0,"grupo":"","concepto":""},{"id":227,"fecha":"2025-01-07","desc":"Rescate Fima","deb":0.0,"cred":500000.0,"grupo":"","concepto":""},{"id":228,"fecha":"2025-01-07","desc":"Rescate Fima","deb":0.0,"cred":231000.0,"grupo":"","concepto":""},{"id":229,"fecha":"2025-01-07","desc":"Rescate Fima","deb":0.0,"cred":1100000.0,"grupo":"","concepto":""},{"id":230,"fecha":"2025-01-07","desc":"Imp. Deb. Ley 25413 Gral.","deb":2714.11,"cred":0.0,"grupo":"","concepto":""},{"id":231,"fecha":"2025-02-07","desc":"Rescate Fima","deb":0.0,"cred":600000.0,"grupo":"","concepto":""},{"id":232,"fecha":"2025-02-07","desc":"Trf Inmed Proveed","deb":110000.0,"cred":0.0,"grupo":"","concepto":""},{"id":233,"fecha":"2025-02-07","desc":"Trf Inmed Proveed","deb":405350.0,"cred":0.0,"grupo":"","concepto":""},{"id":234,"fecha":"2025-02-07","desc":"Imp. Deb. Ley 25413 Gral.","deb":3092.1,"cred":0.0,"grupo":"","concepto":""},{"id":235,"fecha":"2025-07-07","desc":"Pago Visa Empresa","deb":622048.32,"cred":0.0,"grupo":"","concepto":""},{"id":236,"fecha":"2025-07-07","desc":"Imp. Deb. Ley 25413 Gral.","deb":3732.29,"cred":0.0,"grupo":"","concepto":""},{"id":237,"fecha":"2025-10-07","desc":"Suscripcion Fima","deb":700000.0,"cred":0.0,"grupo":"","concepto":""},{"id":238,"fecha":"2025-11-07","desc":"Rescate Fima","deb":0.0,"cred":100000.0,"grupo":"","concepto":""},{"id":239,"fecha":"2025-11-07","desc":"Trf Inmed Proveed","deb":230511.68,"cred":0.0,"grupo":"","concepto":""},{"id":240,"fecha":"2025-11-07","desc":"Rescate Fima","deb":0.0,"cred":260000.0,"grupo":"","concepto":""},{"id":241,"fecha":"2025-11-07","desc":"Transf. Afip","deb":236885.28,"cred":0.0,"grupo":"","concepto":""},{"id":242,"fecha":"2025-11-07","desc":"Rescate Fima","deb":0.0,"cred":1158932.0,"grupo":"","concepto":""},{"id":243,"fecha":"2025-11-07","desc":"Transf. A Terceros","deb":1053131.3,"cred":0.0,"grupo":"","concepto":""},{"id":244,"fecha":"2025-11-07","desc":"Transferencia De Terceros","deb":0.0,"cred":2420000.0,"grupo":"","concepto":""},{"id":245,"fecha":"2025-11-07","desc":"Ing. Brutos S/ Cred","deb":60500.0,"cred":0.0,"grupo":"","concepto":""},{"id":246,"fecha":"2025-11-07","desc":"Transferencia De Terceros","deb":0.0,"cred":242000.0,"grupo":"","concepto":""},{"id":247,"fecha":"2025-11-07","desc":"Ing. Brutos S/ Cred","deb":6050.0,"cred":0.0,"grupo":"","concepto":""},{"id":248,"fecha":"2025-11-07","desc":"Suscripcion Fima","deb":2700000.0,"cred":0.0,"grupo":"","concepto":""},{"id":249,"fecha":"2025-11-07","desc":"Imp. Deb. Ley 25413 Gral.","deb":9123.17,"cred":0.0,"grupo":"","concepto":""},{"id":250,"fecha":"2025-11-07","desc":"Imp. Cre. Ley 25413","deb":15972.0,"cred":0.0,"grupo":"","concepto":""},{"id":251,"fecha":"2025-11-07","desc":"Imp. Deb. Ley 25413 Gral.","deb":399.3,"cred":0.0,"grupo":"","concepto":""},{"id":252,"fecha":"2025-07-14","desc":"Rescate Fima","deb":0.0,"cred":960000.0,"grupo":"","concepto":""},{"id":253,"fecha":"2025-07-14","desc":"Transf. A Terceros","deb":937000.0,"cred":0.0,"grupo":"","concepto":""},{"id":254,"fecha":"2025-07-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":5622.0,"cred":0.0,"grupo":"","concepto":""},{"id":255,"fecha":"2025-07-15","desc":"Transferencia De Terceros","deb":0.0,"cred":3416708.12,"grupo":"","concepto":""},{"id":256,"fecha":"2025-07-15","desc":"Ing. Brutos S/ Cred","deb":85417.7,"cred":0.0,"grupo":"","concepto":""},{"id":257,"fecha":"2025-07-15","desc":"Imp. Cre. Ley 25413","deb":20500.25,"cred":0.0,"grupo":"","concepto":""},{"id":258,"fecha":"2025-07-15","desc":"Imp. Deb. Ley 25413 Gral.","deb":512.51,"cred":0.0,"grupo":"","concepto":""},{"id":259,"fecha":"2025-07-16","desc":"Rescate Fima","deb":0.0,"cred":100000.0,"grupo":"","concepto":""},{"id":260,"fecha":"2025-07-16","desc":"Trf Inmed Proveed","deb":3416708.12,"cred":0.0,"grupo":"","concepto":""},{"id":261,"fecha":"2025-07-16","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":993505.33,"grupo":"","concepto":""},{"id":262,"fecha":"2025-07-16","desc":"Ing. Brutos S/ Cred","deb":24837.63,"cred":0.0,"grupo":"","concepto":""},{"id":263,"fecha":"2025-07-16","desc":"Imp. Deb. Ley 25413 Gral.","deb":20500.25,"cred":0.0,"grupo":"","concepto":""},{"id":264,"fecha":"2025-07-16","desc":"Imp. Cre. Ley 25413","deb":5961.03,"cred":0.0,"grupo":"","concepto":""},{"id":265,"fecha":"2025-07-16","desc":"Imp. Deb. Ley 25413 Gral.","deb":149.03,"cred":0.0,"grupo":"","concepto":""},{"id":266,"fecha":"2025-07-23","desc":"Transf. A Terceros","deb":100000.0,"cred":0.0,"grupo":"","concepto":""},{"id":267,"fecha":"2025-07-23","desc":"Suscripcion Fima","deb":850000.0,"cred":0.0,"grupo":"","concepto":""},{"id":268,"fecha":"2025-07-23","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":269,"fecha":"2025-07-23","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":270,"fecha":"2025-07-23","desc":"Imp. Deb. Ley 25413 Gral.","deb":1800.0,"cred":0.0,"grupo":"","concepto":""},{"id":271,"fecha":"2025-04-08","desc":"Rescate Fima","deb":0.0,"cred":620000.0,"grupo":"","concepto":""},{"id":272,"fecha":"2025-05-08","desc":"Deb. Autom. De Serv.","deb":133628.0,"cred":0.0,"grupo":"","concepto":""},{"id":273,"fecha":"2025-05-08","desc":"Deb. Autom. De Serv.","deb":159622.0,"cred":0.0,"grupo":"","concepto":""},{"id":274,"fecha":"2025-05-08","desc":"Deb. Autom. De Serv.","deb":189498.0,"cred":0.0,"grupo":"","concepto":""},{"id":275,"fecha":"2025-05-08","desc":"Trf Inmed Proveed","deb":112000.0,"cred":0.0,"grupo":"","concepto":""},{"id":276,"fecha":"2025-05-08","desc":"Transf. A Terceros","deb":20000.0,"cred":0.0,"grupo":"","concepto":""},{"id":277,"fecha":"2025-05-08","desc":"Imp. Deb. Ley 25413 Gral.","deb":3688.49,"cred":0.0,"grupo":"","concepto":""},{"id":278,"fecha":"2025-06-08","desc":"Rescate Fima","deb":0.0,"cred":405000.0,"grupo":"","concepto":""},{"id":279,"fecha":"2025-06-08","desc":"Trf Inmed Proveed","deb":405350.0,"cred":0.0,"grupo":"","concepto":""},{"id":280,"fecha":"2025-06-08","desc":"Imp. Deb. Ley 25413 Gral.","deb":2432.1,"cred":0.0,"grupo":"","concepto":""},{"id":281,"fecha":"2025-07-08","desc":"Rescate Fima","deb":0.0,"cred":120000.0,"grupo":"","concepto":""},{"id":282,"fecha":"2025-07-08","desc":"Trf Inmed Proveed","deb":126850.72,"cred":0.0,"grupo":"","concepto":""},{"id":283,"fecha":"2025-07-08","desc":"Imp. Deb. Ley 25413 Gral.","deb":761.1,"cred":0.0,"grupo":"","concepto":""},{"id":284,"fecha":"2025-11-08","desc":"Rescate Fima","deb":0.0,"cred":551000.0,"grupo":"","concepto":""},{"id":285,"fecha":"2025-11-08","desc":"Pago Visa Empresa","deb":520548.32,"cred":0.0,"grupo":"","concepto":""},{"id":286,"fecha":"2025-11-08","desc":"Imp. Deb. Ley 25413 Gral.","deb":3123.29,"cred":0.0,"grupo":"","concepto":""},{"id":287,"fecha":"2025-08-14","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":288,"fecha":"2025-08-14","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":289,"fecha":"2025-08-14","desc":"Rescate Fima","deb":0.0,"cred":80000.0,"grupo":"","concepto":""},{"id":290,"fecha":"2025-08-14","desc":"Transf. Afip","deb":84000.0,"cred":0.0,"grupo":"","concepto":""},{"id":291,"fecha":"2025-08-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":1704.0,"cred":0.0,"grupo":"","concepto":""},{"id":292,"fecha":"2025-08-20","desc":"Transferencia De Terceros","deb":0.0,"cred":2420000.0,"grupo":"","concepto":""},{"id":293,"fecha":"2025-08-20","desc":"Ing. Brutos S/ Cred","deb":48400.0,"cred":0.0,"grupo":"","concepto":""},{"id":294,"fecha":"2025-08-20","desc":"Trf Inmed Proveed","deb":1678280.0,"cred":0.0,"grupo":"","concepto":""},{"id":295,"fecha":"2025-08-20","desc":"Suscripcion Fima","deb":700000.0,"cred":0.0,"grupo":"","concepto":""},{"id":296,"fecha":"2025-08-20","desc":"Imp. Deb. Ley 25413 Gral.","deb":10069.68,"cred":0.0,"grupo":"","concepto":""},{"id":297,"fecha":"2025-08-20","desc":"Imp. Cre. Ley 25413","deb":14520.0,"cred":0.0,"grupo":"","concepto":""},{"id":298,"fecha":"2025-08-20","desc":"Imp. Deb. Ley 25413 Gral.","deb":290.4,"cred":0.0,"grupo":"","concepto":""},{"id":299,"fecha":"2025-01-09","desc":"Deb. Autom. De Serv.","deb":134960.0,"cred":0.0,"grupo":"","concepto":""},{"id":300,"fecha":"2025-01-09","desc":"Deb. Autom. De Serv.","deb":164815.0,"cred":0.0,"grupo":"","concepto":""},{"id":301,"fecha":"2025-01-09","desc":"Rescate Fima","deb":0.0,"cred":400000.0,"grupo":"","concepto":""},{"id":302,"fecha":"2025-01-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":1798.65,"cred":0.0,"grupo":"","concepto":""},{"id":303,"fecha":"2025-01-09","desc":"Intereses Sobre Saldos Deudores","deb":369.86,"cred":0.0,"grupo":"","concepto":""},{"id":304,"fecha":"2025-01-09","desc":"Impuesto De Sellos","deb":9.51,"cred":0.0,"grupo":"","concepto":""},{"id":305,"fecha":"2025-01-09","desc":"Iva","deb":38.84,"cred":0.0,"grupo":"","concepto":""},{"id":306,"fecha":"2025-01-09","desc":"Impuesto Foproex","deb":0.04,"cred":0.0,"grupo":"","concepto":""},{"id":307,"fecha":"2025-01-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":2.51,"cred":0.0,"grupo":"","concepto":""},{"id":308,"fecha":"2025-02-09","desc":"Rescate Fima","deb":0.0,"cred":676000.0,"grupo":"","concepto":""},{"id":309,"fecha":"2025-02-09","desc":"Trf Inmed Proveed","deb":405350.0,"cred":0.0,"grupo":"","concepto":""},{"id":310,"fecha":"2025-02-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":2432.1,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":311,"fecha":"2025-03-09","desc":"Deb. Autom. De Serv.","deb":169934.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":312,"fecha":"2025-03-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":1019.6,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":313,"fecha":"2025-04-09","desc":"Trf Inmed Proveed","deb":113000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":314,"fecha":"2025-04-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":678.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":315,"fecha":"2025-08-09","desc":"Transferencia De Terceros","deb":0.0,"cred":400000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":316,"fecha":"2025-08-09","desc":"Ing. Brutos S/ Cred","deb":5200.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":317,"fecha":"2025-08-09","desc":"Imp. Cre. Ley 25413","deb":2400.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":318,"fecha":"2025-08-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":31.2,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":319,"fecha":"2025-08-09","desc":"Pago Visa Empresa","deb":379666.66,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907154 - PAGO VISA EMPRESA"},{"id":320,"fecha":"2025-08-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":2278.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":321,"fecha":"2025-10-09","desc":"Transferencias Mep (ex4090)","deb":0.0,"cred":400000.0,"grupo":"000907 - Transferencias","concepto":"917203 - TRANSFERENCIAS MEP (EX4090)"},{"id":322,"fecha":"2025-12-09","desc":"Transf. Afip","deb":23672.01,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907255 - TRANSF. AFIP"},{"id":323,"fecha":"2025-12-09","desc":"Trf Inmed Proveed","deb":126850.72,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":324,"fecha":"2025-12-09","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":325,"fecha":"2025-12-09","desc":"Imp. Deb. Ley 25413 Gral.","deb":2103.14,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":326,"fecha":"2025-09-17","desc":"Deb. Autom. De Serv.","deb":14151.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":327,"fecha":"2025-09-17","desc":"Deb. Autom. De Serv.","deb":14165.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":328,"fecha":"2025-09-17","desc":"Deb. Autom. De Serv.","deb":29749.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":329,"fecha":"2025-09-17","desc":"Imp. Deb. Ley 25413 Gral.","deb":348.39,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":330,"fecha":"2025-09-22","desc":"Cargo Por Gestion De Cobranza","deb":2066.0,"cred":0.0,"grupo":"000808 - Comisiones","concepto":"907756 - CARGO POR GESTION DE COBRANZA"},{"id":331,"fecha":"2025-09-22","desc":"Iva","deb":433.86,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907171 - IVA"},{"id":332,"fecha":"2025-09-22","desc":"Percep. Iva","deb":61.98,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907172 - PERCEP. IVA"},{"id":333,"fecha":"2025-09-22","desc":"Imp. Deb. Ley 25413 Gral.","deb":15.37,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":334,"fecha":"2025-09-26","desc":"Transf Inmed Cp","deb":68756.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907268 - TRANSF INMED CP"},{"id":335,"fecha":"2025-09-29","desc":"Transferencia De Terceros","deb":0.0,"cred":2420000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":336,"fecha":"2025-09-29","desc":"Ing. Brutos S/ Cred","deb":31460.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":337,"fecha":"2025-09-29","desc":"Trf Inmed Proveed","deb":1678280.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":338,"fecha":"2025-09-29","desc":"Suscripcion Fima","deb":710000.0,"cred":0.0,"grupo":"000916 - Inversiones","concepto":"907237 - SUSCRIPCION FIMA"},{"id":339,"fecha":"2025-09-29","desc":"Imp. Deb. Ley 25413 Gral.","deb":10069.68,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":340,"fecha":"2025-09-29","desc":"Imp. Cre. Ley 25413","deb":14520.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":341,"fecha":"2025-09-29","desc":"Imp. Deb. Ley 25413 Gral.","deb":188.76,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":342,"fecha":"2025-01-10","desc":"Rescate Fima","deb":0.0,"cred":711966.0,"grupo":"000916 - Inversiones","concepto":"917138 - RESCATE FIMA"},{"id":343,"fecha":"2025-01-10","desc":"Trf Inmed Proveed","deb":126850.72,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":344,"fecha":"2025-01-10","desc":"Trf Inmed Proveed","deb":17266.7,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907232 - TRF INMED PROVEED"},{"id":345,"fecha":"2025-01-10","desc":"Imp. Deb. Ley 25413 Gral.","deb":864.7,"cred":0.0,"grupo":"","concepto":""},{"id":346,"fecha":"2025-01-10","desc":"Percep. Iva","deb":770.0,"cred":0.0,"grupo":"","concepto":""},{"id":347,"fecha":"2025-01-10","desc":"Iva","deb":5390.0,"cred":0.0,"grupo":"","concepto":""},{"id":348,"fecha":"2025-01-10","desc":"Comision Servicio De Cuenta","deb":25666.67,"cred":0.0,"grupo":"","concepto":""},{"id":349,"fecha":"2025-01-10","desc":"Imp. Deb. Ley 25413 Gral.","deb":190.96,"cred":0.0,"grupo":"","concepto":""},{"id":350,"fecha":"2025-01-10","desc":"Intereses Sobre Saldos Deudores","deb":112.85,"cred":0.0,"grupo":"","concepto":""},{"id":351,"fecha":"2025-01-10","desc":"Impuesto De Sellos","deb":4.03,"cred":0.0,"grupo":"","concepto":""},{"id":352,"fecha":"2025-01-10","desc":"Iva","deb":11.85,"cred":0.0,"grupo":"","concepto":""},{"id":353,"fecha":"2025-01-10","desc":"Impuesto Foproex","deb":0.02,"cred":0.0,"grupo":"","concepto":""},{"id":354,"fecha":"2025-01-10","desc":"Imp. Deb. Ley 25413 Gral.","deb":0.77,"cred":0.0,"grupo":"","concepto":""},{"id":355,"fecha":"2025-03-10","desc":"Deb. Autom. De Serv.","deb":162527.0,"cred":0.0,"grupo":"","concepto":""},{"id":356,"fecha":"2025-03-10","desc":"Deb. Autom. De Serv.","deb":172516.0,"cred":0.0,"grupo":"","concepto":""},{"id":357,"fecha":"2025-03-10","desc":"Imp. Deb. Ley 25413 Gral.","deb":2010.26,"cred":0.0,"grupo":"","concepto":""},{"id":358,"fecha":"2025-06-10","desc":"Transf. A Terceros","deb":116000.0,"cred":0.0,"grupo":"","concepto":""},{"id":359,"fecha":"2025-06-10","desc":"Imp. Deb. Ley 25413 Gral.","deb":696.0,"cred":0.0,"grupo":"","concepto":""},{"id":360,"fecha":"2025-09-10","desc":"Deb. Autom. De Serv.","deb":183751.0,"cred":0.0,"grupo":"","concepto":""},{"id":361,"fecha":"2025-09-10","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2127500.0,"grupo":"","concepto":""},{"id":362,"fecha":"2025-09-10","desc":"Ing. Brutos S/ Cred","deb":23402.5,"cred":0.0,"grupo":"","concepto":""},{"id":363,"fecha":"2025-09-10","desc":"Imp. Deb. Ley 25413 Gral.","deb":1102.51,"cred":0.0,"grupo":"","concepto":""},{"id":364,"fecha":"2025-09-10","desc":"Imp. Cre. Ley 25413","deb":12765.0,"cred":0.0,"grupo":"","concepto":""},{"id":365,"fecha":"2025-09-10","desc":"Imp. Deb. Ley 25413 Gral.","deb":140.42,"cred":0.0,"grupo":"","concepto":""},{"id":366,"fecha":"2025-10-13","desc":"Transferencia De Terceros","deb":0.0,"cred":20016765.52,"grupo":"","concepto":""},{"id":367,"fecha":"2025-10-13","desc":"Ing. Brutos S/ Cred","deb":220184.42,"cred":0.0,"grupo":"","concepto":""},{"id":368,"fecha":"2025-10-13","desc":"Trf Inmed Proveed","deb":405350.0,"cred":0.0,"grupo":"","concepto":""},{"id":369,"fecha":"2025-10-13","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":370,"fecha":"2025-10-13","desc":"Transferencias Mep (ex4090)","deb":0.0,"cred":14540196.58,"grupo":"","concepto":""},{"id":371,"fecha":"2025-10-13","desc":"Trf Inmed Proveed","deb":32896200.0,"cred":0.0,"grupo":"","concepto":""},{"id":372,"fecha":"2025-10-13","desc":"Com. Gestion Transf.fdos Entre Bcos","deb":1000.0,"cred":0.0,"grupo":"","concepto":""},{"id":373,"fecha":"2025-10-13","desc":"Iva","deb":210.0,"cred":0.0,"grupo":"","concepto":""},{"id":374,"fecha":"2025-10-13","desc":"Transf. Afip","deb":75330.38,"cred":0.0,"grupo":"","concepto":""},{"id":375,"fecha":"2025-10-13","desc":"Imp. Deb. Ley 25413 Gral.","deb":201468.54,"cred":0.0,"grupo":"","concepto":""},{"id":376,"fecha":"2025-10-13","desc":"Imp. Cre. Ley 25413","deb":120100.59,"cred":0.0,"grupo":"","concepto":""},{"id":377,"fecha":"2025-10-13","desc":"Imp. Deb. Ley 25413 Gral.","deb":1321.11,"cred":0.0,"grupo":"","concepto":""},{"id":378,"fecha":"2025-10-13","desc":"Pago Visa Empresa","deb":526576.31,"cred":0.0,"grupo":"","concepto":""},{"id":379,"fecha":"2025-10-13","desc":"Imp. Deb. Ley 25413 Gral.","deb":3159.46,"cred":0.0,"grupo":"","concepto":""},{"id":380,"fecha":"2025-10-14","desc":"Transf. Afip","deb":75330.38,"cred":0.0,"grupo":"","concepto":""},{"id":381,"fecha":"2025-10-14","desc":"Anulacion Debitos","deb":0.0,"cred":75330.38,"grupo":"","concepto":""},{"id":382,"fecha":"2025-10-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":451.98,"cred":0.0,"grupo":"","concepto":""},{"id":383,"fecha":"2025-10-14","desc":"Dev.imp.deb.ley 25413-alic.general","deb":0.0,"cred":451.98,"grupo":"","concepto":""},{"id":384,"fecha":"2025-10-15","desc":"Suscripcion Fima","deb":1868000.0,"cred":0.0,"grupo":"","concepto":""},{"id":385,"fecha":"2025-10-21","desc":"Rescate Fima","deb":0.0,"cred":1500000.0,"grupo":"","concepto":""},{"id":386,"fecha":"2025-10-21","desc":"Cheque Pagador Nro. 32489825","deb":1300000.0,"cred":0.0,"grupo":"","concepto":""},{"id":387,"fecha":"2025-10-21","desc":"Comision Cheque Pagado Por Caja","deb":26000.0,"cred":0.0,"grupo":"","concepto":""},{"id":388,"fecha":"2025-10-21","desc":"Iva","deb":5460.0,"cred":0.0,"grupo":"","concepto":""},{"id":389,"fecha":"2025-10-21","desc":"Percep. Iva","deb":780.0,"cred":0.0,"grupo":"","concepto":""},{"id":390,"fecha":"2025-10-21","desc":"Impuesto Deb.ley 25413 Extrac. Efect.","deb":7800.0,"cred":0.0,"grupo":"","concepto":""},{"id":391,"fecha":"2025-10-21","desc":"Imp. Deb. Ley 25413 Gral.","deb":193.44,"cred":0.0,"grupo":"","concepto":""},{"id":392,"fecha":"2025-10-24","desc":"Transferencia De Terceros","deb":0.0,"cred":2420000.0,"grupo":"","concepto":""},{"id":393,"fecha":"2025-10-24","desc":"Ing. Brutos S/ Cred","deb":26620.0,"cred":0.0,"grupo":"","concepto":""},{"id":394,"fecha":"2025-10-24","desc":"Trf Inmed Proveed","deb":1678287.32,"cred":0.0,"grupo":"","concepto":""},{"id":395,"fecha":"2025-10-24","desc":"Com. Gestion Transf.fdos Entre Bcos","deb":1000.0,"cred":0.0,"grupo":"","concepto":""},{"id":396,"fecha":"2025-10-24","desc":"Iva","deb":210.0,"cred":0.0,"grupo":"","concepto":""},{"id":397,"fecha":"2025-10-24","desc":"Imp. Deb. Ley 25413 Gral.","deb":10076.98,"cred":0.0,"grupo":"","concepto":""},{"id":398,"fecha":"2025-10-24","desc":"Imp. Cre. Ley 25413","deb":14520.0,"cred":0.0,"grupo":"","concepto":""},{"id":399,"fecha":"2025-10-24","desc":"Imp. Deb. Ley 25413 Gral.","deb":159.72,"cred":0.0,"grupo":"","concepto":""},{"id":400,"fecha":"2025-10-27","desc":"Transferencia De Terceros","deb":0.0,"cred":1000000.0,"grupo":"","concepto":""},{"id":401,"fecha":"2025-10-27","desc":"Ing. Brutos S/ Cred","deb":11000.0,"cred":0.0,"grupo":"","concepto":""},{"id":402,"fecha":"2025-10-27","desc":"Imp. Cre. Ley 25413","deb":6000.0,"cred":0.0,"grupo":"","concepto":""},{"id":403,"fecha":"2025-10-27","desc":"Imp. Deb. Ley 25413 Gral.","deb":66.0,"cred":0.0,"grupo":"","concepto":""},{"id":404,"fecha":"2025-10-28","desc":"Trf Inmed Proveed","deb":126850.72,"cred":0.0,"grupo":"","concepto":""},{"id":405,"fecha":"2025-10-28","desc":"Imp. Deb. Ley 25413 Gral.","deb":761.1,"cred":0.0,"grupo":"","concepto":""},{"id":406,"fecha":"2025-10-29","desc":"Compra Debito","deb":73100.0,"cred":0.0,"grupo":"","concepto":""},{"id":407,"fecha":"2025-10-29","desc":"Imp. Deb. Ley 25413 Gral.","deb":438.6,"cred":0.0,"grupo":"","concepto":""},{"id":408,"fecha":"2025-10-30","desc":"Compra Debito","deb":9400.0,"cred":0.0,"grupo":"","concepto":""},{"id":409,"fecha":"2025-10-30","desc":"Imp. Deb. Ley 25413 Gral.","deb":56.4,"cred":0.0,"grupo":"","concepto":""},{"id":410,"fecha":"2025-10-31","desc":"Trf Inmed Proveed","deb":300000.0,"cred":0.0,"grupo":"","concepto":""},{"id":411,"fecha":"2025-10-31","desc":"Imp. Deb. Ley 25413 Gral.","deb":1800.0,"cred":0.0,"grupo":"","concepto":""},{"id":412,"fecha":"2025-10-31","desc":"Trf Inmed Proveed","deb":20000.0,"cred":0.0,"grupo":"","concepto":""},{"id":413,"fecha":"2025-10-31","desc":"Imp. Deb. Ley 25413 Gral.","deb":120.0,"cred":0.0,"grupo":"","concepto":""},{"id":414,"fecha":"2025-03-11","desc":"Deb. Autom. De Serv.","deb":156147.0,"cred":0.0,"grupo":"","concepto":""},{"id":415,"fecha":"2025-03-11","desc":"Deb. Autom. De Serv.","deb":158905.0,"cred":0.0,"grupo":"","concepto":""},{"id":416,"fecha":"2025-03-11","desc":"Deb. Autom. De Serv.","deb":165376.0,"cred":0.0,"grupo":"","concepto":""},{"id":417,"fecha":"2025-03-11","desc":"Deb. Autom. De Serv.","deb":165942.0,"cred":0.0,"grupo":"","concepto":""},{"id":418,"fecha":"2025-03-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":3878.22,"cred":0.0,"grupo":"","concepto":""},{"id":419,"fecha":"2025-03-11","desc":"Comision Servicio De Cuenta","deb":55000.0,"cred":0.0,"grupo":"","concepto":""},{"id":420,"fecha":"2025-03-11","desc":"Iva","deb":11550.0,"cred":0.0,"grupo":"","concepto":""},{"id":421,"fecha":"2025-03-11","desc":"Percep. Iva","deb":1650.0,"cred":0.0,"grupo":"","concepto":""},{"id":422,"fecha":"2025-03-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":409.2,"cred":0.0,"grupo":"","concepto":""},{"id":423,"fecha":"2025-04-11","desc":"Trf Inmed Proveed","deb":405350.0,"cred":0.0,"grupo":"","concepto":""},{"id":424,"fecha":"2025-04-11","desc":"Trf Inmed Proveed","deb":120000.0,"cred":0.0,"grupo":"","concepto":""},{"id":425,"fecha":"2025-04-11","desc":"Trf Inmed Proveed","deb":18014.48,"cred":0.0,"grupo":"","concepto":""},{"id":426,"fecha":"2025-04-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":3260.19,"cred":0.0,"grupo":"","concepto":""},{"id":427,"fecha":"2025-10-11","desc":"Rescate Fima","deb":0.0,"cred":387915.0,"grupo":"","concepto":""},{"id":428,"fecha":"2025-10-11","desc":"Trf Inmed Proveed","deb":384000.0,"cred":0.0,"grupo":"","concepto":""},{"id":429,"fecha":"2025-10-11","desc":"Credito Transferencia Coelsa","deb":0.0,"cred":420000.0,"grupo":"","concepto":""},{"id":430,"fecha":"2025-10-11","desc":"Ing. Brutos S/ Cred","deb":8400.0,"cred":0.0,"grupo":"","concepto":""},{"id":431,"fecha":"2025-10-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":2304.0,"cred":0.0,"grupo":"","concepto":""},{"id":432,"fecha":"2025-10-11","desc":"Imp. Cre. Ley 25413","deb":2520.0,"cred":0.0,"grupo":"","concepto":""},{"id":433,"fecha":"2025-10-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":50.4,"cred":0.0,"grupo":"","concepto":""},{"id":434,"fecha":"2025-10-11","desc":"Pago Visa Empresa","deb":1048257.27,"cred":0.0,"grupo":"","concepto":""},{"id":435,"fecha":"2025-10-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":6289.54,"cred":0.0,"grupo":"","concepto":""},{"id":436,"fecha":"2025-11-11","desc":"Transferencias Mep (ex4090)","deb":0.0,"cred":1100000.0,"grupo":"","concepto":""},{"id":437,"fecha":"2025-11-11","desc":"Transferencias Mep (ex4090)","deb":0.0,"cred":3615305.67,"grupo":"","concepto":""},{"id":438,"fecha":"2025-11-11","desc":"Transf. Afip","deb":52945.16,"cred":0.0,"grupo":"","concepto":""},{"id":439,"fecha":"2025-11-11","desc":"Anulacion Debitos","deb":0.0,"cred":52945.16,"grupo":"","concepto":""},{"id":440,"fecha":"2025-11-11","desc":"Imp. Deb. Ley 25413 Gral.","deb":317.67,"cred":0.0,"grupo":"","concepto":""},{"id":441,"fecha":"2025-11-11","desc":"Dev.imp.deb.ley 25413-alic.general","deb":0.0,"cred":317.67,"grupo":"","concepto":""},{"id":442,"fecha":"2025-12-11","desc":"Suscripcion Fima","deb":4000000.0,"cred":0.0,"grupo":"","concepto":""},{"id":443,"fecha":"2025-11-14","desc":"Transferencia De Terceros","deb":0.0,"cred":2420000.0,"grupo":"","concepto":""},{"id":444,"fecha":"2025-11-14","desc":"Ing. Brutos S/ Cred","deb":48400.0,"cred":0.0,"grupo":"","concepto":""},{"id":445,"fecha":"2025-11-14","desc":"Imp. Cre. Ley 25413","deb":14520.0,"cred":0.0,"grupo":"","concepto":""},{"id":446,"fecha":"2025-11-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":290.4,"cred":0.0,"grupo":"","concepto":""},{"id":447,"fecha":"2025-11-17","desc":"Trf Inmed Proveed","deb":1678287.32,"cred":0.0,"grupo":"","concepto":""},{"id":448,"fecha":"2025-11-17","desc":"Trf Inmed Proveed","deb":200000.0,"cred":0.0,"grupo":"","concepto":""},{"id":449,"fecha":"2025-11-17","desc":"Imp. Deb. Ley 25413 Gral.","deb":11269.72,"cred":0.0,"grupo":"","concepto":""},{"id":450,"fecha":"2025-11-20","desc":"Suscripcion Fima","deb":570000.0,"cred":0.0,"grupo":"","concepto":""},{"id":451,"fecha":"2025-11-20","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2243172.0,"grupo":"","concepto":""},{"id":452,"fecha":"2025-11-20","desc":"Ing. Brutos S/ Cred","deb":44863.44,"cred":0.0,"grupo":"","concepto":""},{"id":453,"fecha":"2025-11-20","desc":"Imp. Cre. Ley 25413","deb":13459.03,"cred":0.0,"grupo":"","concepto":""},{"id":454,"fecha":"2025-11-20","desc":"Imp. Deb. Ley 25413 Gral.","deb":269.18,"cred":0.0,"grupo":"","concepto":""},{"id":455,"fecha":"2025-11-26","desc":"Suscripcion Fima","deb":2187999.0,"cred":0.0,"grupo":"","concepto":""},{"id":456,"fecha":"2025-11-27","desc":"Rescate Fima","deb":0.0,"cred":53500.0,"grupo":"","concepto":""},{"id":457,"fecha":"2025-11-27","desc":"Transf. Afip","deb":53368.72,"cred":0.0,"grupo":"","concepto":""},{"id":458,"fecha":"2025-11-27","desc":"Imp. Deb. Ley 25413 Gral.","deb":320.21,"cred":0.0,"grupo":"","concepto":""},{"id":459,"fecha":"2025-11-28","desc":"Rescate Fima","deb":0.0,"cred":750000.0,"grupo":"","concepto":""},{"id":460,"fecha":"2025-11-28","desc":"Trf Inmed Proveed","deb":1000.0,"cred":0.0,"grupo":"","concepto":""},{"id":461,"fecha":"2025-11-28","desc":"Imp. Deb. Ley 25413 Gral.","deb":6.0,"cred":0.0,"grupo":"","concepto":""},{"id":462,"fecha":"2025-01-12","desc":"Deb. Autom. De Serv.","deb":165551.0,"cred":0.0,"grupo":"","concepto":""},{"id":463,"fecha":"2025-01-12","desc":"Deb. Autom. De Serv.","deb":173330.0,"cred":0.0,"grupo":"","concepto":""},{"id":464,"fecha":"2025-01-12","desc":"Deb. Autom. De Serv.","deb":178428.0,"cred":0.0,"grupo":"","concepto":""},{"id":465,"fecha":"2025-01-12","desc":"Deb. Autom. De Serv.","deb":179288.0,"cred":0.0,"grupo":"","concepto":""},{"id":466,"fecha":"2025-01-12","desc":"Rescate Fima","deb":0.0,"cred":500000.0,"grupo":"","concepto":""},{"id":467,"fecha":"2025-01-12","desc":"Trf Inmed Proveed","deb":126850.72,"cred":0.0,"grupo":"","concepto":""},{"id":468,"fecha":"2025-01-12","desc":"Trf Inmed Proveed","deb":405350.0,"cred":0.0,"grupo":"","concepto":""},{"id":469,"fecha":"2025-01-12","desc":"Rescate Fima","deb":0.0,"cred":100000.0,"grupo":"","concepto":""},{"id":470,"fecha":"2025-01-12","desc":"Rescate Fima","deb":0.0,"cred":15000.0,"grupo":"","concepto":""},{"id":471,"fecha":"2025-01-12","desc":"Rescate Fima","deb":0.0,"cred":10000.0,"grupo":"","concepto":""},{"id":472,"fecha":"2025-01-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":7372.79,"cred":0.0,"grupo":"","concepto":""},{"id":473,"fecha":"2025-01-12","desc":"Comision Servicio De Cuenta","deb":55000.0,"cred":0.0,"grupo":"","concepto":""},{"id":474,"fecha":"2025-01-12","desc":"Iva","deb":11550.0,"cred":0.0,"grupo":"","concepto":""},{"id":475,"fecha":"2025-01-12","desc":"Percep. Iva","deb":1650.0,"cred":0.0,"grupo":"","concepto":""},{"id":476,"fecha":"2025-01-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":409.2,"cred":0.0,"grupo":"","concepto":""},{"id":477,"fecha":"2025-01-12","desc":"Impuesto Foproex","deb":0.2,"cred":0.0,"grupo":"","concepto":""},{"id":478,"fecha":"2025-01-12","desc":"Iva","deb":154.24,"cred":0.0,"grupo":"","concepto":""},{"id":479,"fecha":"2025-01-12","desc":"Impuesto De Sellos","deb":50.08,"cred":0.0,"grupo":"","concepto":""},{"id":480,"fecha":"2025-01-12","desc":"Impuesto Foproex","deb":0.01,"cred":0.0,"grupo":"","concepto":""},{"id":481,"fecha":"2025-01-12","desc":"Intereses Sobre Saldos Deudores","deb":1468.97,"cred":0.0,"grupo":"","concepto":""},{"id":482,"fecha":"2025-01-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":10.04,"cred":0.0,"grupo":"","concepto":""},{"id":483,"fecha":"2025-02-12","desc":"Rescate Fima","deb":0.0,"cred":80000.0,"grupo":"","concepto":""},{"id":484,"fecha":"2025-02-12","desc":"Trf Inmed Proveed","deb":18014.48,"cred":0.0,"grupo":"","concepto":""},{"id":485,"fecha":"2025-02-12","desc":"Trf Inmed Proveed","deb":120000.0,"cred":0.0,"grupo":"","concepto":""},{"id":486,"fecha":"2025-02-12","desc":"Rescate Fima","deb":0.0,"cred":220000.0,"grupo":"","concepto":""},{"id":487,"fecha":"2025-02-12","desc":"Trf Inmed Proveed","deb":225970.0,"cred":0.0,"grupo":"","concepto":""},{"id":488,"fecha":"2025-02-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":2183.91,"cred":0.0,"grupo":"","concepto":""},{"id":489,"fecha":"2025-09-12","desc":"Rescate Fima","deb":0.0,"cred":320000.0,"grupo":"","concepto":""},{"id":490,"fecha":"2025-09-12","desc":"Pago Visa Empresa","deb":318343.0,"cred":0.0,"grupo":"","concepto":""},{"id":491,"fecha":"2025-09-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":1910.06,"cred":0.0,"grupo":"","concepto":""},{"id":492,"fecha":"2025-10-12","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":493,"fecha":"2025-11-12","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2243172.0,"grupo":"","concepto":""},{"id":494,"fecha":"2025-11-12","desc":"Ing. Brutos S/ Cred","deb":15702.2,"cred":0.0,"grupo":"","concepto":""},{"id":495,"fecha":"2025-11-12","desc":"Imp. Cre. Ley 25413","deb":13459.03,"cred":0.0,"grupo":"","concepto":""},{"id":496,"fecha":"2025-11-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":94.21,"cred":0.0,"grupo":"","concepto":""},{"id":497,"fecha":"2025-12-12","desc":"Transf. Afip","deb":41998.18,"cred":0.0,"grupo":"","concepto":""},{"id":498,"fecha":"2025-12-12","desc":"Imp. Deb. Ley 25413 Gral.","deb":251.99,"cred":0.0,"grupo":"","concepto":""},{"id":499,"fecha":"2025-12-15","desc":"Trf Inmed Proveed","deb":126600.0,"cred":0.0,"grupo":"","concepto":""},{"id":500,"fecha":"2025-12-15","desc":"Trf Inmed Proveed","deb":221000.0,"cred":0.0,"grupo":"","concepto":""},{"id":501,"fecha":"2025-12-15","desc":"Imp. Deb. Ley 25413 Gral.","deb":2085.6,"cred":0.0,"grupo":"","concepto":""},{"id":502,"fecha":"2025-12-16","desc":"Trf Inmed Proveed","deb":21000.0,"cred":0.0,"grupo":"","concepto":""},{"id":503,"fecha":"2025-12-16","desc":"Suscripcion Fima","deb":1500000.0,"cred":0.0,"grupo":"","concepto":""},{"id":504,"fecha":"2025-12-16","desc":"Trf Inmed Proveed","deb":300000.0,"cred":0.0,"grupo":"","concepto":""},{"id":505,"fecha":"2025-12-16","desc":"Imp. Deb. Ley 25413 Gral.","deb":1926.0,"cred":0.0,"grupo":"","concepto":""},{"id":506,"fecha":"2025-12-18","desc":"Rescate Fima","deb":0.0,"cred":2600000.0,"grupo":"","concepto":""},{"id":507,"fecha":"2025-12-18","desc":"Trf Inmed Proveed","deb":2600000.0,"cred":0.0,"grupo":"","concepto":""},{"id":508,"fecha":"2025-12-18","desc":"Imp. Deb. Ley 25413 Gral.","deb":15600.0,"cred":0.0,"grupo":"","concepto":""},{"id":509,"fecha":"2025-12-22","desc":"Trf Inmed Proveed","deb":21223.0,"cred":0.0,"grupo":"","concepto":""},{"id":510,"fecha":"2025-12-22","desc":"Imp. Deb. Ley 25413 Gral.","deb":127.34,"cred":0.0,"grupo":"","concepto":""},{"id":511,"fecha":"2025-12-22","desc":"Trf Inmed Proveed","deb":126850.72,"cred":0.0,"grupo":"","concepto":""},{"id":512,"fecha":"2025-12-22","desc":"Imp. Deb. Ley 25413 Gral.","deb":761.1,"cred":0.0,"grupo":"","concepto":""},{"id":513,"fecha":"2025-12-26","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":847000.0,"grupo":"","concepto":""},{"id":514,"fecha":"2025-12-26","desc":"Ing. Brutos S/ Cred","deb":5929.0,"cred":0.0,"grupo":"","concepto":""},{"id":515,"fecha":"2025-12-26","desc":"Trf Inmed Proveed","deb":424100.0,"cred":0.0,"grupo":"","concepto":""},{"id":516,"fecha":"2025-12-26","desc":"Imp. Deb. Ley 25413 Gral.","deb":2544.6,"cred":0.0,"grupo":"","concepto":""},{"id":517,"fecha":"2025-12-26","desc":"Imp. Cre. Ley 25413","deb":5082.0,"cred":0.0,"grupo":"","concepto":""},{"id":518,"fecha":"2025-12-26","desc":"Imp. Deb. Ley 25413 Gral.","deb":35.57,"cred":0.0,"grupo":"","concepto":""},{"id":519,"fecha":"2026-02-01","desc":"Deb. Autom. De Serv.","deb":179188.0,"cred":0.0,"grupo":"","concepto":""},{"id":520,"fecha":"2026-02-01","desc":"Deb. Autom. De Serv.","deb":181541.0,"cred":0.0,"grupo":"","concepto":""},{"id":521,"fecha":"2026-02-01","desc":"Deb. Autom. De Serv.","deb":187977.0,"cred":0.0,"grupo":"","concepto":""},{"id":522,"fecha":"2026-02-01","desc":"Deb. Autom. De Serv.","deb":197155.0,"cred":0.0,"grupo":"","concepto":""},{"id":523,"fecha":"2026-02-01","desc":"Rescate Fima","deb":0.0,"cred":500000.0,"grupo":"","concepto":""},{"id":524,"fecha":"2026-02-01","desc":"Imp. Deb. Ley 25413 Gral.","deb":4475.17,"cred":0.0,"grupo":"","concepto":""},{"id":525,"fecha":"2026-02-01","desc":"Comision Servicio De Cuenta","deb":55000.0,"cred":0.0,"grupo":"","concepto":""},{"id":526,"fecha":"2026-02-01","desc":"Iva","deb":11550.0,"cred":0.0,"grupo":"","concepto":""},{"id":527,"fecha":"2026-02-01","desc":"Percep. Iva","deb":1650.0,"cred":0.0,"grupo":"","concepto":""},{"id":528,"fecha":"2026-02-01","desc":"Imp. Deb. Ley 25413 Gral.","deb":409.2,"cred":0.0,"grupo":"","concepto":""},{"id":529,"fecha":"2026-05-01","desc":"Trf Inmed Proveed","deb":18014.48,"cred":0.0,"grupo":"","concepto":""},{"id":530,"fecha":"2026-05-01","desc":"Trf Inmed Proveed","deb":31712.68,"cred":0.0,"grupo":"","concepto":""},{"id":531,"fecha":"2026-05-01","desc":"Rescate Fima","deb":0.0,"cred":457000.0,"grupo":"","concepto":""},{"id":532,"fecha":"2026-05-01","desc":"Trf Inmed Proveed","deb":456170.0,"cred":0.0,"grupo":"","concepto":""},{"id":533,"fecha":"2026-05-01","desc":"Rescate Fima","deb":0.0,"cred":130000.0,"grupo":"","concepto":""},{"id":534,"fecha":"2026-05-01","desc":"Trf Inmed Proveed","deb":123000.0,"cred":0.0,"grupo":"","concepto":""},{"id":535,"fecha":"2026-05-01","desc":"Imp. Deb. Ley 25413 Gral.","deb":3773.38,"cred":0.0,"grupo":"","concepto":""},{"id":536,"fecha":"2026-08-01","desc":"Rescate Fima","deb":0.0,"cred":350000.0,"grupo":"","concepto":""},{"id":537,"fecha":"2026-12-01","desc":"Rescate Fima","deb":0.0,"cred":110000.0,"grupo":"","concepto":""},{"id":538,"fecha":"2026-12-01","desc":"Transf. Afip","deb":103318.33,"cred":0.0,"grupo":"","concepto":""},{"id":539,"fecha":"2026-12-01","desc":"Imp. Deb. Ley 25413 Gral.","deb":619.91,"cred":0.0,"grupo":"","concepto":""},{"id":540,"fecha":"2026-12-01","desc":"Pago Visa Empresa","deb":350667.55,"cred":0.0,"grupo":"","concepto":""},{"id":541,"fecha":"2026-12-01","desc":"Imp. Deb. Ley 25413 Gral.","deb":2104.01,"cred":0.0,"grupo":"","concepto":""},{"id":542,"fecha":"2026-01-14","desc":"Rescate Fima","deb":0.0,"cred":242000.0,"grupo":"","concepto":""},{"id":543,"fecha":"2026-01-14","desc":"Trf Inmed Proveed","deb":242000.0,"cred":0.0,"grupo":"","concepto":""},{"id":544,"fecha":"2026-01-14","desc":"Transf Inmed Cp","deb":70000.0,"cred":0.0,"grupo":"","concepto":""},{"id":545,"fecha":"2026-01-14","desc":"Imp. Deb. Ley 25413 Gral.","deb":1452.0,"cred":0.0,"grupo":"","concepto":""},{"id":546,"fecha":"2026-01-15","desc":"Servicio Pago A Proveedores","deb":0.0,"cred":2243172.0,"grupo":"","concepto":""},{"id":547,"fecha":"2026-01-15","desc":"Ing. Brutos S/ Cred","deb":15702.2,"cred":0.0,"grupo":"","concepto":""},{"id":548,"fecha":"2026-01-15","desc":"Imp. Cre. Ley 25413","deb":13459.03,"cred":0.0,"grupo":"","concepto":""},{"id":549,"fecha":"2026-01-15","desc":"Imp. Deb. Ley 25413 Gral.","deb":94.21,"cred":0.0,"grupo":"","concepto":""},{"id":550,"fecha":"2026-01-19","desc":"Suscripcion Fima","deb":2225861.0,"cred":0.0,"grupo":"","concepto":""},{"id":551,"fecha":"2026-01-21","desc":"Transferencia De Terceros","deb":0.0,"cred":2420000.0,"grupo":"","concepto":""},{"id":552,"fecha":"2026-01-21","desc":"Ing. Brutos S/ Cred","deb":16940.0,"cred":0.0,"grupo":"","concepto":""},{"id":553,"fecha":"2026-01-21","desc":"Suscripcion Fima","deb":2403060.0,"cred":0.0,"grupo":"","concepto":""},{"id":554,"fecha":"2026-01-21","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":555,"fecha":"2026-01-21","desc":"Trf Inmed Proveed","deb":180999.2,"cred":0.0,"grupo":"","concepto":""},{"id":556,"fecha":"2026-01-21","desc":"Imp. Deb. Ley 25413 Gral.","deb":1086.0,"cred":0.0,"grupo":"","concepto":""},{"id":557,"fecha":"2026-01-21","desc":"Imp. Cre. Ley 25413","deb":14520.0,"cred":0.0,"grupo":"","concepto":""},{"id":558,"fecha":"2026-01-21","desc":"Imp. Deb. Ley 25413 Gral.","deb":101.64,"cred":0.0,"grupo":"","concepto":""},{"id":559,"fecha":"2026-01-26","desc":"Rescate Fima","deb":0.0,"cred":2845000.0,"grupo":"","concepto":""},{"id":560,"fecha":"2026-01-26","desc":"Compra Debito","deb":1045705.05,"cred":0.0,"grupo":"","concepto":""},{"id":561,"fecha":"2026-01-26","desc":"Compra Debito","deb":1176177.6,"cred":0.0,"grupo":"","concepto":""},{"id":562,"fecha":"2026-01-26","desc":"Imp. Deb. Ley 25413 Gral.","deb":13331.3,"cred":0.0,"grupo":"","concepto":""},{"id":563,"fecha":"2026-01-27","desc":"Rescate Fima","deb":0.0,"cred":10000.0,"grupo":"","concepto":""},{"id":564,"fecha":"2026-01-27","desc":"Rescate Fima","deb":0.0,"cred":1800000.0,"grupo":"","concepto":""},{"id":565,"fecha":"2026-01-27","desc":"Trf Inmed Proveed","deb":1678280.0,"cred":0.0,"grupo":"","concepto":""},{"id":566,"fecha":"2026-01-27","desc":"Imp. Deb. Ley 25413 Gral.","deb":10069.68,"cred":0.0,"grupo":"","concepto":""},{"id":567,"fecha":"2026-01-28","desc":"Rescate Fima","deb":0.0,"cred":1570000.0,"grupo":"","concepto":""},{"id":568,"fecha":"2026-01-28","desc":"Compra Debito","deb":990676.66,"cred":0.0,"grupo":"","concepto":""},{"id":569,"fecha":"2026-01-28","desc":"Compra Debito","deb":189784.8,"cred":0.0,"grupo":"","concepto":""},{"id":570,"fecha":"2026-01-28","desc":"Imp. Deb. Ley 25413 Gral.","deb":7082.77,"cred":0.0,"grupo":"","concepto":""},{"id":571,"fecha":"2026-02-02","desc":"Deb. Autom. De Serv.","deb":186738.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":572,"fecha":"2026-02-02","desc":"Deb. Autom. De Serv.","deb":190580.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":573,"fecha":"2026-02-02","desc":"Deb. Autom. De Serv.","deb":198214.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":574,"fecha":"2026-02-02","desc":"Deb. Autom. De Serv.","deb":210048.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":575,"fecha":"2026-02-02","desc":"Trf Inmed Proveed","deb":126000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":576,"fecha":"2026-02-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":5469.48,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":577,"fecha":"2026-02-02","desc":"Comision Servicio De Cuenta","deb":1774.19,"cred":0.0,"grupo":"000808 - Comisiones","concepto":"907394 - COMISION SERVICIO DE CUENTA"},{"id":578,"fecha":"2026-02-02","desc":"Iva","deb":372.58,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907171 - IVA"},{"id":579,"fecha":"2026-02-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":12.88,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":580,"fecha":"2026-03-02","desc":"Trf Inmed Proveed","deb":19418.08,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907232 - TRF INMED PROVEED"},{"id":581,"fecha":"2026-03-02","desc":"Rescate Fima","deb":0.0,"cred":2886.0,"grupo":"000916 - Inversiones","concepto":"917138 - RESCATE FIMA"},{"id":582,"fecha":"2026-03-02","desc":"Trf Inmed Proveed","deb":180999.2,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":583,"fecha":"2026-03-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":1202.5,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":584,"fecha":"2026-03-02","desc":"Comision Servicio De Cuenta","deb":58225.81,"cred":0.0,"grupo":"000808 - Comisiones","concepto":"907394 - COMISION SERVICIO DE CUENTA"},{"id":585,"fecha":"2026-03-02","desc":"Iva","deb":12227.42,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907171 - IVA"},{"id":586,"fecha":"2026-03-02","desc":"Percep. Iva","deb":1746.77,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907172 - PERCEP. IVA"},{"id":587,"fecha":"2026-03-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":433.2,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":588,"fecha":"2026-05-02","desc":"Transferencia De Terceros","deb":0.0,"cred":613000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":589,"fecha":"2026-05-02","desc":"Ing. Brutos S/ Cred","deb":12260.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":590,"fecha":"2026-05-02","desc":"Transf Inmed Cp","deb":190000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907268 - TRANSF INMED CP"},{"id":591,"fecha":"2026-05-02","desc":"Transferencia De Terceros","deb":0.0,"cred":600000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":592,"fecha":"2026-05-02","desc":"Ing. Brutos S/ Cred","deb":12000.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":593,"fecha":"2026-05-02","desc":"Trf Inmed Proveed","deb":456170.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":594,"fecha":"2026-05-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":2737.02,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":595,"fecha":"2026-05-02","desc":"Imp. Cre. Ley 25413","deb":7278.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":596,"fecha":"2026-05-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":145.56,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":597,"fecha":"2026-09-02","desc":"Trf Inmed Proveed","deb":242000.0,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907269 - TRF INMED PROVEED"},{"id":598,"fecha":"2026-09-02","desc":"Transferencia De Terceros","deb":0.0,"cred":1700000.0,"grupo":"000907 - Transferencias","concepto":"917151 - TRANSFERENCIA DE TERCEROS"},{"id":599,"fecha":"2026-09-02","desc":"Ing. Brutos S/ Cred","deb":34000.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":600,"fecha":"2026-09-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":1452.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":601,"fecha":"2026-09-02","desc":"Imp. Cre. Ley 25413","deb":10200.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":602,"fecha":"2026-09-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":204.0,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":603,"fecha":"2026-09-02","desc":"Pago Visa Empresa","deb":1406543.54,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907154 - PAGO VISA EMPRESA"},{"id":604,"fecha":"2026-09-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":8439.26,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":605,"fecha":"2026-12-02","desc":"Transf. Afip","deb":227796.6,"cred":0.0,"grupo":"000907 - Transferencias","concepto":"907255 - TRANSF. AFIP"},{"id":606,"fecha":"2026-12-02","desc":"Imp. Deb. Ley 25413 Gral.","deb":1366.78,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":607,"fecha":"2026-02-18","desc":"Deb. Autom. De Serv.","deb":179783.0,"cred":0.0,"grupo":"000083 - Pagos","concepto":"907213 - DEB. AUTOM. DE SERV."},{"id":608,"fecha":"2026-02-18","desc":"Imp. Deb. Ley 25413 Gral.","deb":1078.7,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":609,"fecha":"2026-02-19","desc":"Com. Deposito De Cheque 28652072","deb":11015.97,"cred":0.0,"grupo":"000808 - Comisiones","concepto":"907188 - COM. DEPOSITO DE CHEQUE &1"},{"id":610,"fecha":"2026-02-19","desc":"Iva","deb":2313.35,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907171 - IVA"},{"id":611,"fecha":"2026-02-19","desc":"Percep. Iva","deb":330.48,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907172 - PERCEP. IVA"},{"id":612,"fecha":"2026-02-19","desc":"Com. Deposito De Cheque 10745220","deb":21964.23,"cred":0.0,"grupo":"000808 - Comisiones","concepto":"907188 - COM. DEPOSITO DE CHEQUE &1"},{"id":613,"fecha":"2026-02-19","desc":"Iva","deb":4612.49,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907171 - IVA"},{"id":614,"fecha":"2026-02-19","desc":"Percep. Iva","deb":658.93,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907172 - PERCEP. IVA"},{"id":615,"fecha":"2026-02-19","desc":"Imp. Deb. Ley 25413 Gral.","deb":245.37,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":616,"fecha":"2026-02-20","desc":"G.de Echeq Q28652072 Bol73184527","deb":0.0,"cred":1573711.0,"grupo":"000914 - Cheques","concepto":"917195 - G.DE CHEQUE Q:&1"},{"id":617,"fecha":"2026-02-20","desc":"Ing. Brutos S/ Cred","deb":31474.22,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":618,"fecha":"2026-02-20","desc":"G.de Echeq Q10745220 Bol73184446","deb":0.0,"cred":3137747.8,"grupo":"000914 - Cheques","concepto":"917195 - G.DE CHEQUE Q:&1"},{"id":619,"fecha":"2026-02-20","desc":"Ing. Brutos S/ Cred","deb":62754.96,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":620,"fecha":"2026-02-20","desc":"Imp. Cre. Ley 25413","deb":28268.75,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":621,"fecha":"2026-02-20","desc":"Imp. Deb. Ley 25413 Gral.","deb":565.38,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":622,"fecha":"2026-02-24","desc":"Suscripcion Fima","deb":4593409.0,"cred":0.0,"grupo":"000916 - Inversiones","concepto":"907237 - SUSCRIPCION FIMA"},{"id":623,"fecha":"2026-02-26","desc":"Com. Deposito De Cheque 28652063","deb":11015.97,"cred":0.0,"grupo":"000808 - Comisiones","concepto":"907188 - COM. DEPOSITO DE CHEQUE &1"},{"id":624,"fecha":"2026-02-26","desc":"Iva","deb":2313.35,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907171 - IVA"},{"id":625,"fecha":"2026-02-26","desc":"Percep. Iva","deb":330.48,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907172 - PERCEP. IVA"},{"id":626,"fecha":"2026-02-26","desc":"Imp. Deb. Ley 25413 Gral.","deb":81.96,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":627,"fecha":"2026-02-27","desc":"G.de Echeq Q28652063 Bol74647369","deb":0.0,"cred":1573711.0,"grupo":"000914 - Cheques","concepto":"917195 - G.DE CHEQUE Q:&1"},{"id":628,"fecha":"2026-02-27","desc":"Ing. Brutos S/ Cred","deb":31474.22,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907173 - ING. BRUTOS S/ CRED"},{"id":629,"fecha":"2026-02-27","desc":"Imp. Cre. Ley 25413","deb":9442.27,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907376 - IMP. CRE. LEY 25413"},{"id":630,"fecha":"2026-02-27","desc":"Imp. Deb. Ley 25413 Gral.","deb":188.85,"cred":0.0,"grupo":"000901 - Impuestos","concepto":"907176 - IMP. DEB. LEY 25413"},{"id":631,"fecha":"2026-02-03","desc":"Deb. Autom. De Serv.","deb":9299.0,"cred":0.0,"grupo":"","concepto":""},{"id":632,"fecha":"2026-02-03","desc":"Deb. Autom. De Serv.","deb":194931.0,"cred":0.0,"grupo":"","concepto":""},{"id":633,"fecha":"2026-02-03","desc":"Deb. Autom. De Serv.","deb":196730.0,"cred":0.0,"grupo":"","concepto":""},{"id":634,"fecha":"2026-02-03","desc":"Deb. Autom. De Serv.","deb":214137.0,"cred":0.0,"grupo":"","concepto":""},{"id":635,"fecha":"2026-02-03","desc":"Deb. Autom. De Serv.","deb":214697.0,"cred":0.0,"grupo":"","concepto":""},{"id":636,"fecha":"2026-02-03","desc":"Trf Inmed Proveed","deb":180999.2,"cred":0.0,"grupo":"","concepto":""},{"id":637,"fecha":"2026-02-03","desc":"Trf Inmed Proveed","deb":130000.0,"cred":0.0,"grupo":"","concepto":""},{"id":638,"fecha":"2026-02-03","desc":"Rescate Fima","deb":0.0,"cred":700000.0,"grupo":"","concepto":""},{"id":639,"fecha":"2026-02-03","desc":"Transferencia De Terceros","deb":0.0,"cred":385916.29,"grupo":"","concepto":""},{"id":640,"fecha":"2026-02-03","desc":"Ing. Brutos S/ Cred","deb":7718.33,"cred":0.0,"grupo":"","concepto":""},{"id":641,"fecha":"2026-02-03","desc":"Trf Inmed Proveed","deb":19418.08,"cred":0.0,"grupo":"","concepto":""},{"id":642,"fecha":"2026-02-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":6961.27,"cred":0.0,"grupo":"","concepto":""},{"id":643,"fecha":"2026-02-03","desc":"Imp. Cre. Ley 25413","deb":2315.5,"cred":0.0,"grupo":"","concepto":""},{"id":644,"fecha":"2026-02-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":46.31,"cred":0.0,"grupo":"","concepto":""},{"id":645,"fecha":"2026-02-03","desc":"Com. Deposito De Cheque 28652069","deb":11015.97,"cred":0.0,"grupo":"","concepto":""},{"id":646,"fecha":"2026-02-03","desc":"Iva","deb":2313.35,"cred":0.0,"grupo":"","concepto":""},{"id":647,"fecha":"2026-02-03","desc":"Percep. Iva","deb":330.48,"cred":0.0,"grupo":"","concepto":""},{"id":648,"fecha":"2026-02-03","desc":"Percep. Iva","deb":1800.0,"cred":0.0,"grupo":"","concepto":""},{"id":649,"fecha":"2026-02-03","desc":"Iva","deb":12600.0,"cred":0.0,"grupo":"","concepto":""},{"id":650,"fecha":"2026-02-03","desc":"Comision Servicio De Cuenta","deb":60000.0,"cred":0.0,"grupo":"","concepto":""},{"id":651,"fecha":"2026-02-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":528.36,"cred":0.0,"grupo":"","concepto":""},{"id":652,"fecha":"2026-02-03","desc":"Intereses Sobre Saldos Deudores","deb":329.84,"cred":0.0,"grupo":"","concepto":""},{"id":653,"fecha":"2026-02-03","desc":"Impuesto De Sellos","deb":13.19,"cred":0.0,"grupo":"","concepto":""},{"id":654,"fecha":"2026-02-03","desc":"Iva","deb":34.63,"cred":0.0,"grupo":"","concepto":""},{"id":655,"fecha":"2026-02-03","desc":"Impuesto Foproex","deb":0.05,"cred":0.0,"grupo":"","concepto":""},{"id":656,"fecha":"2026-02-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":2.27,"cred":0.0,"grupo":"","concepto":""},{"id":657,"fecha":"2026-03-03","desc":"Trf Inmed Proveed","deb":456170.0,"cred":0.0,"grupo":"","concepto":""},{"id":658,"fecha":"2026-03-03","desc":"Compra Debito","deb":693900.55,"cred":0.0,"grupo":"","concepto":""},{"id":659,"fecha":"2026-03-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":6900.42,"cred":0.0,"grupo":"","concepto":""},{"id":660,"fecha":"2026-03-03","desc":"G.de Echeq Q28652069 Bol75146721","deb":0.0,"cred":1573711.0,"grupo":"","concepto":""},{"id":661,"fecha":"2026-03-03","desc":"Ing. Brutos S/ Cred","deb":31474.22,"cred":0.0,"grupo":"","concepto":""},{"id":662,"fecha":"2026-03-03","desc":"Imp. Cre. Ley 25413","deb":9442.27,"cred":0.0,"grupo":"","concepto":""},{"id":663,"fecha":"2026-03-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":188.85,"cred":0.0,"grupo":"","concepto":""},{"id":664,"fecha":"2026-05-03","desc":"Suscripcion Fima","deb":1714194.0,"cred":0.0,"grupo":"","concepto":""},{"id":665,"fecha":"2026-06-03","desc":"Rescate Fima","deb":0.0,"cred":192000.0,"grupo":"","concepto":""},{"id":666,"fecha":"2026-06-03","desc":"Transf Inmed Cp","deb":192000.0,"cred":0.0,"grupo":"","concepto":""},{"id":667,"fecha":"2026-09-03","desc":"Deb. Autom. De Serv.","deb":10650.0,"cred":0.0,"grupo":"","concepto":""},{"id":668,"fecha":"2026-09-03","desc":"Rescate Fima","deb":0.0,"cred":900000.0,"grupo":"","concepto":""},{"id":669,"fecha":"2026-09-03","desc":"Trf Inmed Proveed","deb":504000.0,"cred":0.0,"grupo":"","concepto":""},{"id":670,"fecha":"2026-09-03","desc":"Rescate Fima","deb":0.0,"cred":115000.0,"grupo":"","concepto":""},{"id":671,"fecha":"2026-09-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":3087.9,"cred":0.0,"grupo":"","concepto":""},{"id":672,"fecha":"2026-09-03","desc":"Pago Visa Empresa","deb":498606.69,"cred":0.0,"grupo":"","concepto":""},{"id":673,"fecha":"2026-09-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":2991.64,"cred":0.0,"grupo":"","concepto":""},{"id":674,"fecha":"2026-10-03","desc":"Rescate Fima","deb":0.0,"cred":5000.0,"grupo":"","concepto":""},{"id":675,"fecha":"2026-10-03","desc":"Com. Deposito De Cheque 10745226","deb":16940.0,"cred":0.0,"grupo":"","concepto":""},{"id":676,"fecha":"2026-10-03","desc":"Iva","deb":3557.4,"cred":0.0,"grupo":"","concepto":""},{"id":677,"fecha":"2026-10-03","desc":"Percep. Iva","deb":508.2,"cred":0.0,"grupo":"","concepto":""},{"id":678,"fecha":"2026-10-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":126.03,"cred":0.0,"grupo":"","concepto":""},{"id":679,"fecha":"2026-11-03","desc":"Rescate Fima","deb":0.0,"cred":200000.0,"grupo":"","concepto":""},{"id":680,"fecha":"2026-11-03","desc":"Transf. Afip","deb":174528.16,"cred":0.0,"grupo":"","concepto":""},{"id":681,"fecha":"2026-11-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":1047.17,"cred":0.0,"grupo":"","concepto":""},{"id":682,"fecha":"2026-11-03","desc":"G.de Echeq Q10745226 Bol76910350","deb":0.0,"cred":2420000.0,"grupo":"","concepto":""},{"id":683,"fecha":"2026-11-03","desc":"Ing. Brutos S/ Cred","deb":48400.0,"cred":0.0,"grupo":"","concepto":""},{"id":684,"fecha":"2026-11-03","desc":"Rechazo Ech 10745226","deb":2420000.0,"cred":0.0,"grupo":"","concepto":""},{"id":685,"fecha":"2026-11-03","desc":"Dev.imp.cred.ley 25413","deb":0.0,"cred":14520.0,"grupo":"","concepto":""},{"id":686,"fecha":"2026-11-03","desc":"Imp. Cre. Ley 25413","deb":14520.0,"cred":0.0,"grupo":"","concepto":""},{"id":687,"fecha":"2026-11-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":290.4,"cred":0.0,"grupo":"","concepto":""},{"id":688,"fecha":"2026-12-03","desc":"Transferencia De Terceros","deb":0.0,"cred":2400000.0,"grupo":"","concepto":""},{"id":689,"fecha":"2026-12-03","desc":"Ing. Brutos S/ Cred","deb":48000.0,"cred":0.0,"grupo":"","concepto":""},{"id":690,"fecha":"2026-12-03","desc":"Imp. Cre. Ley 25413","deb":14400.0,"cred":0.0,"grupo":"","concepto":""},{"id":691,"fecha":"2026-12-03","desc":"Imp. Deb. Ley 25413 Gral.","deb":288.0,"cred":0.0,"grupo":"","concepto":""},{"id":692,"fecha":"2026-03-13","desc":"Trf Inmed Proveed","deb":242000.0,"cred":0.0,"grupo":"","concepto":""},{"id":693,"fecha":"2026-03-13","desc":"Suscripcion Fima","deb":2050579.0,"cred":0.0,"grupo":"","concepto":""},{"id":694,"fecha":"2026-03-13","desc":"Imp. Deb. Ley 25413 Gral.","deb":1452.0,"cred":0.0,"grupo":"","concepto":""},{"id":695,"fecha":"2026-03-16","desc":"Deb. Autom. De Serv.","deb":172296.0,"cred":0.0,"grupo":"","concepto":""},{"id":696,"fecha":"2026-03-16","desc":"Rescate Fima","deb":0.0,"cred":180000.0,"grupo":"","concepto":""},{"id":697,"fecha":"2026-03-16","desc":"Imp. Deb. Ley 25413 Gral.","deb":1033.78,"cred":0.0,"grupo":"","concepto":""},{"id":698,"fecha":"2026-03-19","desc":"Credito Transferencia Coelsa","deb":0.0,"cred":337500.0,"grupo":"","concepto":""},{"id":699,"fecha":"2026-03-19","desc":"Ing. Brutos S/ Cred","deb":6750.0,"cred":0.0,"grupo":"","concepto":""},{"id":700,"fecha":"2026-03-19","desc":"Imp. Cre. Ley 25413","deb":2025.0,"cred":0.0,"grupo":"","concepto":""},{"id":701,"fecha":"2026-03-19","desc":"Imp. Deb. Ley 25413 Gral.","deb":40.5,"cred":0.0,"grupo":"","concepto":""},{"id":702,"fecha":"2026-03-20","desc":"Suscripcion Fima","deb":330000.0,"cred":0.0,"grupo":"","concepto":""}];
+
+const DEF_CONTRATOS=[
+  {id:1,emp:'SV GROUP SAS SAS',pat:'AG-870-VZ',precio:2000000,iva:0.21,inicio:'2025-05-16',fin:'',dia:18,est:'activo',obs:''},
+  {id:2,emp:'IVAN SEBASTIAN RUBILAR GUERRERO',pat:'AG-455-AR',precio:2000000,iva:0.21,inicio:'2025-05-28',fin:'',dia:7,est:'activo',obs:''},
+  {id:3,emp:'TBH SERVICIOS SAS',pat:'AG-832-SV',precio:1900000,iva:0.21,inicio:'2025-09-02',fin:'',dia:10,est:'activo',obs:''},
+  {id:4,emp:'APARICIO DANIEL ALEJANDRO',pat:'AH-253-PY',precio:1750000,iva:0.21,inicio:'2026-02-20',fin:'',dia:18,est:'activo',obs:''},
+  {id:5,emp:'MAGHREB S.A',pat:'AH-751-LZ',precio:1900000,iva:0.21,inicio:'2026-03-04',fin:'',dia:4,est:'activo',obs:''},
+  {id:6,emp:'MAGHREB S.A',pat:'AI-029-FZ',precio:1900000,iva:0.21,inicio:'2026-02-23',fin:'',dia:4,est:'activo',obs:''},
+  {id:7,emp:'MAGHREB S.A',pat:'AH-817-LG',precio:1900000,iva:0.21,inicio:'2026-03-04',fin:'',dia:4,est:'activo',obs:''},
+];
+const DEF_MANT=[];
+const DEF_DOCS=[
+  {id:1,pat:'AG-870-VZ',tipo:'Seguro',venc:'2026-09-16',prov:'TRIUNFO COOP SEG',costo:197155,notas:''},
+  {id:2,pat:'AG-832-SV',tipo:'Seguro',venc:'2026-09-16',prov:'TRIUNFO COOP SEG',costo:187977,notas:''},
+  {id:3,pat:'AH-253-PY',tipo:'Seguro',venc:'2026-09-16',prov:'TRIUNFO COOP SEG',costo:181541,notas:''},
+  {id:4,pat:'AH-751-LZ',tipo:'Seguro',venc:'2026-09-16',prov:'TRIUNFO COOP SEG',costo:179188,notas:''},
+  {id:5,pat:'AG-870-VZ',tipo:'Patente',venc:'2026-07-01',prov:'RENTAS',costo:1045705,notas:'Semestral pagado ENE2026'},
+  {id:6,pat:'AG-832-SV',tipo:'Patente',venc:'2026-07-01',prov:'RENTAS',costo:1176177,notas:'Semestral pagado ENE2026'},
+  {id:7,pat:'AH-253-PY',tipo:'Patente',venc:'2026-07-01',prov:'RENTAS',costo:622101,notas:'Semestral pagado ENE2026'},
+  {id:8,pat:'AH-751-LZ',tipo:'Patente',venc:'2026-09-01',prov:'RENTAS',costo:693900,notas:'Semestral pagado MAR2026'},
+];
+const DEF_CHEQUES=[
+  {id:1,num:'10745226',banco:'BCO GALICIA',emp:'SV GROUP SAS SAS',monto:2420000,fecha:'2026-03-13',factura:'54',est:'cobrado',obs:''},
+  {id:2,num:'28903918',banco:'BCO GALICIA',emp:'APARICIO DANIEL',monto:2117500,fecha:'2026-03-28',factura:'62',est:'pendiente',obs:''},
+  {id:3,num:'10745220',banco:'BCO GALICIA',emp:'SV GROUP SAS SAS',monto:3137748,fecha:'2026-02-08',factura:'51',est:'cobrado',obs:''},
+  {id:4,num:'28652072',banco:'BCO GALICIA',emp:'TBH SERVICIOS SAS',monto:5569557,fecha:'2026-03-21',factura:'53',est:'cobrado',obs:''},
+  {id:5,num:'00002527',banco:'BCO GALICIA',emp:'MAGHREB S.A',monto:1089000,fecha:'2026-04-15',factura:'60',est:'pendiente',obs:''},
+];
+const DEF_SOCIOS=[
+  {id:1,nombre:'KRAUSE JULIAN',aportesARS:0,aportesUSD:0,pct:0},
+  {id:2,nombre:'GAÑAN FEDERICO',aportesARS:0,aportesUSD:0,pct:0},
+  {id:3,nombre:'LEIVA GASTÓN',aportesARS:0,aportesUSD:0,pct:0},
+  {id:4,nombre:'GIL CERNICH SANTIAGO',aportesARS:0,aportesUSD:0,pct:0},
+  {id:5,nombre:'GIL CERNICH FEDERICO',aportesARS:0,aportesUSD:0,pct:0},
+  {id:6,nombre:'PERELMUTER DIEGO',aportesARS:0,aportesUSD:0,pct:0},
+  {id:7,nombre:'HERRERA LEONEL',aportesARS:0,aportesUSD:0,pct:0},
+  {id:8,nombre:'DÍAZ LEANDRO',aportesARS:0,aportesUSD:0,pct:0},
+];
+const DEF_APORTES=[
+  // CAMIONETA 1 — AG-832-SV (dic 2024)
+  {id:1,socio:'DÍAZ LEANDRO',con:'Camioneta 1 (AG-832-SV)',monto:7000000,usd:5200,fecha:'2024-12-08'},
+  {id:2,socio:'GAÑAN FEDERICO',con:'Camioneta 1 (AG-832-SV)',monto:7000000,usd:5200,fecha:'2024-12-08'},
+  {id:3,socio:'LEIVA GASTÓN',con:'Camioneta 1 (AG-832-SV)',monto:7000000,usd:5200,fecha:'2024-12-08'},
+  {id:4,socio:'GIL CERNICH SANTIAGO',con:'Camioneta 1 (AG-832-SV)',monto:3500000,usd:2600,fecha:'2024-12-08'},
+  {id:5,socio:'GIL CERNICH FEDERICO',con:'Camioneta 1 (AG-832-SV)',monto:3500000,usd:2600,fecha:'2024-12-08'},
+  {id:6,socio:'HERRERA LEONEL',con:'Camioneta 1 (AG-832-SV)',monto:7000000,usd:5200,fecha:'2024-12-08'},
+  {id:7,socio:'KRAUSE JULIAN',con:'Camioneta 1 (AG-832-SV)',monto:7000000,usd:5200,fecha:'2024-12-08'},
+  {id:8,socio:'PERELMUTER DIEGO',con:'Camioneta 1 (AG-832-SV)',monto:7000000,usd:5200,fecha:'2024-12-08'},
+  // CAMIONETA 2 — AG-870-VZ (oct 2024)
+  {id:9,socio:'DÍAZ LEANDRO',con:'Camioneta 2 (AG-870-VZ)',monto:6000000,usd:5000,fecha:'2024-10-02'},
+  {id:10,socio:'GAÑAN FEDERICO',con:'Camioneta 2 (AG-870-VZ)',monto:6000000,usd:5000,fecha:'2024-10-02'},
+  {id:11,socio:'LEIVA GASTÓN',con:'Camioneta 2 (AG-870-VZ)',monto:6000000,usd:5000,fecha:'2024-10-02'},
+  {id:12,socio:'GIL CERNICH SANTIAGO',con:'Camioneta 2 (AG-870-VZ)',monto:3000000,usd:2500,fecha:'2024-10-02'},
+  {id:13,socio:'GIL CERNICH FEDERICO',con:'Camioneta 2 (AG-870-VZ)',monto:3000000,usd:2500,fecha:'2024-10-02'},
+  {id:14,socio:'HERRERA LEONEL',con:'Camioneta 2 (AG-870-VZ)',monto:6000000,usd:5000,fecha:'2024-10-02'},
+  {id:15,socio:'KRAUSE JULIAN',con:'Camioneta 2 (AG-870-VZ)',monto:6000000,usd:5000,fecha:'2024-10-02'},
+  {id:16,socio:'PERELMUTER DIEGO',con:'Camioneta 2 (AG-870-VZ)',monto:6000000,usd:5000,fecha:'2024-10-02'},
+  // CAMIONETA 3 — AH-253-PY (ene 2025)
+  {id:17,socio:'GAÑAN FEDERICO',con:'Camioneta 3 (AH-253-PY)',monto:8000000,usd:6500,fecha:'2025-01-17'},
+  {id:18,socio:'LEIVA GASTÓN',con:'Camioneta 3 (AH-253-PY)',monto:8000000,usd:6500,fecha:'2025-01-17'},
+  {id:19,socio:'GIL CERNICH SANTIAGO',con:'Camioneta 3 (AH-253-PY)',monto:4000000,usd:3250,fecha:'2025-01-17'},
+  {id:20,socio:'GIL CERNICH FEDERICO',con:'Camioneta 3 (AH-253-PY)',monto:4000000,usd:3250,fecha:'2025-01-17'},
+  {id:21,socio:'HERRERA LEONEL',con:'Camioneta 3 (AH-253-PY)',monto:8000000,usd:6500,fecha:'2025-01-17'},
+  {id:22,socio:'KRAUSE JULIAN',con:'Camioneta 3 (AH-253-PY)',monto:8000000,usd:6500,fecha:'2025-01-17'},
+  {id:23,socio:'PERELMUTER DIEGO',con:'Camioneta 3 (AH-253-PY)',monto:8000000,usd:6500,fecha:'2025-01-17'},
+  // CAMIONETA 4 — AH-751-LZ (ene 2025)
+  {id:24,socio:'GAÑAN FEDERICO',con:'Camioneta 4 (AH-751-LZ)',monto:2400000,usd:0,fecha:'2025-01-17'},
+  {id:25,socio:'LEIVA GASTÓN',con:'Camioneta 4 (AH-751-LZ)',monto:2400000,usd:0,fecha:'2025-01-17'},
+  {id:26,socio:'GIL CERNICH SANTIAGO',con:'Camioneta 4 (AH-751-LZ)',monto:1200000,usd:0,fecha:'2025-01-17'},
+  {id:27,socio:'GIL CERNICH FEDERICO',con:'Camioneta 4 (AH-751-LZ)',monto:1200000,usd:0,fecha:'2025-01-17'},
+  {id:28,socio:'HERRERA LEONEL',con:'Camioneta 4 (AH-751-LZ)',monto:2400000,usd:0,fecha:'2025-01-17'},
+  {id:29,socio:'KRAUSE JULIAN',con:'Camioneta 4 (AH-751-LZ)',monto:2400000,usd:0,fecha:'2025-01-17'},
+  {id:30,socio:'PERELMUTER DIEGO',con:'Camioneta 4 (AH-751-LZ)',monto:2400000,usd:0,fecha:'2025-01-17'},
+  {id:31,socio:'DÍAZ LEANDRO',con:'Camioneta 4 (AH-751-LZ)',monto:1600000,usd:0,fecha:'2025-01-17'},
+  // CAMIONETA 5 — AI-029-FZ (nov 2025)
+  {id:32,socio:'GAÑAN FEDERICO',con:'Camioneta 5 (AI-029-FZ)',monto:8500000,usd:0,fecha:'2025-11-27'},
+  {id:33,socio:'LEIVA GASTÓN',con:'Camioneta 5 (AI-029-FZ)',monto:8500000,usd:0,fecha:'2025-11-27'},
+  {id:34,socio:'GIL CERNICH SANTIAGO',con:'Camioneta 5 (AI-029-FZ)',monto:4250000,usd:0,fecha:'2025-11-27'},
+  {id:35,socio:'GIL CERNICH FEDERICO',con:'Camioneta 5 (AI-029-FZ)',monto:4250000,usd:0,fecha:'2025-11-27'},
+  {id:36,socio:'HERRERA LEONEL',con:'Camioneta 5 (AI-029-FZ)',monto:8500000,usd:0,fecha:'2025-11-27'},
+  {id:37,socio:'KRAUSE JULIAN',con:'Camioneta 5 (AI-029-FZ)',monto:8500000,usd:0,fecha:'2025-11-27'},
+  {id:38,socio:'PERELMUTER DIEGO',con:'Camioneta 5 (AI-029-FZ)',monto:8500000,usd:0,fecha:'2025-11-27'},
+];
+const DEF_COSTOS={
+  'ENE-2025':{vars:[['Vep Autónomo',93260],['Vep IIBB',141408],['Mantenimiento',325000]],fijos:[['Seguro AG-870-VZ',122459],['Seguro AG-832-SV',144488],['Microtrack',27107],['Patente AG-832-SV',75396],['Patente AG-870-VZ',44688],['Control Documental',200000],['Contador',310195],['Devol. Juli García',1418892]],imp:[['Imp. Cré. Ley 25413',14031],['Imp. Deb. Ley 25413',8862],['Ing. Brutos',161312]],ing:[['Alquiler SAM',2238500],['Alquiler E2E',2057000],['Alquiler E2E',2057000]]},
+  'FEB-2025':{vars:[['Vep Autónomo',95526],['Vep IIBB',52930]],fijos:[['Seguro AG-870-VZ',132819],['Seguro AG-832-SV',149922],['Microtrack x3',115255],['Patente AG-832-SV',75396],['Patente AG-870-VZ',44688],['Control Documental',200000],['Contador',356950],['Devol. Juli García',1418892]],imp:[['Imp. Cré.',25644],['Imp. Deb.',7476],['Ing. Brutos',106850]],ing:[['Alquiler SAM',2238500],['Alquiler E2E',2057000],['Alquiler E2E',2057000]]},
+  'MAR-2025':{vars:[['Vep Autónomo',98105],['Vep IIBB',107143],['Mantenimiento',446840]],fijos:[['Seguro AG-870-VZ',139157],['Seguro AG-832-SV',150980],['Microtrack x3',115255],['Patente AG-832-SV',75396],['Patente AG-870-VZ',44688],['Control Documental',200000],['Contador',356950],['Devol. Juli García',1418892],['Amort. AH-253-PY',343281]],imp:[['Imp. Cré.',24684],['Imp. Deb.',27960],['Ing. Brutos',102850]],ing:[['Alquiler SAM',2406387],['Alquiler E2E',2057000],['Alquiler E2E',2057000]]},
+  'ABR-2025':{vars:[['Vep Autónomo',100356],['Vep IIBB',110464]],fijos:[['Seguro AG-870-VZ',143587],['Seguro AG-832-SV',162417],['Seguro AH-253-PY',128512],['Microtrack x4',86441],['Patentes',120084],['Control Documental',200000],['Contador',356950],['Amort. AH-253-PY',343281]],imp:[['Comisiones',16844],['Imp. Cré.',15038],['Imp. Deb.',19120],['Ing. Brutos',62659],['Tarjeta Visa',729443]],ing:[['Alquiler SAM',2406387]]},
+  'MAY-2025':{vars:[['Vep Autónomo',102680],['Vep IIBB',56283]],fijos:[['Seguro AG-870-VZ',148250],['Seguro AG-832-SV',163704],['Seguro AH-253-PY',129644],['Microtrack x4',115255],['Patentes',120084],['Control Documental',200000],['Contador',356950],['Devol. Juli García',1418892],['Amort. AH-253-PY',343281]],imp:[['Imp. Cré.',24684],['Imp. Deb.',18458],['Ing. Brutos',102850],['Tarjeta Visa',281666]],ing:[['Alquiler SAM',2406387],['Alquiler E2E (abr)',2057000],['Alquiler E2E (abr)',2057000]]},
+  'JUN-2025':{vars:[['Vep Autónomo',111113],['Cubiertas',419900]],fijos:[['Seguro AG-870-VZ',153141],['Seguro AG-832-SV',165183],['Seguro AH-253-PY',130896],['Microtrack x4',115255],['Patentes',120084],['Control Documental',200000],['Contador',356950],['Amort. AH-253-PY',343281]],imp:[['Imp. Deb.',9855],['Tarjeta Visa',360181]],ing:[['Alquiler SAM',2574834]]},
+  'JUL-2025':{vars:[['Vep Autónomo',109471],['Vep IIBB',236885]],fijos:[['Seguro AG-870-VZ',154445],['Seguro AG-832-SV',167011],['Seguro AH-253-PY',130896],['Microtrack x4',230511],['Patente semestral',1989439],['Control Documental',200000],['Contador',405350],['Amort. AH-253-PY',343281],['Devol. Juli García',3416708],['5% comisión',277000]],imp:[['Imp. Cré.',42433],['Imp. Deb.',47644],['Ing. Brutos',176805],['Tarjeta Visa',622048]],ing:[['Alquiler SAM',2574834],['Alquiler Tergolaf',993505],['SV GROUP SAS',2420000],['Ivan Rubilar',2662000],['Excedente KM E2E',3553951]]},
+  'AGO-2025':{vars:[['Vep Autónomo',111113],['Vep IIBB',84000]],fijos:[['Seguro AG-870-VZ',159622],['Seguro AG-832-SV',189498],['Seguro AH-253-PY',133628],['Microtrack x4',126850],['Control Documental',200000],['Contador',405350],['Amort. AH-253-PY',343281],['Devol. Juli García',1678280],['5% comisión',277000]],imp:[['Imp. Cré.',14520],['Imp. Deb.',22069],['Ing. Brutos',48400],['Tarjeta Visa',520548]],ing:[['Alquiler SAM',2574834],['Alquiler Tergolaf',4255672],['SV GROUP SAS',2420000],['Ivan Rubilar',2420000]]},
+  'SEP-2025':{vars:[['Vep Autónomo',112913],['Vep IIBB',23672]],fijos:[['Seguro AG-870-VZ',179000],['Seguro AG-832-SV',199683],['Seguro AH-253-PY',149111],['Microtrack x4',126850],['Control Documental',200000],['Contador',405350],['Amort. AH-253-PY',343281],['Devol. Juli García',1678280],['5% comisión',277000]],imp:[['Comisiones',2066],['Imp. Cré.',16920],['Imp. Deb.',20965],['Ing. Brutos',36660],['Tarjeta Visa',379666]],ing:[['Ivan Rubilar',2420000]]},
+  'OCT-2025':{vars:[['Vep Autónomo',115058],['Vep IIBB',75330]],fijos:[['Seguro AG-870-VZ',162527],['Seguro AG-832-SV',172516],['Seguro AH-253-PY',183751],['Microtrack x4',126850],['RSV',17266],['Control Documental',200000],['Contador',405350],['Amort. AH-253-PY',343281],['Devol. Juli García',1678280],['5% comisión',277000]],imp:[['Imp. Cré.',153386],['Imp. Deb.',224214],['Ing. Brutos',281206],['Tarjeta Visa',526576]],ing:[['Alquiler Tergolaf',2238500],['SV GROUP SAS',1210000],['Ivan Rubilar',2420000],['TBH Servicios',2299000]]},
+  'NOV-2025':{vars:[['Vep Autónomo',117222],['Vep IIBB',52945]],fijos:[['Seguro AG-870-VZ',165942],['Seguro AG-832-SV',165376],['Seguro AH-253-PY',158905],['Seguro AH-751-LZ',156147],['Microtrack x4',126850],['RSV',18014],['Control Documental',200000],['Contador',405350],['Amort. AH-253-PY',343281],['Amort. AH-751-LZ',409510],['Devol. Juli García',1678280]],imp:[['Comisiones',55000],['IVA Percepciones',13200],['Imp. Cré.',30499],['Imp. Deb.',28664],['Ing. Brutos',101663],['Tarjeta Visa',1048257]],ing:[['Alquiler Tergolaf',2238500],['SV GROUP SAS',2420000],['Ivan Rubilar',2420000],['TBH Servicios',2299000]]},
+  'DIC-2025':{vars:[['Vep Autónomo',119660],['Vep IIBB',41998]],fijos:[['Seguro AG-870-VZ',179288],['Seguro AG-832-SV',178428],['Seguro AH-253-PY',173330],['Seguro AH-751-LZ',165551],['Microtrack x4',126850],['RSV',18014],['Patente AH-253-PY',117160],['Control Documental',242000],['Contador',405350],['Amort. AH-253-PY',343281],['Amort. AH-751-LZ',409510],['Devol. Juli García',1678280]],imp:[['Comisiones',55000],['IVA Percepciones',13304],['Imp. Cré.',18541],['Imp. Deb.',35276],['Ing. Brutos',21631],['Tarjeta Visa',318343]],ing:[['Alquiler Tergolaf',2238500],['SV GROUP SAS',2420000],['Ivan Rubilar',2420000],['TBH Servicios',2299000]]},
+  'ENE-2026':{vars:[['Vep Autónomo',122460],['Vep IIBB',103318]],fijos:[['Seguro AG-870-VZ',197155],['Seguro AG-832-SV',187977],['Seguro AH-253-PY',181541],['Seguro AH-751-LZ',179188],['Microtrack x4',126850],['RSV',18014],['Patente AG-832-SV',1176177],['Patente AG-870-VZ',1045705],['Patente AH-253-PY',622101],['Control Documental',242000],['Contador',456170],['Amort. AH-253-PY',343281],['Amort. AH-751-LZ',409510],['Devol. Juli García',1678280]],imp:[['Comisiones',11500],['Imp. Cré.',195],['Imp. Deb.',489158],['Ing. Brutos',14545],['Tarjeta Visa',413585]],ing:[['Alquiler Tergolaf',2238500],['Ivan Rubilar',2420000]]},
+  'FEB-2026':{vars:[['Vep Autónomo',125485],['Vep IIBB',227796]],fijos:[['Seguro AG-870-VZ',210048],['Seguro AG-832-SV',198214],['Seguro AH-253-PY',190580],['Seguro AH-751-LZ',186738],['Microtrack x5',180999],['RSV',19418],['Control Documental',242000],['Contador',456170],['Amort. AH-253-PY',343281],['Amort. AH-751-LZ',409510],['Devol. Juli García',1678280]],imp:[['Comisiones',103996],['Imp. Cré.',55189],['Imp. Deb.',23622],['Ing. Brutos',183963],['Tarjeta Visa',1594543]],ing:[['Alquiler Tergolaf',2238500],['SV GROUP SAS',3137747],['Ivan Rubilar',2420000],['TBH Servicios',3147422]]},
+  'MAR-2026':{vars:[['Vep Autónomo',129061],['Vep IIBB',174528]],fijos:[['Seguro AG-870-VZ',214697],['Seguro AG-832-SV',214137],['Seguro AH-253-PY',196730],['Seguro AH-751-LZ',204230],['Microtrack x5',180999],['RSV',19418],['Patente AH-751-LZ',693900],['Control Documental',242000],['Contador',456170],['Amort. AH-253-PY',343281],['Amort. AH-751-LZ',409510],['Amort. AI-029-FZ',394121],['Devol. Juli García',1678280]],imp:[['Tarjeta Visa',690467]],ing:[['SV GROUP SAS',2420000],['Ivan Rubilar',2420000],['TBH Servicios',4958023]]},
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let flota=load('pkhv2_flota',DEF_FLOTA);
+let km=load('pkhv2_km',DEF_KM);
+let facturas=load('pkhv2_fac',DEF_FAC);
+let gastos=load('pkhv2_gas',DEF_GAS);
+let mantenimiento=load('pkhv2_mant',DEF_MANT);
+let documentos=load('pkhv2_docs',DEF_DOCS);
+let cheques=load('pkhv2_cheq',DEF_CHEQUES);
+let homebanking=load('pkhv2_hb',DEF_HB);
+let contratos=load('pkhv2_contratos',DEF_CONTRATOS);
+let socios=load('pkhv2_socios',DEF_SOCIOS);
+let aportes=load('pkhv2_aport',DEF_APORTES);
+let costosMes=load('pkhv2_costos',DEF_COSTOS);
+let chequeTabActual='pendientes';
+let gasChartI=null, gasOriChartI=null, costosChartI=null, proyChartI=null;
+
+// ============================================================
+// UTILS
+// ============================================================
+const fmt=n=>typeof n==='number'?'$'+n.toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0}):'—';
+const fmtD=d=>{if(!d)return'—';try{const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}catch{return d;}};
+const today=()=>new Date().toISOString().split('T')[0];
+const addDays=(d,n)=>{const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];};
+const diffDays=(d1,d2)=>Math.round((new Date(d1)-new Date(d2))/(1000*60*60*24));
+const nextId=arr=>arr.length?Math.max(...arr.map(x=>typeof x.id==='number'?x.id:0))+1:1;
+const MESES_IDX=(m,y)=>MESES.indexOf(m)+Number(y)*12;
+
+function showToast(msg,err=false){const t=$('toast');t.textContent=msg;t.className='toast'+(err?' error':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function showModal(id){$(id).classList.add('show');populateSelects();}
+function hideModal(id){$(id).classList.remove('show');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
+
+function populateSelects(){
+  const pats=flota.map(u=>`<option value="${u.pat}">${u.pat} — ${u.cli}</option>`).join('');
+  ['mkm-pat','mm-pat'].forEach(id=>{if($(id))$(id).innerHTML=pats;});
+  const dpats=`<option value="SOCIEDAD">SOCIEDAD (GENERAL)</option>`+flota.map(u=>`<option value="${u.pat}">${u.pat}</option>`).join('');
+  if($('md-pat'))$('md-pat').innerHTML=dpats;
+  const ss=socios.map(s=>`<option value="${s.nombre}">${s.nombre}</option>`).join('');
+  if($('na-socio'))$('na-socio').innerHTML=ss;
+  const emps=[...new Set(facturas.map(f=>f.emp))].sort();
+  if($('emp-list'))$('emp-list').innerHTML=emps.map(e=>`<option value="${e}">`).join('');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+document.querySelectorAll('.nav-item').forEach(n=>{
+  n.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    n.classList.add('active');
+    const panel=$('panel-'+n.dataset.panel);
+    if(panel)panel.classList.add('active');
+    renderPanel(n.dataset.panel);
+  });
+});
+
+function renderPanel(name){
+  switch(name){
+    case'dashboard':renderDashboard();break;
+    case'alertas':renderAlertas();break;
+    case'flota':renderFlota();break;
+    case'kilometros':renderKm();break;
+    case'mantenimiento':renderMantenimiento();break;
+    case'documentos':renderDocumentos();break;
+    case'facturacion':renderFacturacion();break;
+    case'clientes':renderClientes();break;
+    case'contratos':renderContratos();break;
+    case'cheques':renderCheques();break;
+    case'gastos':renderGastos();break;
+    case'costos':renderCostos();break;
+    case'socios':renderSocios();break;
+    case'subalquiler':renderSA();break;
+    case'proyeccion':renderProyeccion();break;
+    case'homebanking':renderHB();break;
+  }
+}
+
+// ============================================================
+// ALERTAS ENGINE
+// ============================================================
+function getAlertas(){
+  const hoy=today();
+  const alerts=[];
+  // Facturas vencidas sin pago
+  facturas.filter(f=>f.est!=='PAGO'&&f.est!=='NOTA'&&f.venc&&f.venc<hoy).forEach(f=>{
+    const dias=diffDays(hoy,f.venc);
+    alerts.push({tipo:'danger',cat:'Factura vencida',msg:`Factura N°${f.num} — ${f.emp} — vencida hace ${dias} días`,val:fmt(f.total),link:'facturacion'});
+  });
+  // Facturas por vencer en 15 días
+  facturas.filter(f=>f.est!=='PAGO'&&f.est!=='NOTA'&&f.venc&&f.venc>=hoy&&f.venc<=addDays(hoy,15)).forEach(f=>{
+    const dias=diffDays(f.venc,hoy);
+    alerts.push({tipo:'warn',cat:'Factura próxima a vencer',msg:`Factura N°${f.num} — ${f.emp} — vence en ${dias} días`,val:fmt(f.total),link:'facturacion'});
+  });
+  // Cheques a cobrar próximos 30 días
+  cheques.filter(c=>c.est==='pendiente'&&c.fecha&&c.fecha<=addDays(hoy,30)).forEach(c=>{
+    const dias=diffDays(c.fecha,hoy);
+    const tipo=dias<=7?'danger':'warn';
+    alerts.push({tipo,cat:'Cheque a cobrar',msg:`Cheque N°${c.num} — ${c.emp} — ${dias<=0?'VENCIDO':'cobrar en '+dias+' días'}`,val:fmt(c.monto),link:'cheques'});
+  });
+  // Documentos por vencer
+  documentos.filter(d=>d.venc).forEach(d=>{
+    const dias=diffDays(d.venc,hoy);
+    if(dias<0) alerts.push({tipo:'danger',cat:'Documento vencido',msg:`${d.tipo} — ${d.pat} — VENCIDO hace ${Math.abs(dias)} días`,val:'',link:'documentos'});
+    else if(dias<=30) alerts.push({tipo:'warn',cat:'Documento por vencer',msg:`${d.tipo} — ${d.pat} — vence en ${dias} días`,val:'',link:'documentos'});
+  });
+  // Mantenimiento próximo
+  mantenimiento.forEach(m=>{
+    const uKm=km.filter(k=>k.pat===m.pat);
+    if(uKm.length&&m.proxkm){
+      const lastKm=uKm[uKm.length-1].km;
+      if(lastKm>=m.proxkm*0.9) alerts.push({tipo:'warn',cat:'Service próximo',msg:`${m.pat} — próximo service a ${m.proxkm.toLocaleString('es-AR')} km`,val:'',link:'mantenimiento'});
+    }
+  });
+  return alerts;
+}
+
+function updateAlertBadges(){
+  const a=getAlertas();
+  const cnt=a.length;
+  $('hk-alertas').textContent=cnt;
+  $('nb-alertas').textContent=cnt;
+  if(cnt>0){
+    const banner=$('alertBanner');
+    const pills=$('alertPills');
+    banner.classList.add('show');
+    const groups={};
+    a.forEach(al=>{groups[al.cat]=(groups[al.cat]||0)+1;});
+    pills.innerHTML=Object.entries(groups).map(([k,v])=>
+      `<span class="alert-pill warn" onclick="navTo('alertas')">${k} (${v})</span>`
+    ).join('');
+  }
+}
+function navTo(panel){
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.dataset.panel===panel){n.click();}
+  });
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  const hoy=new Date();
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  $('dash-fecha').textContent=`${meses[hoy.getMonth()]} ${hoy.getFullYear()}`;
+
+  const validas=facturas.filter(f=>f.est!=='NOTA');
+  const totalFac=validas.reduce((a,b)=>a+(b.monto||0),0);
+  const cobrado=validas.filter(f=>f.est==='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+  const pend=validas.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+  const alertas=getAlertas();
+
+  $('hk-fac').textContent='$'+Math.round(totalFac/1000000)+'M';
+  $('hk-cobrado').textContent='$'+Math.round(cobrado/1000000)+'M';
+  $('hk-pend').textContent='$'+Math.round(pend/1000000)+'M';
+  $('hk-flota').textContent=flota.length;
+
+  const pctCobrado=totalFac>0?Math.round(cobrado/totalFac*100):0;
+  $('dash-estado').textContent=`${flota.length} unidades activas · ${alertas.length} alertas · ${pctCobrado}% cobrado`;
+
+  // Hero KPIs
+  $('dash-hero-kpis').innerHTML=[
+    {lbl:'FACTURADO',val:fmt(totalFac),cls:'c-gold'},
+    {lbl:'COBRADO',val:fmt(cobrado),cls:'c-green'},
+    {lbl:'PENDIENTE',val:fmt(pend),cls:'c-red'},
+  ].map(k=>`<div style="text-align:right"><div style="font-family:var(--fm);font-size:22px;" class="${k.cls}">${k.val}</div><div style="font-size:10px;color:var(--muted);letter-spacing:2px;font-family:var(--fm)">${k.lbl}</div></div>`).join('');
+
+  // KPIs
+  const mesActual=`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  const facMes=validas.filter(f=>f.fecha&&f.fecha.startsWith(mesActual));
+  const totalGas=gastos.reduce((a,b)=>a+(b.monto||0),0);
+  $('dash-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${flota.length}</div><div class="kpi-lbl">UNIDADES EN FLOTA</div><div class="kpi-delta">${flota.filter(f=>f.tipo==='propia').length} propias · ${flota.filter(f=>f.tipo==='subalquilada').length} subalq.</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${fmt(cobrado)}</div><div class="kpi-lbl">TOTAL COBRADO</div><div class="kpi-delta up">↑ ${pctCobrado}% del total</div></div>
+    <div class="kpi red"><div class="kpi-val c-red">${fmt(pend)}</div><div class="kpi-lbl">POR COBRAR</div><div class="kpi-delta down">${validas.filter(f=>f.est!=='PAGO').length} facturas pendientes</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${facMes.length}</div><div class="kpi-lbl">FACTURAS ESTE MES</div><div class="kpi-delta">${fmt(facMes.reduce((a,b)=>a+(b.monto||0),0))}</div></div>
+    <div class="kpi orange"><div class="kpi-val c-orange">${alertas.length}</div><div class="kpi-lbl">ALERTAS ACTIVAS</div><div class="kpi-delta down">${alertas.filter(a=>a.tipo==='danger').length} críticas</div></div>
+    <div class="kpi purple"><div class="kpi-val c-purple">${fmt(totalGas)}</div><div class="kpi-lbl">GASTOS REGISTRADOS</div><div class="kpi-delta">${gastos.length} registros</div></div>
+  `;
+
+  // Charts
+  const mesKeys=Object.keys(costosMes).sort();
+  const labels=mesKeys.slice(-8);
+  const ingData=labels.map(k=>{ const d=costosMes[k]; return d?(d.ing||[]).reduce((a,[,v])=>a+(v||0),0):0; });
+  const egrData=labels.map(k=>{ const d=costosMes[k]; const vars=(d?.vars||[]).reduce((a,[,v])=>a+(typeof v==='number'?v:0),0); const fij=(d?.fijos||[]).reduce((a,[,v])=>a+(typeof v==='number'?v:0),0); const imp=(d?.imp||[]).reduce((a,[,v])=>a+(typeof v==='number'?v:0),0); return vars+fij+imp; });
+  $('dash-charts').innerHTML=`
+    <div class="chart-box"><h4>INGRESOS VS EGRESOS (ÚLTIMOS 8 MESES)</h4><div class="chart-wrap"><canvas id="dashChart1"></canvas></div></div>
+    <div class="chart-box"><h4>FACTURACIÓN POR CLIENTE</h4><div class="chart-wrap"><canvas id="dashChart2"></canvas></div></div>
+  `;
+  setTimeout(()=>{
+    const c1=document.getElementById('dashChart1');
+    if(c1){ new Chart(c1,{type:'bar',data:{labels,datasets:[{label:'Ingresos',data:ingData,backgroundColor:'#3ecf8e44',borderColor:'#3ecf8e',borderWidth:2},{label:'Egresos',data:egrData,backgroundColor:'#f26b6b44',borderColor:'#f26b6b',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'#2a2f3d'}},y:{ticks:{color:'#6b7280',font:{size:10},callback:v=>'$'+Math.round(v/1000000)+'M'},grid:{color:'#2a2f3d'}}}}}); }
+    const empTot={};
+    validas.forEach(f=>{ empTot[f.emp]=(empTot[f.emp]||0)+(f.monto||0); });
+    const sorted=Object.entries(empTot).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const c2=document.getElementById('dashChart2');
+    if(c2){ new Chart(c2,{type:'doughnut',data:{labels:sorted.map(x=>x[0].split(' ')[0]),datasets:[{data:sorted.map(x=>x[1]),backgroundColor:COLORES,borderColor:'#161921',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#6b7280',font:{size:10},boxWidth:12}}}}}); }
+  },50);
+
+  // Alerts
+  $('dash-alerts-list').innerHTML=alertas.slice(0,5).map(a=>`
+    <div class="dash-alert ${a.tipo==='warn'?'warn':''}" onclick="navTo('${a.link}')">
+      <span>${a.tipo==='danger'?'🔴':'🟡'}</span>
+      <div><div style="font-size:12px;font-weight:500">${a.cat}</div><div style="font-size:11px;color:var(--muted)">${a.msg}</div></div>
+      ${a.val?`<span style="margin-left:auto;font-family:var(--fm);font-size:12px;color:var(--accent)">${a.val}</span>`:''}
+    </div>
+  `).join('')||'<div style="color:var(--muted);font-size:12px;padding:12px">✅ Sin alertas activas</div>';
+
+  // Próximos cobros (cheques)
+  const proxCobros=cheques.filter(c=>c.est==='pendiente').sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  $('dash-cobros').innerHTML=proxCobros.slice(0,5).map(c=>{
+    const dias=diffDays(c.fecha,today());
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:12px">${c.emp}</div><div style="font-size:10px;color:var(--muted);font-family:var(--fm)">Cheque #${c.num} · ${fmtD(c.fecha)}</div></div>
+      <div style="text-align:right"><div style="font-family:var(--fm);font-size:13px;color:var(--accent)">${fmt(c.monto)}</div><div style="font-size:10px;color:${dias<=7?'var(--red)':'var(--muted)'}">en ${dias} días</div></div>
+    </div>`;
+  }).join('')||'<div style="color:var(--muted);font-size:12px;padding:12px">Sin cheques pendientes</div>';
+}
+
+// ============================================================
+// ALERTAS PANEL
+// ============================================================
+function renderAlertas(){
+  const a=getAlertas();
+  const danger=a.filter(x=>x.tipo==='danger');
+  const warn=a.filter(x=>x.tipo==='warn');
+  $('alertas-content').innerHTML=`
+    ${danger.length?`<div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--red);margin-bottom:12px">🔴 CRÍTICAS (${danger.length})</div>
+    <div class="dash-alert-list" style="margin-bottom:20px">${danger.map(al=>`
+      <div class="dash-alert" onclick="navTo('${al.link}')">
+        <span>🔴</span><div><div style="font-size:13px;font-weight:600">${al.cat}</div><div style="font-size:12px;color:var(--muted)">${al.msg}</div></div>
+        ${al.val?`<span style="margin-left:auto;font-family:var(--fm);font-size:13px;color:var(--red)">${al.val}</span>`:''}
+        <button class="btn btn-ghost" onclick="event.stopPropagation();navTo('${al.link}')">VER →</button>
+      </div>`).join('')}</div>`:''}
+    ${warn.length?`<div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--orange);margin-bottom:12px">🟡 ADVERTENCIAS (${warn.length})</div>
+    <div class="dash-alert-list">${warn.map(al=>`
+      <div class="dash-alert warn" onclick="navTo('${al.link}')">
+        <span>🟡</span><div><div style="font-size:13px;font-weight:600">${al.cat}</div><div style="font-size:12px;color:var(--muted)">${al.msg}</div></div>
+        ${al.val?`<span style="margin-left:auto;font-family:var(--fm);font-size:13px;color:var(--orange)">${al.val}</span>`:''}
+      </div>`).join('')}</div>`:''}
+    ${!a.length?'<div class="empty">✅ Sin alertas activas — todo en orden</div>':''}
+  `;
+}
+
+// ============================================================
+// FLOTA
+// ============================================================
+function renderFlota(){
+  const propias=flota.filter(u=>u.tipo==='propia').length;
+  const subs=flota.filter(u=>u.tipo==='subalquilada').length;
+  $('flota-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${flota.length}</div><div class="kpi-lbl">TOTAL FLOTA</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${propias}</div><div class="kpi-lbl">UNIDADES PROPIAS</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${subs}</div><div class="kpi-lbl">SUBALQUILADAS</div></div>
+    <div class="kpi purple"><div class="kpi-val c-purple">${fmt(flota.reduce((a,b)=>a+(b.valor||0),0))}</div><div class="kpi-lbl">INVERSIÓN TOTAL</div></div>
+  `;
+  $('flotaCards').innerHTML=flota.map(u=>{
+    const ukm=km.filter(k=>k.pat===u.pat);
+    const lastKmV=ukm.length?ukm[ukm.length-1].km:0;
+    const lastMes=ukm.length?ukm[ukm.length-1].mes+' '+ukm[ukm.length-1].anio:'—';
+    const totalKm=ukm.reduce((a,b)=>a+b.km,0);
+    const udocs=documentos.filter(d=>d.pat===u.pat);
+    const docVenc=udocs.filter(d=>d.venc&&diffDays(d.venc,today())<=30).length;
+    return `<div class="card ${u.tipo==='subalquilada'?'blue-top':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div class="plate ${u.tipo==='subalquilada'?'blue':''}">${u.pat}</div>
+        <span class="badge ${u.tipo==='propia'?'badge-own':'badge-sub'}">${u.tipo==='propia'?'PROPIA':'SUBALQ.'}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">👤 ${u.cli}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">${u.modelo||'Hilux'} ${u.anio||''} · Entrega: ${fmtD(u.fecha)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
+          <div style="font-family:var(--fm);font-size:14px;color:var(--accent)">${lastKmV.toLocaleString('es-AR')}</div>
+          <div style="font-size:9px;color:var(--muted)">ÚLT. MES KM</div>
+          <div style="font-size:9px;color:var(--muted)">${lastMes}</div>
+        </div>
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
+          <div style="font-family:var(--fm);font-size:14px;color:var(--accent2)">${totalKm.toLocaleString('es-AR')}</div>
+          <div style="font-size:9px;color:var(--muted)">KM REGISTRADOS</div>
+        </div>
+      </div>
+      ${u.valor?`<div style="font-size:11px;color:var(--muted)">Valor compra: <span style="color:var(--accent);font-family:var(--fm)">${fmt(u.valor)}</span></div>`:''}
+      ${docVenc>0?`<div style="margin-top:6px"><span class="badge badge-warn">⚠ ${docVenc} DOC. POR VENCER</span></div>`:''}
+      <div style="margin-top:10px;display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="navTo('kilometros')">📍 KM</button>
+        <button class="btn btn-ghost btn-sm" onclick="navTo('mantenimiento')">🔧 SERVICE</button>
+        <button class="btn btn-danger" onclick="deleteUnidad('${u.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addUnidad(){
+  const p=$('mu-pat').value.trim().toUpperCase();
+  if(!p)return showToast('Ingresá la patente',true);
+  flota.push({id:p,pat:p,tipo:$('mu-tipo').value,cli:$('mu-cli').value.trim(),fecha:$('mu-fecha').value,kmEnt:Number($('mu-km').value)||0,modelo:$('mu-modelo').value.trim(),anio:Number($('mu-anio').value)||new Date().getFullYear(),valor:Number($('mu-valor').value)||0,notas:$('mu-notas').value.trim()});
+  save('pkhv2_flota',flota);hideModal('modal-unidad');renderFlota();showToast('✓ Unidad agregada');
+}
+function deleteUnidad(id){if(!confirm('¿Eliminar unidad?'))return;flota=flota.filter(u=>u.id!==id);save('pkhv2_flota',flota);renderFlota();showToast('Unidad eliminada');}
+
+// ============================================================
+// KILÓMETROS
+// ============================================================
+function renderKm(){
+  // Chart: km por mes por unidad
+  const mesKeys=[...new Set(km.map(k=>k.anio+'-'+String(MESES.indexOf(k.mes)+1).padStart(2,'0')))].sort().slice(-10);
+  const labels=mesKeys.map(k=>{const[y,m]=k.split('-');return MESES_SHORT[Number(m)-1]+' '+y.slice(2);});
+  $('km-charts').innerHTML=`<div class="chart-box" style="grid-column:1/-1"><h4>KILÓMETROS POR UNIDAD (ÚLTIMOS MESES)</h4><div class="chart-wrap" style="height:250px"><canvas id="kmChart"></canvas></div></div>`;
+  setTimeout(()=>{
+    const datasets=flota.map((u,i)=>({label:u.pat,data:mesKeys.map(mk=>{const[y,m]=mk.split('-');const mes=MESES[Number(m)-1];const r=km.find(k=>k.pat===u.pat&&k.mes===mes&&k.anio===y);return r?r.km:null;}),borderColor:COLORES[i%COLORES.length],backgroundColor:COLORES[i%COLORES.length]+'33',tension:.3,fill:false,pointRadius:4,spanGaps:true}));
+    const c=document.getElementById('kmChart');
+    if(c)new Chart(c,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'#2a2f3d'}},y:{ticks:{color:'#6b7280',callback:v=>v.toLocaleString('es-AR')},grid:{color:'#2a2f3d'}}}}});
+  },50);
+
+  $('km-cards').innerHTML=flota.map(u=>{
+    const ukm=km.filter(k=>k.pat===u.pat).sort((a,b)=>MESES_IDX(a.mes,a.anio)-MESES_IDX(b.mes,b.anio));
+    const total=ukm.reduce((a,b)=>a+b.km,0);
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div><div class="plate">${u.pat}</div><div style="font-size:12px;color:var(--muted)">${u.cli}</div></div>
+        <div style="display:flex;gap:16px">
+          <div style="text-align:right"><div style="font-family:var(--fm);font-size:18px;color:var(--accent)">${total.toLocaleString('es-AR')}</div><div style="font-size:9px;color:var(--muted)">KM TOTAL</div></div>
+          <div style="text-align:right"><div style="font-family:var(--fm);font-size:18px;color:var(--accent2)">${ukm.length>0?Math.round(total/ukm.length).toLocaleString('es-AR'):'—'}</div><div style="font-size:9px;color:var(--muted)">KM PROM/MES</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${ukm.map(k=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:6px 10px;text-align:center;min-width:70px">
+          <div style="font-size:9px;color:var(--muted);font-family:var(--fm)">${k.mes.substr(0,3)} ${k.anio}</div>
+          <div style="font-family:var(--fm);font-size:13px;color:var(--accent);margin-top:2px">${k.km.toLocaleString('es-AR')}</div>
+        </div>`).join('')}
+        ${ukm.length===0?'<span style="color:var(--muted);font-size:12px">Sin registros</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addKm(){
+  const pat=$('mkm-pat').value, mes=$('mkm-mes').value, anio=$('mkm-anio').value, val=Number($('mkm-val').value);
+  if(!val)return showToast('Ingresá los km',true);
+  const idx=km.findIndex(k=>k.pat===pat&&k.mes===mes&&k.anio===anio);
+  if(idx>=0)km[idx].km=val; else km.push({pat,mes,anio,km:val});
+  save('pkhv2_km',km);hideModal('modal-km');renderKm();showToast('✓ Km registrados');
+}
+
+// ============================================================
+// MANTENIMIENTO
+// ============================================================
+function renderMantenimiento(){
+  const totalCosto=mantenimiento.reduce((a,b)=>a+(b.costo||0),0);
+  $('mant-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${mantenimiento.length}</div><div class="kpi-lbl">SERVICIOS REGISTRADOS</div></div>
+    <div class="kpi red"><div class="kpi-val c-red">${fmt(totalCosto)}</div><div class="kpi-lbl">COSTO TOTAL MANT.</div></div>
+    <div class="kpi orange"><div class="kpi-val c-orange">${mantenimiento.length>0?fmt(Math.round(totalCosto/mantenimiento.length)):'—'}</div><div class="kpi-lbl">COSTO PROMEDIO</div></div>
+  `;
+  $('mantTbody').innerHTML=mantenimiento.length===0?`<tr><td colspan="9"><div class="empty">Sin registros de mantenimiento</div></td></tr>`:
+    [...mantenimiento].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>`<tr>
+      <td><span class="plate" style="font-size:13px">${m.pat}</span></td>
+      <td><span class="badge badge-info">${m.tipo}</span></td>
+      <td class="mono">${fmtD(m.fecha)}</td>
+      <td class="mono">${m.km?m.km.toLocaleString('es-AR')+' km':'—'}</td>
+      <td class="mono ${m.proxkm?'c-orange':''}">${m.proxkm?m.proxkm.toLocaleString('es-AR')+' km':'—'}</td>
+      <td class="amt c-red">${fmt(m.costo)}</td>
+      <td>${m.taller||'—'}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.obs||'—'}</td>
+      <td><button class="btn btn-danger" onclick="deleteMant(${m.id})">✕</button></td>
+    </tr>`).join('');
+}
+
+function addMantenimiento(){
+  const m={id:nextId(mantenimiento),pat:$('mm-pat').value,tipo:$('mm-tipo').value,fecha:$('mm-fecha').value,km:Number($('mm-km').value)||0,proxkm:Number($('mm-proxkm').value)||0,costo:Number($('mm-costo').value)||0,taller:$('mm-taller').value.trim(),obs:$('mm-obs').value.trim()};
+  if(!m.fecha)return showToast('Ingresá la fecha',true);
+  mantenimiento.push(m);save('pkhv2_mant',mantenimiento);hideModal('modal-mant');renderMantenimiento();showToast('✓ Mantenimiento registrado');
+}
+function deleteMant(id){if(!confirm('¿Eliminar?'))return;mantenimiento=mantenimiento.filter(m=>m.id!==id);save('pkhv2_mant',mantenimiento);renderMantenimiento();showToast('Eliminado');}
+
+// ============================================================
+// DOCUMENTOS
+// ============================================================
+function renderDocumentos(){
+  const hoy=today();
+  const grupos={};
+  flota.forEach(u=>{grupos[u.pat]=[];});
+  grupos['SOCIEDAD']=[];
+  documentos.forEach(d=>{if(!grupos[d.pat])grupos[d.pat]=[];grupos[d.pat].push(d);});
+  $('docs-grid').innerHTML=Object.entries(grupos).filter(([,docs])=>docs.length>0).map(([pat,docs])=>`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px">
+      <div class="plate" style="margin-bottom:14px">${pat}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+        ${docs.map(d=>{
+          const dias=diffDays(d.venc,hoy);
+          const cls=dias<0?'red-top':dias<=30?'orange-top':dias<=90?'':'green-top';
+          const badgeCls=dias<0?'badge-pend':dias<=30?'badge-warn':'badge-paid';
+          const badgeTxt=dias<0?`VENCIDO (${Math.abs(dias)}d)`:dias<=30?`VENCE EN ${dias}d`:`VIGENTE (${dias}d)`;
+          return `<div class="card ${cls}" style="margin:0">
+            <div style="font-weight:600;margin-bottom:4px">${d.tipo}</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${d.prov||'—'}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><div style="font-family:var(--fm);font-size:12px">Vence: ${fmtD(d.venc)}</div>${d.costo?`<div style="font-size:11px;color:var(--muted)">${fmt(d.costo)}/año</div>`:''}</div>
+              <span class="badge ${badgeCls}">${badgeTxt}</span>
+            </div>
+            ${d.notas?`<div style="font-size:11px;color:var(--muted);margin-top:6px">${d.notas}</div>`:''}
+            <div style="margin-top:8px"><button class="btn btn-danger" onclick="deleteDoc(${d.id})">✕</button></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('')+`<button class="btn btn-primary" onclick="showModal('modal-doc')">+ AGREGAR DOCUMENTO</button>`;
+}
+
+function addDoc(){
+  const d={id:nextId(documentos),pat:$('md-pat').value,tipo:$('md-tipo').value,venc:$('md-venc').value,prov:$('md-prov').value.trim(),costo:Number($('md-costo').value)||0,notas:$('md-notas').value.trim()};
+  if(!d.venc)return showToast('Ingresá la fecha de vencimiento',true);
+  documentos.push(d);save('pkhv2_docs',documentos);hideModal('modal-doc');renderDocumentos();updateAlertBadges();showToast('✓ Documento registrado');
+}
+function deleteDoc(id){if(!confirm('¿Eliminar?'))return;documentos=documentos.filter(d=>d.id!==id);save('pkhv2_docs',documentos);renderDocumentos();showToast('Eliminado');}
+
+// ============================================================
+// FACTURACIÓN
+// ============================================================
+function calcIVA(){const m=Number($('nf-monto').value)||0;$('nf-iva').placeholder=m?'$'+Math.round(m*0.21).toLocaleString('es-AR'):'auto';}
+
+function renderFacturacion(){
+  const q=($('fac-q')||{}).value?.toLowerCase()||'';
+  const fest=($('fac-fest')||{}).value||'';
+  const femp=($('fac-femp')||{}).value||'';
+  const fanio=($('fac-fanio')||{}).value||'';
+  const validas=facturas.filter(f=>f.est!=='NOTA');
+  const totalNeto=validas.reduce((a,b)=>a+(b.monto||0),0);
+  const cobrado=validas.filter(f=>f.est==='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+  const pend=validas.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+  $('fac-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(totalNeto)}</div><div class="kpi-lbl">TOTAL FACTURADO (NETO)</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${fmt(cobrado)}</div><div class="kpi-lbl">COBRADO</div></div>
+    <div class="kpi red"><div class="kpi-val c-red">${fmt(pend)}</div><div class="kpi-lbl">PENDIENTE</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${validas.length}</div><div class="kpi-lbl">N° FACTURAS</div></div>
+  `;
+  const empresas=[...new Set(facturas.map(f=>f.emp))].sort();
+  const anos=[...new Set(facturas.map(f=>f.fecha?f.fecha.slice(0,4):null).filter(Boolean))].sort().reverse();
+  const sel=$('fac-femp');if(sel){const cv=sel.value;sel.innerHTML='<option value="">TODAS LAS EMPRESAS</option>'+empresas.map(e=>`<option value="${e}" ${e===cv?'selected':''}>${e}</option>`).join('');}
+  const sel2=$('fac-fanio');if(sel2){const cv=sel2.value;sel2.innerHTML='<option value="">TODOS LOS AÑOS</option>'+anos.map(a=>`<option value="${a}" ${a===cv?'selected':''}>${a}</option>`).join('');}
+  let list=facturas.filter(f=>{
+    if(q&&!String(f.num).includes(q)&&!f.emp.toLowerCase().includes(q))return false;
+    if(fest){if(fest==='PENDIENTE'&&(f.est==='PAGO'||f.est==='NOTA'))return false;if(fest==='PAGO'&&f.est!=='PAGO')return false;if(fest==='NOTA'&&f.est!=='NOTA')return false;}
+    if(femp&&f.emp!==femp)return false;
+    if(fanio&&(!f.fecha||!f.fecha.startsWith(fanio)))return false;
+    return true;
+  }).sort((a,b)=>String(b.num).localeCompare(String(a.num),undefined,{numeric:true}));
+  const hoy=today();
+  $('facTbody').innerHTML=list.map(f=>{
+    const esNota=f.est==='NOTA',esPago=f.est==='PAGO';
+    const vencido=!esPago&&!esNota&&f.venc&&f.venc<hoy;
+    const bCls=esNota?'badge-nota':esPago?'badge-paid':vencido?'badge-pend':'badge-warn';
+    const bTxt=esNota?'NOTA CRÉD.':esPago?'PAGADO':vencido?'VENCIDA':'PENDIENTE';
+    const obs=f.obs?`<div style="font-size:10px;color:var(--red);margin-top:2px">${f.obs}</div>`:'';
+    return `<tr class="${vencido?'overdue-row':''}">
+      <td class="mono c-gold">${f.num}</td>
+      <td class="mono">${fmtD(f.fecha)}</td>
+      <td><strong>${f.emp}</strong>${obs}</td>
+      <td class="amt">${fmt(f.monto)}</td>
+      <td class="amt c-muted">${fmt(f.iva)}</td>
+      <td class="amt c-gold">${fmt(f.total||(f.monto+f.iva))}</td>
+      <td class="mono ${vencido?'c-red':''}">${fmtD(f.venc)}</td>
+      <td><span class="badge ${bCls}">${bTxt}</span></td>
+      <td class="mono">${fmtD(f.fpago)}</td>
+      <td style="font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.forma||''}">${f.forma||'—'}</td>
+      <td style="display:flex;gap:4px">
+        ${!esPago&&!esNota?`<button class="btn btn-sm" style="background:#3ecf8e22;color:var(--green);border:1px solid var(--green);font-size:10px;padding:3px 8px" onclick="marcarPago(${JSON.stringify(f.id)})">✓ PAGO</button>`:''}
+        <button class="btn btn-danger" onclick="deleteFac(${JSON.stringify(f.id)})">✕</button>
+      </td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="11"><div class="empty">Sin resultados</div></td></tr>`;
+}
+
+function marcarPago(id){
+  const f=facturas.find(x=>x.id===id);
+  if(!f)return;
+  const fecha=prompt('Fecha de pago (AAAA-MM-DD):',today());
+  if(!fecha)return;
+  f.est='PAGO';f.fpago=fecha;
+  save('pkhv2_fac',facturas);renderFacturacion();updateAlertBadges();showToast('✓ Factura marcada como pagada');
+}
+
+function addFactura(){
+  const monto=Number($('nf-monto').value)||0;
+  let iva=Number($('nf-iva').value)||0;
+  if(!iva&&monto)iva=Math.round(monto*0.21);
+  const tipo=$('nf-tipo').value;
+  const maxNum=Math.max(0,...facturas.filter(f=>typeof f.num==='number').map(f=>f.num));
+  const f={id:nextId(facturas),num:$('nf-num').value||maxNum+1,fecha:$('nf-fecha').value,emp:$('nf-emp').value.trim().toUpperCase(),cuit:$('nf-cuit').value.trim(),monto,iva,total:monto+iva,venc:$('nf-venc').value,est:tipo==='NOTA'?'NOTA':$('nf-est').value,fpago:$('nf-fpago').value,forma:$('nf-forma').value.trim(),obs:$('nf-obs').value.trim()};
+  if(!f.emp)return showToast('Ingresá la empresa',true);
+  facturas.push(f);save('pkhv2_fac',facturas);hideModal('modal-factura');renderFacturacion();updateAlertBadges();showToast('✓ Factura registrada');
+}
+function deleteFac(id){if(!confirm('¿Eliminar?'))return;facturas=facturas.filter(f=>f.id!==id);save('pkhv2_fac',facturas);renderFacturacion();updateAlertBadges();showToast('Eliminada');}
+
+// ============================================================
+// CLIENTES
+// ============================================================
+function renderClientes(){
+  const empTot={};
+  facturas.filter(f=>f.est!=='NOTA').forEach(f=>{
+    if(!empTot[f.emp])empTot[f.emp]={fac:0,pago:0,pend:0,cnt:0,pend_cnt:0,ultima:'',facList:[]};
+    empTot[f.emp].fac+=(f.monto||0);
+    if(f.est==='PAGO')empTot[f.emp].pago+=(f.monto||0);
+    else empTot[f.emp].pend+=(f.monto||0);
+    empTot[f.emp].cnt++;
+    if(f.est!=='PAGO')empTot[f.emp].pend_cnt++;
+    if(f.fecha>empTot[f.emp].ultima)empTot[f.emp].ultima=f.fecha;
+    empTot[f.emp].facList.push(f);
+  });
+  const sorted=Object.entries(empTot).sort((a,b)=>b[1].fac-a[1].fac);
+
+  // Get contrato precio for each company
+  const contPrecio={};
+  contratos.filter(c=>c.est==='activo').forEach(c=>{
+    if(!contPrecio[c.emp]) contPrecio[c.emp]=0;
+    contPrecio[c.emp]+=(c.precio||0)*(1+(c.iva||0));
+  });
+
+  $('clientes-content').innerHTML=`
+    <div class="kpi-grid" style="margin-bottom:20px">
+      <div class="kpi gold"><div class="kpi-val c-gold">${sorted.length}</div><div class="kpi-lbl">CLIENTES</div></div>
+      <div class="kpi green"><div class="kpi-val c-green">${fmt(sorted.reduce((a,[,d])=>a+d.pago,0))}</div><div class="kpi-lbl">TOTAL COBRADO</div></div>
+      <div class="kpi red"><div class="kpi-val c-red">${fmt(sorted.reduce((a,[,d])=>a+d.pend,0))}</div><div class="kpi-lbl">TOTAL PENDIENTE</div></div>
+      <div class="kpi blue"><div class="kpi-val c-blue">${sorted.filter(([,d])=>d.pend_cnt>0).length}</div><div class="kpi-lbl">CON DEUDA PENDIENTE</div></div>
+    </div>
+    ${sorted.map(([emp,d])=>{
+      const ratio=d.fac>0?Math.round(d.pago/d.fac*100):0;
+      const ratioColor=ratio>=90?'var(--green)':ratio>=60?'var(--orange)':'var(--red)';
+      const precioContrato = contPrecio[emp]||0;
+      const cont = contratos.filter(c=>c.emp===emp&&c.est==='activo');
+      // Last 5 facturas
+      const ultFacs = [...d.facList].sort((a,b)=>b.fecha?.localeCompare(a.fecha||'')||0).slice(0,5);
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+          <div>
+            <div style="font-family:var(--fh);font-size:20px;font-weight:700;letter-spacing:1px">${emp}</div>
+            ${cont.length?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${cont.map(c=>c.pat).join(', ')} · ${fmt(precioContrato)}/mes c/IVA</div>`:''}
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            ${d.pend_cnt>0?`<span class="badge badge-pend">⚠ ${d.pend_cnt} FAC. PENDIENTE${d.pend_cnt>1?'S':''}</span>`:'<span class="badge badge-paid">✓ AL DÍA</span>'}
+            <button class="btn btn-ghost btn-sm" onclick="navTo('facturacion');$('fac-femp').value='${emp}';renderFacturacion()">VER FACTURAS →</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px">
+          <div style="background:var(--bg);border-radius:6px;padding:12px;text-align:center">
+            <div style="font-family:var(--fm);font-size:16px;color:var(--accent)">${fmt(d.fac)}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">TOTAL FACTURADO</div>
+          </div>
+          <div style="background:var(--bg);border-radius:6px;padding:12px;text-align:center">
+            <div style="font-family:var(--fm);font-size:16px;color:var(--green)">${fmt(d.pago)}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">COBRADO</div>
+          </div>
+          <div style="background:var(--bg);border-radius:6px;padding:12px;text-align:center">
+            <div style="font-family:var(--fm);font-size:16px;color:${d.pend>0?'var(--red)':'var(--muted)'}">${d.pend>0?fmt(d.pend):'$0'}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">PENDIENTE</div>
+          </div>
+          <div style="background:var(--bg);border-radius:6px;padding:12px;text-align:center">
+            <div style="font-family:var(--fm);font-size:16px;color:var(--accent2)">${d.cnt}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">FACTURAS EMITIDAS</div>
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <div class="progress-wrap" style="flex:1"><div class="progress-bar" style="width:${ratio}%;background:${ratioColor}"></div></div>
+            <span style="font-family:var(--fm);font-size:12px;color:${ratioColor};min-width:50px">${ratio}% cobrado</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--fh);font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">ÚLTIMAS FACTURAS</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            ${ultFacs.map(f=>{
+              const esPago=f.est==='PAGO';
+              return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg);border-radius:4px;font-size:12px">
+                <span class="mono c-muted">N°${f.num} · ${fmtD(f.fecha)}</span>
+                <span class="mono">${fmt(f.monto)}</span>
+                <span class="badge ${esPago?'badge-paid':'badge-pend'}">${esPago?'PAGADO':'PENDIENTE'}</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ============================================================
+// CHEQUES
+// ============================================================
+function switchChequeTab(tab,el){
+  chequeTabActual=tab;
+  document.querySelectorAll('.itab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCheques();
+}
+
+function renderCheques(){
+  const hoy=today();
+  const pend=cheques.filter(c=>c.est==='pendiente');
+  const totalPend=pend.reduce((a,b)=>a+(b.monto||0),0);
+  const proximos=pend.filter(c=>c.fecha&&diffDays(c.fecha,hoy)<=7).length;
+  $('cheq-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(totalPend)}</div><div class="kpi-lbl">A COBRAR</div></div>
+    <div class="kpi orange"><div class="kpi-val c-orange">${proximos}</div><div class="kpi-lbl">PRÓXIMOS 7 DÍAS</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${cheques.filter(c=>c.est==='cobrado').length}</div><div class="kpi-lbl">COBRADOS</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${cheques.length}</div><div class="kpi-lbl">TOTAL CHEQUES</div></div>
+  `;
+  let list=cheques;
+  if(chequeTabActual==='pendientes')list=cheques.filter(c=>c.est==='pendiente');
+  else if(chequeTabActual==='cobrados')list=cheques.filter(c=>c.est==='cobrado');
+  list=[...list].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  $('cheqTbody').innerHTML=list.map(c=>{
+    const dias=diffDays(c.fecha,hoy);
+    const esCobrado=c.est==='cobrado';
+    const cls=esCobrado?'badge-paid':dias<0?'badge-pend':dias<=7?'badge-pend':'badge-warn';
+    const txt=esCobrado?'COBRADO':dias<0?'VENCIDO':`EN ${dias}d`;
+    return `<tr>
+      <td class="mono c-blue">${c.num}</td>
+      <td>${c.banco}</td>
+      <td>${c.emp}</td>
+      <td class="amt c-gold">${fmt(c.monto)}</td>
+      <td class="mono">${fmtD(c.fecha)}</td>
+      <td class="mono ${!esCobrado&&dias<=7?'c-red':''}">${esCobrado?'—':dias}</td>
+      <td><span class="badge ${cls}">${txt}</span></td>
+      <td style="display:flex;gap:4px">
+        ${!esCobrado?`<button class="btn btn-sm" style="background:#3ecf8e22;color:var(--green);border:1px solid var(--green);font-size:10px;padding:3px 8px" onclick="cobrarCheque(${c.id})">✓ COBRAR</button>`:''}
+        <button class="btn btn-danger" onclick="deleteCheque(${c.id})">✕</button>
+      </td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="8"><div class="empty">Sin cheques en esta vista</div></td></tr>`;
+}
+
+function addCheque(){
+  const c={id:nextId(cheques),num:$('nc-num').value.trim(),banco:$('nc-banco').value.trim(),emp:$('nc-emp').value.trim().toUpperCase(),monto:Number($('nc-monto').value)||0,fecha:$('nc-fecha').value,factura:$('nc-fac').value.trim(),est:'pendiente',obs:$('nc-obs').value.trim()};
+  if(!c.fecha||!c.emp)return showToast('Completá empresa y fecha',true);
+  cheques.push(c);save('pkhv2_cheq',cheques);hideModal('modal-cheque');renderCheques();updateAlertBadges();showToast('✓ Cheque registrado');
+}
+function cobrarCheque(id){const c=cheques.find(x=>x.id===id);if(c){c.est='cobrado';save('pkhv2_cheq',cheques);renderCheques();updateAlertBadges();showToast('✓ Cheque cobrado');}}
+function deleteCheque(id){if(!confirm('¿Eliminar?'))return;cheques=cheques.filter(c=>c.id!==id);save('pkhv2_cheq',cheques);renderCheques();showToast('Eliminado');}
+
+// ============================================================
+// GASTOS
+// ============================================================
+function renderGastos(){
+  const q=($('g-q')||{}).value?.toLowerCase()||'';
+  const orig=($('g-orig')||{}).value||'';
+  const desde=($('g-desde')||{}).value||'';
+  const hasta=($('g-hasta')||{}).value||'';
+  const total=gastos.reduce((a,b)=>a+(b.monto||0),0);
+  const hoy=today();const mesAct=hoy.slice(0,7);
+  const esMes=gastos.filter(g=>g.fecha&&g.fecha.slice(0,7)===mesAct).reduce((a,b)=>a+(b.monto||0),0);
+  $('gas-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(total)}</div><div class="kpi-lbl">TOTAL GASTOS</div></div>
+    <div class="kpi orange"><div class="kpi-val c-orange">${fmt(esMes)}</div><div class="kpi-lbl">ESTE MES</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${gastos.length}</div><div class="kpi-lbl">REGISTROS</div></div>
+    <div class="kpi purple"><div class="kpi-val c-purple">${gastos.length>0?fmt(Math.round(total/gastos.length)):'—'}</div><div class="kpi-lbl">PROMEDIO POR GASTO</div></div>
+  `;
+  const origens=[...new Set(gastos.map(g=>g.orig).filter(Boolean))].sort();
+  const sel=$('g-orig');if(sel){const cv=sel.value;sel.innerHTML='<option value="">TODOS</option>'+origens.map(o=>`<option value="${o}" ${o===cv?'selected':''}>${o}</option>`).join('');}
+  let list=gastos.filter(g=>{
+    if(q&&!g.con.toLowerCase().includes(q))return false;
+    if(orig&&g.orig!==orig)return false;
+    if(desde&&g.fecha&&g.fecha.slice(0,7)<desde)return false;
+    if(hasta&&g.fecha&&g.fecha.slice(0,7)>hasta)return false;
+    return true;
+  }).sort((a,b)=>b.fecha?.localeCompare(a.fecha||'')||0);
+  $('gasTbody').innerHTML=list.map(g=>`<tr>
+    <td>${g.con}</td>
+    <td class="mono">${fmtD(g.fecha)}</td>
+    <td class="amt c-red">${fmt(g.monto)}</td>
+    <td style="font-size:11px;color:var(--muted);font-family:var(--fm)">${g.orig||'—'}</td>
+    <td><span class="badge badge-info">${g.cat||'—'}</span></td>
+    <td><button class="btn btn-danger" onclick="deleteGasto(${g.id})">✕</button></td>
+  </tr>`).join('')||`<tr><td colspan="6"><div class="empty">Sin resultados</div></td></tr>`;
+
+  // Gráfico por mes
+  const mesMap={};
+  gastos.forEach(g=>{if(g.fecha){const m=g.fecha.slice(0,7);mesMap[m]=(mesMap[m]||0)+(g.monto||0);}});
+  const mLabels=Object.keys(mesMap).sort().slice(-10);
+  const mVals=mLabels.map(k=>mesMap[k]);
+  if(gasChartI){gasChartI.destroy();gasChartI=null;}
+  setTimeout(()=>{const c=document.getElementById('gasChart');if(c){gasChartI=new Chart(c,{type:'bar',data:{labels:mLabels,datasets:[{label:'Gastos',data:mVals,backgroundColor:'#f26b6b44',borderColor:'#f26b6b',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'#2a2f3d'}},y:{ticks:{color:'#6b7280',callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#2a2f3d'}}}}});}
+  const catMap={};
+  gastos.forEach(g=>{const c=g.cat||'Otro';catMap[c]=(catMap[c]||0)+(g.monto||0);});
+  if(gasOriChartI){gasOriChartI.destroy();gasOriChartI=null;}
+  const oc=document.getElementById('gasOriChart');if(oc){gasOriChartI=new Chart(oc,{type:'pie',data:{labels:Object.keys(catMap),datasets:[{data:Object.values(catMap),backgroundColor:COLORES,borderColor:'#161921',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#6b7280',font:{size:10},boxWidth:12}}}}});}
+  },50);
+}
+
+function addGasto(){
+  const g={id:nextId(gastos),con:$('ng-con').value.trim().toUpperCase(),fecha:$('ng-fecha').value,monto:Number($('ng-monto').value)||0,orig:$('ng-orig').value.trim().toUpperCase(),cat:$('ng-cat').value};
+  if(!g.con)return showToast('Ingresá el concepto',true);
+  gastos.push(g);save('pkhv2_gas',gastos);hideModal('modal-gasto');renderGastos();showToast('✓ Gasto registrado');
+}
+function deleteGasto(id){if(!confirm('¿Eliminar?'))return;gastos=gastos.filter(g=>g.id!==id);save('pkhv2_gas',gastos);renderGastos();showToast('Eliminado');}
+
+// ============================================================
+// COSTOS MENSUALES
+// ============================================================
+function renderCostos(){
+  const sel=$('costos-mes');
+  const mkeys=Object.keys(costosMes).sort();
+  const prevVal=sel.value;
+  sel.innerHTML=mkeys.map(k=>`<option value="${k}">${k}</option>`).join('');
+  // restore previous selection if valid, otherwise default to latest
+  if(prevVal && costosMes[prevVal]) sel.value=prevVal;
+  else if(!sel.value||!costosMes[sel.value]) sel.value=mkeys[mkeys.length-1];
+  const mes=sel.value;
+  const data=costosMes[mes];
+  if(!data){$('costos-display').innerHTML='<div class="empty">Sin datos</div>';return;}
+  const calcT=arr=>(arr||[]).reduce((a,[,v])=>a+(typeof v==='number'?v:0),0);
+  const tv=calcT(data.vars),tf=calcT(data.fijos),ti=calcT(data.imp),ting=calcT(data.ing);
+  const tegr=tv+tf+ti,bal=ting-tegr,pct=ting>0?Math.round(tegr/ting*100):0;
+
+  // Evolución chart
+  const allMes=Object.keys(costosMes).sort();
+  const ingArr=allMes.map(k=>calcT(costosMes[k]?.ing));
+  const egrArr=allMes.map(k=>{const d=costosMes[k];return calcT(d?.vars)+calcT(d?.fijos)+calcT(d?.imp);});
+  const balArr=allMes.map((k,i)=>ingArr[i]-egrArr[i]);
+  if(costosChartI){costosChartI.destroy();costosChartI=null;}
+  setTimeout(()=>{const c=document.getElementById('costosChart');if(c){costosChartI=new Chart(c,{type:'bar',data:{labels:allMes,datasets:[{label:'Ingresos',data:ingArr,backgroundColor:'#3ecf8e55',borderColor:'#3ecf8e',borderWidth:2,order:2},{label:'Egresos',data:egrArr,backgroundColor:'#f26b6b55',borderColor:'#f26b6b',borderWidth:2,order:2},{label:'Resultado',data:balArr,type:'line',borderColor:'#e8b84b',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'#2a2f3d'}},y:{ticks:{color:'#6b7280',callback:v=>'$'+Math.round(v/1000000)+'M'},grid:{color:'#2a2f3d'}}}}});}},50);
+
+  $('costos-display').innerHTML=`
+    <div class="kpi-grid">
+      <div class="kpi green"><div class="kpi-val c-green">${fmt(ting)}</div><div class="kpi-lbl">INGRESOS</div></div>
+      <div class="kpi red"><div class="kpi-val c-red">${fmt(tegr)}</div><div class="kpi-lbl">EGRESOS</div></div>
+      <div class="kpi ${bal>=0?'green':'red'}"><div class="kpi-val ${bal>=0?'c-green':'c-red'}">${fmt(bal)}</div><div class="kpi-lbl">RESULTADO NETO</div></div>
+      <div class="kpi gold"><div class="kpi-val c-gold">${pct}%</div><div class="kpi-lbl">COSTOS / INGRESOS</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+      ${[['💼 COSTOS VARIABLES','vars',tv,'c-blue'],['🔒 COSTOS FIJOS','fijos',tf,'c-gold'],['📊 IMPUESTOS / OTROS','imp',ti,'c-red']].map(([title,key,tot,cls])=>`
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px">
+          <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">${title}</div>
+          ${(data[key]||[]).map(([n,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #ffffff08"><span>${n}</span><span class="mono">${typeof v==='number'?fmt(v):v}</span></div>`).join('')}
+          <div style="display:flex;justify-content:space-between;padding-top:10px;font-family:var(--fm);font-size:13px;border-top:1px solid var(--border);margin-top:6px"><span>TOTAL</span><span class="${cls}">${fmt(tot)}</span></div>
+        </div>`).join('')}
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px">
+        <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">💰 INGRESOS</div>
+        ${(data.ing||[]).map(([n,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #ffffff08"><span>${n}</span><span class="mono c-green">${fmt(v)}</span></div>`).join('')}
+        <div style="display:flex;justify-content:space-between;padding-top:10px;font-family:var(--fm);font-size:13px;border-top:1px solid var(--border);margin-top:6px"><span>TOTAL</span><span class="c-green">${fmt(ting)}</span></div>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// SOCIOS
+// ============================================================
+function renderSocios(){
+  const totARS=aportes.reduce((a,b)=>a+(b.monto||0),0);
+  const totUSD=aportes.reduce((a,b)=>a+(b.usd||0),0);
+  $('socios-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${socios.length}</div><div class="kpi-lbl">SOCIOS</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${fmt(totARS)}</div><div class="kpi-lbl">APORTES TOTALES (ARS)</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">USD ${totUSD.toLocaleString('es-AR')}</div><div class="kpi-lbl">APORTES EN USD</div></div>
+    <div class="kpi purple"><div class="kpi-val c-purple">${aportes.length}</div><div class="kpi-lbl">TRANSACCIONES</div></div>
+  `;
+  const socioAport={};
+  socios.forEach(s=>{socioAport[s.nombre]={ars:0,usd:0};});
+  aportes.forEach(a=>{if(socioAport[a.socio]){socioAport[a.socio].ars+=(a.monto||0);socioAport[a.socio].usd+=(a.usd||0);}});
+  $('socios-content').innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:20px">
+      <div style="font-family:var(--fh);font-size:15px;letter-spacing:2px;color:var(--muted);margin-bottom:16px">DISTRIBUCIÓN DE APORTES</div>
+      ${socios.map((s,i)=>{
+        const d=socioAport[s.nombre]||{ars:0,usd:0};
+        const pct=totARS>0?Math.round(d.ars/totARS*100):0;
+        return `<div class="socio-row">
+          <div class="socio-avatar" style="background:${COLORES[i%COLORES.length]}22;color:${COLORES[i%COLORES.length]}">${s.nombre.split(' ').map(x=>x[0]).join('').slice(0,2)}</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">${s.nombre}</div>
+            <div class="progress-wrap" style="margin-top:4px;height:4px"><div class="progress-bar" style="width:${pct}%;background:${COLORES[i%COLORES.length]}"></div></div>
+          </div>
+          <div style="text-align:right;min-width:150px">
+            <div style="font-family:var(--fm);font-size:13px;color:var(--accent)">${fmt(d.ars)}</div>
+            ${d.usd?`<div style="font-size:11px;color:var(--muted)">USD ${d.usd.toLocaleString()}</div>`:''}
+            <div style="font-size:10px;color:var(--muted)">${pct}% del total</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px">HISTORIAL DE APORTES</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>SOCIO</th><th>CONCEPTO</th><th>MONTO ARS</th><th>MONTO USD</th><th>FECHA</th><th></th></tr></thead>
+      <tbody>${[...aportes].sort((a,b)=>b.fecha?.localeCompare(a.fecha||'')||0).map(a=>`<tr>
+        <td><strong>${a.socio}</strong></td>
+        <td>${a.con}</td>
+        <td class="amt c-gold">${fmt(a.monto)}</td>
+        <td class="mono">${a.usd?'USD '+a.usd.toLocaleString():'—'}</td>
+        <td class="mono">${fmtD(a.fecha)}</td>
+        <td><button class="btn btn-danger" onclick="deleteAporte(${a.id})">✕</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  // populate select
+  if($('na-socio'))$('na-socio').innerHTML=socios.map(s=>`<option value="${s.nombre}">${s.nombre}</option>`).join('');
+  // contratos modal
+  const emps2=[...new Set(facturas.map(f=>f.emp))].sort();
+  if($('emp-list2'))$('emp-list2').innerHTML=emps2.map(e=>`<option value="${e}">`).join('');
+  const cpats=flota.map(u=>`<option value="${u.pat}">${u.pat} — ${u.cli}</option>`).join('');
+  if($('nc2-pat'))$('nc2-pat').innerHTML=cpats;
+}
+
+function addAporte(){
+  const a={id:nextId(aportes),socio:$('na-socio').value,con:$('na-con').value.trim(),monto:Number($('na-monto').value)||0,usd:Number($('na-usd').value)||0,fecha:$('na-fecha').value};
+  if(!a.socio)return showToast('Seleccioná un socio',true);
+  aportes.push(a);save('pkhv2_aport',aportes);hideModal('modal-aporte');renderSocios();showToast('✓ Aporte registrado');
+}
+function deleteAporte(id){if(!confirm('¿Eliminar?'))return;aportes=aportes.filter(a=>a.id!==id);save('pkhv2_aport',aportes);renderSocios();showToast('Eliminado');}
+
+// ============================================================
+// SUBALQUILER
+// ============================================================
+function renderSA(){
+  const saFlota=flota.filter(u=>u.tipo==='subalquilada');
+  $('sa-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${saFlota.length}</div><div class="kpi-lbl">SUBALQUILADAS</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${flota.filter(u=>u.tipo==='propia').length}</div><div class="kpi-lbl">PROPIAS</div></div>
+  `;
+  $('sa-cards').innerHTML=saFlota.map(u=>{
+    const ukm=km.filter(k=>k.pat===u.pat);
+    return `<div class="card blue-top">
+      <div class="plate blue">${u.pat}</div>
+      <div style="font-size:12px;color:var(--muted);margin:6px 0">${u.cli}</div>
+      <div style="font-family:var(--fm);font-size:13px">KM total: <span class="c-blue">${ukm.reduce((a,b)=>a+b.km,0).toLocaleString('es-AR')}</span></div>
+    </div>`;
+  }).join('')||'<div class="empty">Sin unidades subalquiladas</div>';
+  calcSA();
+}
+
+function calcSA(){
+  const val=Number($('sa-val').value)||2000000;
+  const mg=(Number($('sa-mg').value)||12)/100;
+  const gan=Math.round(val*mg);
+  const rem=val-gan;
+  const ctrlDoc=50000,micro=31712;
+  const gastosSA=ctrlDoc+micro;
+  const neto=gan-gastosSA;
+  $('sa-calc').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(val)}</div><div class="kpi-lbl">VALOR ALQUILADO</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${fmt(gan)}</div><div class="kpi-lbl">GANANCIA (${Math.round(mg*100)}%)</div></div>
+    <div class="kpi red"><div class="kpi-val c-red">${fmt(rem)}</div><div class="kpi-lbl">REMANENTE (COSTO)</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${fmt(gastosSA)}</div><div class="kpi-lbl">GASTOS FIJOS SUBALQ.</div></div>
+    <div class="kpi ${neto>=0?'green':'red'}"><div class="kpi-val ${neto>=0?'c-green':'c-red'}">${fmt(neto)}</div><div class="kpi-lbl">RESULTADO NETO</div></div>
+  `;
+}
+
+// ============================================================
+// PROYECCIÓN REALISTA
+// ============================================================
+// Costos reales promedio (meses estables: ago-dic 2025, feb-mar 2026)
+// ============ MODELO DE NEGOCIO CORRECTO ============
+// Subalquiler Juli García: Rubilar ($2M) + Maghreb pequeña ($900K)
+// La devolución NO es costo operativo — el ingreso neto es el 12% de ganancia
+// Las camionetas propias tienen vida útil 5 años, luego se venden
+// Las nuevas unidades se financian con aportes de socios (no caja operativa)
+
+const PROY_PRECIO_COMPRA = 52_000_000;
+const PROY_VIDA_UTIL = 60; // meses
+const PROY_VALOR_RESIDUAL = 30_000_000; // estimado venta a 5 años
+const PROY_AMORT_MENSUAL = (PROY_PRECIO_COMPRA - PROY_VALOR_RESIDUAL) / PROY_VIDA_UTIL; // $366.667
+
+// Costos por camioneta PROPIA (mensuales)
+const PROY_COSTO_X_CAM = {
+  seguro: 195000,
+  microtrack: 36200,
+  patente: 100000,           // equivalente mensual del semestral
+  amortizacion: Math.round((PROY_PRECIO_COMPRA - PROY_VALOR_RESIDUAL) / PROY_VIDA_UTIL),
+};
+
+// Costos fijos ESTRUCTURALES (no escalan con camionetas)
+const PROY_ESTRUCTURA = {
+  contador: 456170,
+  controlDocumental: 242000,
+  rsv: 19418,
+  comisionCuenta: 55000,
+  vepsOperativos: 215826,
+};
+
+// Subalquiler Juli García — el ingreso real es solo el 12% de ganancia
+const PROY_SUB = {
+  rubilar: { precio: 2000000, gananciaPC: 0.12 },   // devuelve 88% a Juli
+  maghrebMenor: { precio: 900000, gananciaPC: 0.12 }, // devuelve 88% a Juli
+};
+
+// Contratos propios y sus precios
+const PROY_PRECIOS_CONTRATOS = {
+  'SV GROUP SAS SAS': 2000000,
+  'IVAN SEBASTIAN RUBILAR GUERRERO': 2000000,
+  'TBH SERVICIOS SAS': 1900000,
+  'APARICIO DANIEL ALEJANDRO': 1750000,
+  'MAGHREB S.A': 1900000,
+};
+
+let breakEvenChartI=null, scenarioChartI=null, growthChartI=null;
+
+function calcCostoXCam(){ return Object.values(PROY_COSTO_X_CAM).reduce((a,b)=>a+b,0); }
+function calcEstructura(){ return Object.values(PROY_ESTRUCTURA).reduce((a,b)=>a+b,0); }
+function calcGananciaSub(){ return PROY_SUB.rubilar.precio*PROY_SUB.rubilar.gananciaPC + PROY_SUB.maghrebMenor.precio*PROY_SUB.maghrebMenor.gananciaPC; }
+
+function calcResultadoN(nPropias){
+  const costoXCam = calcCostoXCam();
+  const estructura = calcEstructura();
+  const ganSub = calcGananciaSub();
+  // Ingresos: propias activas (de contratos) + ganancia subalquiler
+  const contActivos = contratos.filter(c=>c.est==='activo'&&c.tipo!=='subalquilada');
+  const ingPropias = contActivos.slice(0, nPropias).reduce((a,b)=>a+(b.precio||0),0);
+  // Si hay más cams que contratos activos, usar precio promedio para las nuevas
+  const ingNuevas = Math.max(0, nPropias - contActivos.length) * 1910000;
+  const ingTotal = ingPropias + ingNuevas + ganSub;
+  const egrTotal = nPropias * costoXCam + estructura;
+  return { ing: ingTotal, egr: egrTotal, res: ingTotal - egrTotal };
+}
+
+function renderProyeccion(){
+  const costoXCam = calcCostoXCam();
+  const estructura = calcEstructura();
+  const ganSub = calcGananciaSub();
+  const margenPorCam = 1910000 - costoXCam;
+  const breakEven = (estructura - ganSub) / margenPorCam;
+
+  // Situación actual
+  const contActivos = contratos.filter(c=>c.est==='activo');
+  const nPropias = contActivos.length; // usar cantidad real de contratos activos
+  const ingPropias = contActivos.reduce((a,b)=>a+(b.precio||0),0);
+  const ingActual = ingPropias + ganSub;
+  const egrActual = nPropias * costoXCam + estructura;
+  const resActual = ingActual - egrActual;
+  const margenPct = ingActual>0?Math.round(resActual/ingActual*100):0;
+
+  // ROI camioneta nueva
+  const ingMensualNueva = 1910000;
+  const costoMensualNueva = costoXCam;
+  const margenNueva = ingMensualNueva - costoMensualNueva;
+  const paybackMeses = Math.round(PROY_PRECIO_COMPRA / margenNueva);
+  const roiAnual = margenNueva*12/PROY_PRECIO_COMPRA*100;
+  // Retorno a 5 años (incluye venta)
+  const costosCaja5a = (costoXCam - PROY_COSTO_X_CAM.amortizacion) * 60; // sin amort (no es caja)
+  const ingresos5a = ingMensualNueva * 60;
+  const retornoTotal = ingresos5a - costosCaja5a + PROY_VALOR_RESIDUAL;
+  const gananciaNeta5a = retornoTotal - PROY_PRECIO_COMPRA;
+  const roi5a = gananciaNeta5a/PROY_PRECIO_COMPRA*100;
+
+  $('proy-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${nPropias}</div><div class="kpi-lbl">CONTRATOS ACTIVOS</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${fmt(resActual)}</div><div class="kpi-lbl">RESULTADO MENSUAL HOY</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${fmt(resActual/8)}</div><div class="kpi-lbl">POR SOCIO / MES</div></div>
+    <div class="kpi purple"><div class="kpi-val c-purple">${margenPct}%</div><div class="kpi-lbl">MARGEN NETO</div></div>
+    <div class="kpi orange"><div class="kpi-val c-orange">${paybackMeses}m</div><div class="kpi-lbl">PAYBACK x CAMIONETA</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${Math.round(roi5a)}%</div><div class="kpi-lbl">ROI 5 AÑOS x CAM</div></div>
+  `;
+
+  // Build rows break-even table (1-12 cams)
+  let rowsBreak = '';
+  for(let n=1;n<=12;n++){
+    const ing = n*1910000 + ganSub;
+    const egr = n*costoXCam + estructura;
+    const res = ing - egr;
+    const mp = ing>0?Math.round(res/ing*100):0;
+    const esActual = n===nPropias;
+    const esBreak = Math.abs(n - breakEven) < 0.7;
+    rowsBreak += `<tr style="${esActual?'background:#e8b84b0f;font-weight:700':esBreak?'background:#5b9cf60a':''}">
+      <td class="mono" style="font-weight:${esActual?'700':'400'};font-size:15px">${n}${esActual?' ◀ HOY':''}${esBreak&&!esActual?' ← BREAK EVEN':''}</td>
+      <td class="amt c-green">${fmt(ing)}</td>
+      <td class="amt c-red">${fmt(egr)}</td>
+      <td class="amt ${res>=0?'c-gold':'c-red'}">${fmt(res)}</td>
+      <td class="mono">${fmt(Math.round(res/8))}</td>
+      <td><span class="badge ${res>resActual*1.5?'badge-paid':res>=0?'badge-info':'badge-pend'}">${res>=0?mp+'% margen':'PÉRDIDA'}</span></td>
+    </tr>`;
+  }
+
+  // Proyección crecimiento: 1 cam nueva/mes, 24 meses
+  const meses24Labels=[], ing24=[], egr24=[], res24=[], xSocio24=[];
+  const hoy=new Date();
+  for(let m=0;m<=24;m++){
+    const d=new Date(hoy.getFullYear(),hoy.getMonth()+m,1);
+    meses24Labels.push(MESES_SHORT[d.getMonth()]+"'"+String(d.getFullYear()).slice(2));
+    const nCams = nPropias + m;
+    const ingM = ingActual + m*1910000;
+    const egrM = egrActual + m*costoXCam;
+    const resM = ingM - egrM;
+    ing24.push(Math.round(ingM));
+    egr24.push(Math.round(egrM));
+    res24.push(Math.round(resM));
+    xSocio24.push(Math.round(resM/8));
+  }
+
+  // Ciclo de vida 5 años — tabla detallada por año
+  const anosData = [];
+  for(let a=1;a<=5;a++){
+    const nCams = nPropias + a*12; // 1 cam nueva por mes
+    const ingA = (ingActual + a*12*1910000)*12;
+    const egrA = (egrActual + a*12*costoXCam)*12;
+    const resA = ingA - egrA;
+    // En año 5, las primeras cams se venden
+    const ventasA5 = a===5 ? 5*PROY_VALOR_RESIDUAL : 0; // primeras 5 propias
+    anosData.push({ano:a, nCams, ingA, egrA, resA, ventasA5});
+  }
+
+  if(proyChartI){proyChartI.destroy();proyChartI=null;}
+  if(breakEvenChartI){breakEvenChartI.destroy();breakEvenChartI=null;}
+  if(growthChartI){growthChartI.destroy();growthChartI=null;}
+
+  $('proy-content').innerHTML=`
+  <!-- BLOQUE 1: CONTEXTO DEL MODELO -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px">
+    <div style="font-family:var(--fh);font-size:15px;letter-spacing:2px;color:var(--muted);margin-bottom:14px">🔍 CÓMO FUNCIONA EL NEGOCIO</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+
+      <div style="background:var(--bg);border-radius:6px;padding:14px">
+        <div style="font-family:var(--fh);font-size:12px;letter-spacing:2px;color:var(--accent2);margin-bottom:8px">🔄 SUBALQUILER JULI GARCÍA</div>
+        <div style="font-size:12px;margin-bottom:6px">Rubilar: <span class="mono c-gold">${fmt(PROY_SUB.rubilar.precio)}</span> ingreso → devuelve <span class="mono c-red">${fmt(PROY_SUB.rubilar.precio*(1-PROY_SUB.rubilar.gananciaPC))}</span></div>
+        <div style="font-size:12px;margin-bottom:6px">Maghreb: <span class="mono c-gold">${fmt(PROY_SUB.maghrebMenor.precio)}</span> ingreso → devuelve <span class="mono c-red">${fmt(PROY_SUB.maghrebMenor.precio*(1-PROY_SUB.maghrebMenor.gananciaPC))}</span></div>
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
+          <span style="font-size:11px;color:var(--muted)">Ganancia neta 12%:</span>
+          <span class="mono c-green" style="margin-left:6px">${fmt(Math.round(ganSub))}/mes</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border-radius:6px;padding:14px">
+        <div style="font-family:var(--fh);font-size:12px;letter-spacing:2px;color:var(--accent);margin-bottom:8px">🚛 CAMIONETA PROPIA — P&L MENSUAL</div>
+        ${Object.entries(PROY_COSTO_X_CAM).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--muted)">${k==='amortizacion'?'Amortización (contable)':k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="mono c-red">-${fmt(v)}</span></div>`).join('')}
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:6px;display:flex;justify-content:space-between">
+          <span style="font-size:12px">Costo total/mes</span><span class="mono c-red">${fmt(costoXCam)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:12px">Margen con precio prom.</span><span class="mono c-green">${fmt(margenPorCam)}</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border-radius:6px;padding:14px">
+        <div style="font-family:var(--fh);font-size:12px;letter-spacing:2px;color:var(--green);margin-bottom:8px">📊 ROI NUEVA CAMIONETA ($52M)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="text-align:center;background:var(--surface);border-radius:4px;padding:8px">
+            <div class="mono c-gold" style="font-size:16px">${paybackMeses}m</div>
+            <div style="font-size:9px;color:var(--muted)">PAYBACK</div>
+          </div>
+          <div style="text-align:center;background:var(--surface);border-radius:4px;padding:8px">
+            <div class="mono c-green" style="font-size:16px">${Math.round(roiAnual)}%</div>
+            <div style="font-size:9px;color:var(--muted)">ROI ANUAL</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">
+          5 años: <span class="c-gold">${fmt(Math.round(ingresos5a))}</span> cobrado + <span class="c-green">${fmt(PROY_VALOR_RESIDUAL)}</span> venta = <span class="c-green">${fmt(Math.round(retornoTotal))}</span> retorno total<br>
+          <strong style="color:var(--green)">Ganancia neta: ${fmt(Math.round(gananciaNeta5a))} (${Math.round(roi5a)}% sobre inversión)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 2: PUNTO DE EQUILIBRIO -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px">
+      <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:14px">🎯 PUNTO DE EQUILIBRIO</div>
+      <div style="background:var(--bg);border-radius:6px;padding:16px;text-align:center;margin-bottom:12px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:3px;font-family:var(--fm)">BREAK EVEN</div>
+        <div style="font-family:var(--fh);font-size:60px;font-weight:900;color:var(--accent);line-height:1">${Math.ceil(breakEven)}</div>
+        <div style="font-family:var(--fh);font-size:16px;color:var(--muted)">CAMIONETAS PROPIAS</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">exacto: ${breakEven.toFixed(2)} · la ganancia del subalquiler ayuda a bajar el umbral</div>
+      </div>
+      <div style="background:${resActual>=0?'#3ecf8e11':'#f26b6b11'};border:1px solid ${resActual>=0?'#3ecf8e44':'#f26b6b44'};border-radius:6px;padding:12px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;font-family:var(--fm)">SITUACIÓN ACTUAL (${nPropias} contratos activos)</div>
+        <div style="font-family:var(--fm);font-size:22px;color:${resActual>=0?'var(--green)':'var(--red)'};margin:4px 0">${fmt(resActual)}/mes</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <div><div style="font-size:10px;color:var(--muted)">POR SOCIO/MES</div><div class="mono c-gold">${fmt(Math.round(resActual/8))}</div></div>
+          <div><div style="font-size:10px;color:var(--muted)">POR SOCIO/AÑO</div><div class="mono c-gold">${fmt(Math.round(resActual*12/8))}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px">
+      <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:14px">📈 ESCENARIOS DE CRECIMIENTO</div>
+      ${[
+        {n:nPropias, label:'HOY', color:'var(--accent)', bold:true},
+        {n:nPropias+3, label:`+3 cams (${nPropias+3} total)`, color:'var(--accent2)'},
+        {n:nPropias+6, label:`+6 cams (${nPropias+6} total)`, color:'var(--green)'},
+        {n:nPropias+12, label:`+12 cams (${nPropias+12} total)`, color:'var(--purple)'},
+      ].map(sc=>{
+        const ing = sc.n*1910000 + ganSub;
+        const egr = sc.n*costoXCam + estructura;
+        const res = ing - egr;
+        return `<div style="border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:8px;${sc.bold?'background:var(--bg)':''}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-family:var(--fh);font-size:13px;color:${sc.color};letter-spacing:1px">${sc.label}</span>
+            <span class="badge badge-info">${sc.n} cams</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+            <div><div style="font-size:9px;color:var(--muted)">RESULTADO</div><div class="mono c-gold" style="font-size:13px">${fmt(res)}</div></div>
+            <div><div style="font-size:9px;color:var(--muted)">x SOCIO/MES</div><div class="mono c-green" style="font-size:13px">${fmt(Math.round(res/8))}</div></div>
+            <div><div style="font-size:9px;color:var(--muted)">MARGEN</div><div class="mono" style="font-size:13px;color:${res>=0?'var(--green)':'var(--red)'}">${ing>0?Math.round(res/ing*100):0}%</div></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- BLOQUE 3: TABLA BREAK EVEN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px">
+    <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px">📋 RENTABILIDAD POR N° DE CAMIONETAS</div>
+    <div class="tbl-wrap" style="margin:0"><table>
+      <thead><tr><th>N° CAMS</th><th>INGRESOS NETOS</th><th>EGRESOS</th><th>RESULTADO MES</th><th>x SOCIO/MES</th><th>ESTADO</th></tr></thead>
+      <tbody>${rowsBreak}</tbody>
+    </table></div>
+  </div>
+
+  <!-- BLOQUE 4: PROYECCIÓN GRÁFICO -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px">
+    <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:4px">📈 CRECIMIENTO: 1 CAMIONETA NUEVA POR MES (24 MESES)</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Supuesto: cada nueva unidad se financia con aportes de socios · precio alquiler $1.910.000 promedio</div>
+    <div class="chart-wrap" style="height:280px"><canvas id="proyChart"></canvas></div>
+  </div>
+
+  <!-- BLOQUE 5: PROYECCIÓN TABLA -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px">
+    <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px">📋 TABLA DE CRECIMIENTO MES A MES (24 MESES)</div>
+    <div class="tbl-wrap" style="margin:0"><table>
+      <thead><tr><th>MES</th><th>CAMS PROPIAS</th><th>INGRESOS</th><th>EGRESOS</th><th>RESULTADO</th><th>x SOCIO/MES</th></tr></thead>
+      <tbody>${meses24Labels.map((l,i)=>`<tr class="${i===0?'highlight-row':''}">
+        <td class="mono">${l}</td>
+        <td style="text-align:center;font-family:var(--fm)">${nPropias+i}</td>
+        <td class="amt c-green">${fmt(ing24[i])}</td>
+        <td class="amt c-red">${fmt(egr24[i])}</td>
+        <td class="amt c-gold">${fmt(res24[i])}</td>
+        <td class="amt c-purple">${fmt(xSocio24[i])}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>
+
+  <!-- BLOQUE 6: CICLO DE VIDA 5 AÑOS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px">
+    <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:4px">🔄 CICLO DE VIDA 5 AÑOS — PROYECCIÓN ANUAL</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">En el año 5 las primeras unidades cumplen vida útil → se venden y el capital se reinvierte</div>
+    <div class="tbl-wrap" style="margin:0"><table>
+      <thead><tr><th>AÑO</th><th>CAMS EN FLOTA</th><th>INGRESOS ANUALES</th><th>EGRESOS ANUALES</th><th>RESULTADO ANUAL</th><th>VENTA UNIDADES</th><th>TOTAL AÑO</th></tr></thead>
+      <tbody>${anosData.map(a=>`<tr>
+        <td class="mono c-gold">Año ${a.ano}</td>
+        <td style="text-align:center;font-family:var(--fm)">${a.nCams}</td>
+        <td class="amt c-green">${fmt(a.ingA)}</td>
+        <td class="amt c-red">${fmt(a.egrA)}</td>
+        <td class="amt c-gold">${fmt(a.resA)}</td>
+        <td class="amt ${a.ventasA5>0?'c-blue c-muted':'c-muted'}">${a.ventasA5>0?fmt(a.ventasA5):'—'}</td>
+        <td class="amt c-gold" style="font-weight:700">${fmt(a.resA+a.ventasA5)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>
+
+  <!-- SUPUESTOS -->
+  <div style="padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.8">
+    <strong style="color:var(--text)">📌 Supuestos del modelo:</strong><br>
+    • <strong style="color:var(--text)">Subalquiler Juli García:</strong> Rubilar ($2M) y Maghreb ($900K) → se devuelve el 88%, ganancia neta 12% por unidad<br>
+    • <strong style="color:var(--text)">Vida útil:</strong> 5 años (60 meses) por camioneta · Valor de venta estimado: $30M a precio actual<br>
+    • <strong style="color:var(--text)">Crecimiento:</strong> 1 camioneta nueva por mes financiada con aportes de socios (no impacta caja operativa)<br>
+    • <strong style="color:var(--text)">Precio alquiler nuevas:</strong> $1.910.000 promedio (basado en contratos actuales)<br>
+    • <strong style="color:var(--text)">Amortización:</strong> incluida como costo contable ($${fmt(Math.round(PROY_COSTO_X_CAM.amortizacion))}/mes), NO es salida de caja real<br>
+    • <strong style="color:var(--text)">No incluye:</strong> inflación, ajuste de precios de alquiler, ni gastos de puesta en marcha de nuevas unidades
+  </div>
+  `;
+
+  setTimeout(()=>{
+    const c=document.getElementById('proyChart');
+    if(c){
+      if(proyChartI) proyChartI.destroy();
+      proyChartI=new Chart(c,{type:'bar',data:{labels:meses24Labels,datasets:[
+        {label:'Ingresos',data:ing24,backgroundColor:'#3ecf8e33',borderColor:'#3ecf8e',borderWidth:2,order:2},
+        {label:'Egresos',data:egr24,backgroundColor:'#f26b6b33',borderColor:'#f26b6b',borderWidth:2,order:2},
+        {label:'Resultado',data:res24,type:'line',borderColor:'#e8b84b',backgroundColor:'#e8b84b22',borderWidth:2.5,tension:.3,pointRadius:3,fill:true,order:1},
+        {label:'x Socio',data:xSocio24,type:'line',borderColor:'#a78bfa',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:3,yAxisID:'y1',order:1},
+      ]},options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},
+        scales:{
+          x:{ticks:{color:'#6b7280',font:{size:9},maxRotation:45},grid:{color:'#2a2f3d'}},
+          y:{ticks:{color:'#6b7280',callback:v=>'$'+Math.round(v/1000000)+'M'},grid:{color:'#2a2f3d'}},
+          y1:{position:'right',ticks:{color:'#a78bfa',callback:v=>'$'+Math.round(v/1000000)+'M'},grid:{display:false}}
+        }}});
+    }
+  },100);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+// ============================================================
+// CONTRATOS
+// ============================================================
+function renderContratos(){
+  const activos=contratos.filter(c=>c.est==='activo');
+  const totalNetoMes=activos.reduce((a,b)=>a+(b.precio||0),0);
+  const totalConIvaMes=activos.reduce((a,b)=>a+(b.precio||0)*(1+(b.iva||0)),0);
+  $('cont-kpis').innerHTML=`
+    <div class="kpi gold"><div class="kpi-val c-gold">${contratos.length}</div><div class="kpi-lbl">CONTRATOS TOTALES</div></div>
+    <div class="kpi green"><div class="kpi-val c-green">${activos.length}</div><div class="kpi-lbl">ACTIVOS</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${fmt(totalNetoMes)}</div><div class="kpi-lbl">INGRESO NETO MENSUAL</div></div>
+    <div class="kpi purple"><div class="kpi-val c-purple">${fmt(Math.round(totalConIvaMes))}</div><div class="kpi-lbl">INGRESO C/IVA MENSUAL</div></div>
+  `;
+  const cards=contratos.map(c=>{
+    const total=Math.round(c.precio*(1+(c.iva||0)));
+    const ivaM=Math.round(c.precio*(c.iva||0));
+    const facEmp=facturas.filter(f=>f.est!=='NOTA'&&f.emp===c.emp);
+    const totalFac=facEmp.reduce((a,b)=>a+(b.monto||0),0);
+    const totalCob=facEmp.filter(f=>f.est==='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+    const totalPend=facEmp.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+    const ratio=totalFac>0?Math.round(totalCob/totalFac*100):0;
+    const ratioColor=ratio>=90?'var(--green)':ratio>=60?'var(--orange)':'var(--red)';
+    const hoy=new Date();
+    const inicio=c.inicio?new Date(c.inicio):null;
+    const mesesActivo=inicio?Math.round((hoy-inicio)/(1000*60*60*24*30)):0;
+    const estCls=c.est==='activo'?'badge-paid':c.est==='suspendido'?'badge-warn':'badge-pend';
+    const estTxt=c.est==='activo'?'ACTIVO':c.est==='suspendido'?'SUSPENDIDO':'FINALIZADO';
+    return `<div class="card ${c.est!=='activo'?'red-top':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+        <div><div style="font-weight:700;font-size:15px;margin-bottom:2px">${c.emp}</div><div class="plate" style="font-size:13px">${c.pat}</div></div>
+        <span class="badge ${estCls}">${estTxt}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
+          <div class="mono c-gold" style="font-size:13px">${fmt(c.precio)}</div><div style="font-size:9px;color:var(--muted)">NETO/MES</div>
+        </div>
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
+          <div class="mono c-muted" style="font-size:13px">${fmt(ivaM)}</div><div style="font-size:9px;color:var(--muted)">IVA (${Math.round((c.iva||0)*100)}%)</div>
+        </div>
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
+          <div class="mono c-blue" style="font-size:13px">${fmt(total)}</div><div style="font-size:9px;color:var(--muted)">TOTAL/MES</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <span>📅 Inicio: ${fmtD(c.inicio)}</span>
+        ${c.fin?`<span>🔚 Fin: ${fmtD(c.fin)}</span>`:''}
+        <span>📆 Día: ${c.dia||'—'}</span>
+        <span>⏱ ${mesesActivo} meses activo</span>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:10px;margin-bottom:10px">
+        <div style="font-family:var(--fh);font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">ESTADO DE CUENTA</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="text-align:center"><div class="mono c-gold" style="font-size:13px">${fmt(totalFac)}</div><div style="font-size:9px;color:var(--muted)">FACTURADO</div></div>
+          <div style="text-align:center"><div class="mono c-green" style="font-size:13px">${fmt(totalCob)}</div><div style="font-size:9px;color:var(--muted)">COBRADO</div></div>
+          <div style="text-align:center"><div class="mono" style="font-size:13px;color:${totalPend>0?'var(--red)':'var(--muted)'}">${totalPend>0?fmt(totalPend):'$0'}</div><div style="font-size:9px;color:var(--muted)">PENDIENTE</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="progress-wrap" style="flex:1"><div class="progress-bar" style="width:${ratio}%;background:${ratioColor}"></div></div>
+          <span class="mono" style="font-size:11px;color:${ratioColor}">${ratio}% cobrado</span>
+        </div>
+      </div>
+      ${c.obs?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${c.obs}</div>`:''}
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="editContrato(${c.id})">✏ EDITAR</button>
+        <button class="btn btn-danger" onclick="deleteContrato(${c.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  $('cont-cards').innerHTML='<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))">'+cards+'</div>';
+}
+function addContrato(){
+  const c={id:nextId(contratos),emp:$('nc2-emp').value.trim().toUpperCase(),pat:$('nc2-pat').value,precio:Number($('nc2-precio').value)||0,iva:Number($('nc2-iva').value)||0.21,inicio:$('nc2-inicio').value,fin:$('nc2-fin').value,dia:Number($('nc2-dia').value)||1,est:$('nc2-est').value,obs:$('nc2-obs').value.trim()};
+  if(!c.emp||!c.precio)return showToast('Ingresá empresa y precio',true);
+  contratos.push(c);save('pkhv2_contratos',contratos);hideModal('modal-contrato');renderContratos();showToast('Contrato registrado');
+}
+function editContrato(id){
+  const c=contratos.find(x=>x.id===id);if(!c)return;
+  const p=prompt('Precio neto mensual:',c.precio);if(p===null)return;
+  const e=prompt('Estado (activo/suspendido/finalizado):',c.est);if(e===null)return;
+  c.precio=Number(p)||c.precio;c.est=e||c.est;
+  save('pkhv2_contratos',contratos);renderContratos();showToast('Contrato actualizado');
+}
+function deleteContrato(id){
+  if(!confirm('Eliminar?'))return;
+  contratos=contratos.filter(c=>c.id!==id);save('pkhv2_contratos',contratos);renderContratos();showToast('Eliminado');
+}
+
+// ============================================================
+// HOME BANKING
+// ============================================================
+let hbChartI=null;
+function renderHB(){
+  const q=($('hb-q')||{}).value?.toLowerCase()||'';
+  const tipo=($('hb-tipo')||{}).value||'';
+  const grp=($('hb-grupo')||{}).value||'';
+  const desde=($('hb-desde')||{}).value||'';
+  const hasta=($('hb-hasta')||{}).value||'';
+  const totalDeb=homebanking.reduce((a,b)=>a+(b.deb||0),0);
+  const totalCred=homebanking.reduce((a,b)=>a+(b.cred||0),0);
+  const balance=totalCred-totalDeb;
+  $('hb-kpis').innerHTML=`
+    <div class="kpi green"><div class="kpi-val c-green">${fmt(Math.round(totalCred))}</div><div class="kpi-lbl">TOTAL CRÉDITOS</div></div>
+    <div class="kpi red"><div class="kpi-val c-red">${fmt(Math.round(totalDeb))}</div><div class="kpi-lbl">TOTAL DÉBITOS</div></div>
+    <div class="kpi ${balance>=0?'gold':'red'}"><div class="kpi-val ${balance>=0?'c-gold':'c-red'}">${fmt(Math.round(balance))}</div><div class="kpi-lbl">BALANCE NETO</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${homebanking.length}</div><div class="kpi-lbl">MOVIMIENTOS</div></div>
+  `;
+  const grupos=[...new Set(homebanking.map(h=>h.grupo).filter(Boolean))].sort();
+  const sel=$('hb-grupo');
+  if(sel){const cv=sel.value;sel.innerHTML='<option value="">TODOS LOS GRUPOS</option>'+grupos.map(g=>'<option value="'+g+'" '+(g===cv?'selected':'')+'>'+g+'</option>').join('');}
+  const mesMap={};
+  homebanking.forEach(h=>{if(h.fecha){const m=h.fecha.slice(0,7);if(!mesMap[m])mesMap[m]={deb:0,cred:0};mesMap[m].deb+=(h.deb||0);mesMap[m].cred+=(h.cred||0);}});
+  const mLabels=Object.keys(mesMap).sort().slice(-14);
+  if(hbChartI){hbChartI.destroy();hbChartI=null;}
+  setTimeout(()=>{
+    const c=document.getElementById('hbChart');
+    if(c){hbChartI=new Chart(c,{type:'bar',data:{labels:mLabels,datasets:[
+      {label:'Créditos',data:mLabels.map(k=>Math.round(mesMap[k]?.cred||0)),backgroundColor:'#3ecf8e44',borderColor:'#3ecf8e',borderWidth:2},
+      {label:'Débitos',data:mLabels.map(k=>Math.round(mesMap[k]?.deb||0)),backgroundColor:'#f26b6b44',borderColor:'#f26b6b',borderWidth:2}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}}},
+    scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'#2a2f3d'}},y:{ticks:{color:'#6b7280',callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#2a2f3d'}}}}});}
+  },50);
+  let list=homebanking.filter(h=>{
+    if(q&&!h.desc.toLowerCase().includes(q)&&!(h.concepto||'').toLowerCase().includes(q))return false;
+    if(tipo==='debito'&&!(h.deb>0))return false;
+    if(tipo==='credito'&&!(h.cred>0))return false;
+    if(grp&&h.grupo!==grp)return false;
+    if(desde&&h.fecha&&h.fecha.slice(0,7)<desde)return false;
+    if(hasta&&h.fecha&&h.fecha.slice(0,7)>hasta)return false;
+    return true;
+  }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  const tb=$('hbTbody');
+  tb.innerHTML=list.slice(0,300).map(h=>'<tr><td class="mono">'+fmtD(h.fecha)+'</td><td>'+h.desc+'</td><td style="font-size:11px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(h.concepto||'—')+'</td><td class="amt '+(h.deb>0?'c-red':'')+'">'+( h.deb>0?fmt(h.deb):'—')+'</td><td class="amt '+(h.cred>0?'c-green':'')+'">'+( h.cred>0?fmt(h.cred):'—')+'</td></tr>').join('')+(list.length>300?'<tr><td colspan="5" style="text-align:center;padding:12px;color:var(--muted);font-size:12px">Mostrando 300 de '+list.length+' movimientos. Usá los filtros para acotar.</td></tr>':'');
+}
+
+function checkPin() {
+  const pin = $('pin-input').value.trim();
+  if (pin === ACCESS_PIN) {
+    $('login-overlay').style.display = 'none';
+    startApp();
+  } else {
+    $('pin-error').style.display = 'block';
+    $('pin-input').value = '';
+    $('pin-input').focus();
+  }
+}
+
+async function startApp() {
+  // Try to load from Firebase first
+  if (firebaseReady) {
+    $('login-status') && ($('login-status').textContent = 'Cargando datos de la nube...');
+    const loaded = await loadFromFirebase();
+    if (loaded) {
+      reloadAllState();
+    }
+    setupRealtimeSync();
+  }
+  updateAlertBadges();
+  populateSelects();
+  renderDashboard();
+}
+
+async function init() {
+  // Check if already logged in this session
+  const loggedIn = sessionStorage.getItem('pkh_logged');
+  initFirebase();
+
+  if (FIREBASE_CONFIG.apiKey === "REEMPLAZAR") {
+    $('login-status') && ($('login-status').textContent = '⚠ Modo local — Firebase no configurado');
+  } else {
+    $('login-status') && ($('login-status').textContent = 'Conectando a Firebase...');
+  }
+
+  if (loggedIn === 'true') {
+    $('login-overlay').style.display = 'none';
+    startApp();
+  } else {
+    setTimeout(() => $('pin-input') && $('pin-input').focus(), 100);
+  }
+}
+
+// Save session on login
+const _origCheckPin = checkPin;
+window.checkPin = function() {
+  _origCheckPin();
+  if ($('login-overlay').style.display === 'none') {
+    sessionStorage.setItem('pkh_logged', 'true');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
