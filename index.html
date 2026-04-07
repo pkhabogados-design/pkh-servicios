@@ -2349,6 +2349,30 @@ function renderHB(){
   tb.innerHTML=list.slice(0,300).map(h=>'<tr><td class="mono">'+fmtD(h.fecha)+'</td><td>'+h.desc+'</td><td style="font-size:11px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(h.concepto||'—')+'</td><td class="amt '+(h.deb>0?'c-red':'')+'">'+( h.deb>0?fmt(h.deb):'—')+'</td><td class="amt '+(h.cred>0?'c-green':'')+'">'+( h.cred>0?fmt(h.cred):'—')+'</td></tr>').join('')+(list.length>300?'<tr><td colspan="5" style="text-align:center;padding:12px;color:var(--muted);font-size:12px">Mostrando 300 de '+list.length+' movimientos. Usá los filtros para acotar.</td></tr>':'');
 }
 
+function exportarTodo() {
+  const hoy = new Date();
+  const fecha = hoy.toISOString().slice(0,10);
+  const datos = {
+    flota:        window.flota        || [],
+    km:           window.km           || [],
+    facturas:     window.facturas     || [],
+    gastos:       window.gastos       || [],
+    mantenimiento:window.mantenimiento|| [],
+    documentos:   window.documentos   || [],
+    cheques:      window.cheques      || [],
+    contratos:    window.contratos    || [],
+    socios:       window.socios       || [],
+    aportes:      window.aportes      || [],
+    costosMes:    window.costosMes    || []
+  };
+  const blob = new Blob([JSON.stringify(datos, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pkh-backup-' + fecha + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 function checkPin() {
   const pin = $('pin-input').value.trim();
   if (pin === ACCESS_PIN) {
