@@ -3366,19 +3366,134 @@ var CHECKLIST_GRUPOS=[
 var _misSeccion='', _misData=null;
 
 var _misGuias={
-  gastos:'<b>Formato CSV esperado</b> — columnas en este orden (separadas por coma):<br>'
-    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">CONCEPTO, FECHA (DD/MM/AAAA), MONTO, ORIGEN, CATEGORIA</code><br><br>'
-    +'<b>Exportar desde Excel:</b> Archivo → Guardar como → CSV UTF-8<br>'
-    +'Las columnas ORIGEN y CATEGORIA son opcionales. Fechas en formato DD/MM/AAAA o AAAA-MM-DD.',
-  facturas:'<b>Formato CSV esperado</b> — columnas:<br>'
-    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">FECHA, N°FACTURA, EMPRESA, CUIT, NETO, IVA, TOTAL, VENCIMIENTO, ESTADO, FECHA_PAGO, FORMA_PAGO, OBS</code><br><br>'
-    +'ESTADO acepta: PAGADO, PENDIENTE, NOTA CREDITO, ANULADA. '
-    +'Fechas en DD/MM/AAAA. N° duplicados se ignorarán.',
-  costos:'<b>Formato JSON</b> — clave del mes + secciones vars/fijos/imp/ing:<br>'
+  gastos:'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
+    +'<div><b>Formato CSV</b> — columnas en este orden:<br>'
+    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">CONCEPTO, FECHA (DD/MM/AAAA), MONTO, ORIGEN, CATEGORIA</code><br>'
+    +'<span style="color:var(--muted);font-size:11px;">ORIGEN y CATEGORIA opcionales. Fechas DD/MM/AAAA o AAAA-MM-DD.</span></div>'
+    +'<button class="btn btn-secondary btn-sm" onclick="descargarPlantilla(\'gastos\')" style="flex-shrink:0"><i class="ti ti-download"></i> Plantilla CSV</button>'
+    +'</div>',
+  facturas:'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
+    +'<div><b>Formato CSV</b> — columnas:<br>'
+    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">FECHA, N°FACTURA, EMPRESA, CUIT, NETO, IVA, TOTAL, VENCIMIENTO, ESTADO, FECHA_PAGO, FORMA_PAGO, OBS</code><br>'
+    +'<span style="color:var(--muted);font-size:11px;">ESTADO: PAGADO, PENDIENTE, NOTA CREDITO. Números duplicados se ignoran.</span></div>'
+    +'<button class="btn btn-secondary btn-sm" onclick="descargarPlantilla(\'facturas\')" style="flex-shrink:0"><i class="ti ti-download"></i> Plantilla CSV</button>'
+    +'</div>',
+  costos:'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
+    +'<div><b>Formato JSON</b> — estructura por mes:<br>'
     +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">'
-    +'{ "ABR-2026": { "vars": [["Vep Autónomo", 132778]], "fijos": [...], "imp": [...], "ing": [...] } }</code><br><br>'
-    +'Los meses existentes se actualizarán. Usá el botón <b>Exportar datos</b> como base.'
+    +'{ "JUN-2026": { "vars": [...], "fijos": [...], "imp": [...], "ing": [...] } }</code><br>'
+    +'<span style="color:var(--muted);font-size:11px;">La plantilla trae conceptos de la flota actual con montos en 0.</span></div>'
+    +'<button class="btn btn-secondary btn-sm" onclick="descargarPlantilla(\'costos\')" style="flex-shrink:0"><i class="ti ti-download"></i> Plantilla JSON</button>'
+    +'</div>'
 };
+
+function _descargarArchivo(contenido, nombre, tipo){
+  var blob=new Blob([contenido],{type:tipo});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=nombre;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(a.href);
+}
+
+function descargarPlantilla(seccion){
+  var hoy=new Date();
+  var mes=MESES_SHORT[hoy.getMonth()];
+  var anio=hoy.getFullYear();
+  var mesStr=String(hoy.getMonth()+1).padStart(2,'0');
+  var anoStr=String(anio);
+  var dd=String(hoy.getDate()).padStart(2,'0');
+  var fechaHoy=dd+'/'+mesStr+'/'+anoStr;
+
+  if(seccion==='gastos'){
+    var filas=[
+      'CONCEPTO,FECHA,MONTO,ORIGEN,CATEGORIA',
+      'SEGURO AG-870-VZ,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Seguros',
+      'SEGURO AG-832-SV,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Seguros',
+      'SEGURO AH-253-PY,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Seguros',
+      'SEGURO AH-751-LZ,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Seguros',
+      'SEGURO AI-029-FZ,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Seguros',
+      'ABONO CONTADOR,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Contador',
+      'VEP AUTÓNOMO,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Impuestos',
+      'VEP IIBB,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Impuestos',
+      'VEP IVA,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Impuestos',
+      'MICROTRACK X5,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Operativo',
+      'RSV,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Operativo',
+      'CONTROL DOCUMENTAL,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Administrativo',
+      'PAGO TARJETA VISA GALICIA,'+fechaHoy+',0,TARJETA VISA GALICIA,Impuestos',
+      'PAGO TARJETA VISA BBVA,'+fechaHoy+',0,TARJETA VISA BBVA,Impuestos',
+      'DEVOLUCION JULI GARCIA,'+fechaHoy+',0,HB GALICIA SOCIEDAD,Administrativo',
+    ];
+    // Agregar una fila por cada servicio de camioneta
+    flota.filter(function(u){return u.tipo==='propia';}).forEach(function(u){
+      filas.push('SERVICES '+u.pat+','+fechaHoy+',0,HB GALICIA SOCIEDAD,Operativo');
+    });
+    _descargarArchivo(filas.join('\n'),'plantilla_gastos_'+mes+anoStr+'.csv','text/csv;charset=utf-8');
+    showToast('✓ Plantilla de gastos descargada');
+
+  } else if(seccion==='facturas'){
+    // Siguiente número de factura
+    var maxNum=facturas.filter(function(f){return typeof f.num==='number';})
+      .reduce(function(a,b){return b.num>a?b.num:a;},0)+1;
+    // Clientes activos como ejemplo
+    var clientes=[...new Set(contratos.filter(function(c){return c.est==='activo';}).map(function(c){return c.emp+'|'+c.precio;}))];
+    var filas=['FECHA,N°FACTURA,EMPRESA,CUIT,NETO,IVA,TOTAL,VENCIMIENTO,ESTADO,FECHA_PAGO,FORMA_PAGO,OBS'];
+    clientes.forEach(function(cl,i){
+      var parts=cl.split('|');
+      var emp=parts[0]; var precio=Number(parts[1])||0;
+      var iva=Math.round(precio*0.21); var total=precio+iva;
+      var cuit=facturas.filter(function(f){return f.emp===emp&&f.cuit;}).map(function(f){return f.cuit;})[0]||'';
+      filas.push(fechaHoy+','+(maxNum+i)+','+emp+','+cuit+','+precio+','+iva+','+total+',,PENDIENTE,,,');
+    });
+    if(clientes.length===0){
+      filas.push(fechaHoy+','+maxNum+',EMPRESA CLIENTE,,2000000,420000,2420000,,PENDIENTE,,,');
+    }
+    _descargarArchivo(filas.join('\n'),'plantilla_facturas_'+mes+anoStr+'.csv','text/csv;charset=utf-8');
+    showToast('✓ Plantilla de facturas descargada');
+
+  } else if(seccion==='costos'){
+    // Próximo mes como clave
+    var nextMes=new Date(hoy.getFullYear(),hoy.getMonth()+1,1);
+    var key=MESES_SHORT[nextMes.getMonth()]+'-'+nextMes.getFullYear();
+    var propias=flota.filter(function(u){return u.tipo==='propia';});
+    // Tomar último mes disponible como referencia de montos
+    var lastKey=Object.keys(costosMes).sort().pop();
+    var ref=costosMes[lastKey]||{vars:[],fijos:[],imp:[],ing:[]};
+    function getRef(section,label){ var r=(ref[section]||[]).find(function(x){return x[0]===label;}); return r?r[1]:0; }
+
+    var plantilla={};
+    plantilla[key]={
+      vars:[
+        ['Vep Autónomo',getRef('vars','Vep Autónomo')],
+        ['Vep IIBB',getRef('vars','Vep IIBB')],
+        ['VEP IVA',getRef('vars','VEP IVA')],
+        ['Cubiertas',0]
+      ].concat(propias.map(function(u){return ['Services '+u.pat,0];})),
+      fijos:[].concat(
+        flota.map(function(u){return ['Seguro '+u.pat,getRef('fijos','Seguro '+u.pat)];}),
+        [['Microtrack x5',getRef('fijos','Microtrack x5')],
+         ['RSV',getRef('fijos','RSV')],
+         ['Control Documental',getRef('fijos','Control Documental')],
+         ['Abono Contador',0]],
+        propias.map(function(u){return ['Amort. '+u.pat,getRef('fijos','Amort. '+u.pat)];}),
+        [['Devol. Juli García',getRef('fijos','Devol. Juli García')],
+         ['5% Comisión',0]]
+      ),
+      imp:[
+        ['Comisiones / Gastos Op.',0],
+        ['IVA y Percepciones',0],
+        ['Imp. Crédito Ley 25.413',0],
+        ['Imp. Débito Ley 25.413',0],
+        ['Ing. Brutos s/ Créditos',0],
+        ['Tarjeta Visa GALICIA',0],
+        ['Tarjeta Visa BBVA',0]
+      ],
+      ing:contratos.filter(function(c){return c.est==='activo';}).map(function(c){return [c.emp,0];})
+    };
+    _descargarArchivo(JSON.stringify(plantilla,null,2),'plantilla_costos_'+key+'.json','application/json');
+    showToast('✓ Plantilla de costos descargada ('+key+')');
+  }
+}
 
 function importarSeccion(tipo){
   _misSeccion=tipo; _misData=null;
