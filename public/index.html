@@ -222,8 +222,16 @@ textarea{resize:vertical;min-height:70px;}
 .dash-alert.warn{border-left-color:var(--orange);}
 .dash-alert.warn:hover{background:#fffbeb;}
 .dash-alert.info{border-left-color:var(--accent2);}
+/* SORT HEADERS */
+.th-sort{cursor:pointer;user-select:none;white-space:nowrap;}
+.th-sort:hover{color:var(--accent);}
+.th-sort.asc::after{content:' ↑';}
+.th-sort.desc::after{content:' ↓';}
 /* CHECKLIST */
 input[type="checkbox"]{accent-color:var(--accent);}
+/* DATE INPUTS — forzar DD/MM/AAAA */
+input[type="date"]{letter-spacing:.5px;}
+input[type="date"]::placeholder{color:var(--muted);}
 /* COMPAT */
 .logo-hex{width:42px;height:42px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:white;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);}
 </style>
@@ -412,7 +420,14 @@ input[type="checkbox"]{accent-color:var(--accent);}
   </div>
   <div class="kpi-grid" id="mant-kpis"></div>
   <div class="tbl-wrap"><table>
-    <thead><tr><th>UNIDAD</th><th>TIPO</th><th>FECHA</th><th>KM AL SERVICE</th><th>PRÓX. KM</th><th>COSTO</th><th>TALLER</th><th>OBSERVACIONES</th><th></th></tr></thead>
+    <thead><tr id="mant-thead">
+      <th class="th-sort" onclick="sortTh('mant','pat')">UNIDAD</th>
+      <th>TIPO</th>
+      <th class="th-sort" onclick="sortTh('mant','fecha')">FECHA ↓</th>
+      <th>KM AL SERVICE</th><th>PRÓX. KM</th>
+      <th class="th-sort" onclick="sortTh('mant','costo')">COSTO</th>
+      <th>TALLER</th><th>OBSERVACIONES</th><th></th>
+    </tr></thead>
     <tbody id="mantTbody"></tbody>
   </table></div>
 </div>
@@ -452,7 +467,18 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <select id="fac-fanio" onchange="renderFacturacion()"><option value="">TODOS LOS AÑOS</option></select>
   </div>
   <div class="tbl-wrap"><table>
-    <thead><tr><th>N°</th><th>FECHA</th><th>EMPRESA</th><th>NETO</th><th>IVA</th><th>TOTAL</th><th>VENCE</th><th>ESTADO</th><th>F.PAGO</th><th>FORMA</th><th></th></tr></thead>
+    <thead><tr id="fac-thead">
+      <th class="th-sort" onclick="sortTh('fac','num')">N°</th>
+      <th class="th-sort" onclick="sortTh('fac','fecha')">FECHA ↓</th>
+      <th class="th-sort" onclick="sortTh('fac','emp')">EMPRESA</th>
+      <th class="th-sort" onclick="sortTh('fac','monto')">NETO</th>
+      <th>IVA</th>
+      <th class="th-sort" onclick="sortTh('fac','total')">TOTAL</th>
+      <th class="th-sort" onclick="sortTh('fac','venc')">VENCE</th>
+      <th class="th-sort" onclick="sortTh('fac','est')">ESTADO</th>
+      <th class="th-sort" onclick="sortTh('fac','fpago')">F.PAGO</th>
+      <th>FORMA</th><th></th>
+    </tr></thead>
     <tbody id="facTbody"></tbody>
   </table></div>
 </div>
@@ -496,7 +522,14 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <button class="itab" data-ct="todos" onclick="switchChequeTab('todos',this)">TODOS</button>
   </div>
   <div class="tbl-wrap"><table>
-    <thead><tr><th>N° CHEQUE</th><th>BANCO</th><th>EMPRESA</th><th>MONTO</th><th>FECHA COBRO</th><th>DÍAS</th><th>ESTADO</th><th></th></tr></thead>
+    <thead><tr id="cheq-thead">
+      <th>N° CHEQUE</th><th>BANCO</th>
+      <th class="th-sort" onclick="sortTh('cheq','emp')">EMPRESA</th>
+      <th class="th-sort" onclick="sortTh('cheq','monto')">MONTO</th>
+      <th class="th-sort" onclick="sortTh('cheq','fecha')">FECHA COBRO ↑</th>
+      <th>DÍAS</th>
+      <th class="th-sort" onclick="sortTh('cheq','est')">ESTADO</th><th></th>
+    </tr></thead>
     <tbody id="cheqTbody"></tbody>
   </table></div>
 </div>
@@ -520,7 +553,13 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <input id="g-hasta" type="month" onchange="renderGastos()">
   </div>
   <div class="tbl-wrap"><table>
-    <thead><tr><th>CONCEPTO</th><th>FECHA</th><th>MONTO</th><th>ORIGEN</th><th>CATEGORÍA</th><th></th></tr></thead>
+    <thead><tr id="gas-thead">
+      <th class="th-sort" onclick="sortTh('gas','con')">CONCEPTO</th>
+      <th class="th-sort" onclick="sortTh('gas','fecha')">FECHA ↓</th>
+      <th class="th-sort" onclick="sortTh('gas','monto')">MONTO</th>
+      <th class="th-sort" onclick="sortTh('gas','orig')">ORIGEN</th>
+      <th class="th-sort" onclick="sortTh('gas','cat')">CATEGORÍA</th><th></th>
+    </tr></thead>
     <tbody id="gasTbody"></tbody>
   </table></div>
 </div>
@@ -599,7 +638,13 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <input id="hb-hasta" type="month" onchange="renderHB()">
   </div>
   <div class="tbl-wrap"><table>
-    <thead><tr><th>FECHA</th><th>DESCRIPCIÓN</th><th>CONCEPTO</th><th>DÉBITO</th><th>CRÉDITO</th></tr></thead>
+    <thead><tr id="hb-thead">
+      <th class="th-sort" onclick="sortTh('hb','fecha')">FECHA ↓</th>
+      <th class="th-sort" onclick="sortTh('hb','desc')">DESCRIPCIÓN</th>
+      <th class="th-sort" onclick="sortTh('hb','concepto')">CONCEPTO</th>
+      <th class="th-sort" onclick="sortTh('hb','deb')">DÉBITO</th>
+      <th class="th-sort" onclick="sortTh('hb','cred')">CRÉDITO</th>
+    </tr></thead>
     <tbody id="hbTbody"></tbody>
   </table></div>
 </div>
@@ -1100,6 +1145,45 @@ function reloadAllState() {
   costosMes = load('pkhv2_costos', DEF_COSTOS);
 }
 const $=id=>document.getElementById(id);
+
+// ============================================================
+// SORT TABLES
+// ============================================================
+var _tblSort={
+  fac:{col:'fecha',dir:-1}, gas:{col:'fecha',dir:-1},
+  mant:{col:'fecha',dir:-1}, cheq:{col:'fecha',dir:1},
+  hb:{col:'fecha',dir:-1}
+};
+var _tblPanel={fac:'facturacion',gas:'gastos',mant:'mantenimiento',cheq:'cheques',hb:'homebanking'};
+
+function sortTh(tbl,col){
+  if(_tblSort[tbl].col===col) _tblSort[tbl].dir*=-1;
+  else {_tblSort[tbl].col=col; _tblSort[tbl].dir=-1;}
+  _updateSortHeaders(tbl);
+  renderPanel(_tblPanel[tbl]);
+}
+function _updateSortHeaders(tbl){
+  var thead=document.getElementById(tbl+'-thead');
+  if(!thead)return;
+  thead.querySelectorAll('.th-sort').forEach(function(th){
+    th.classList.remove('asc','desc');
+    // detect which col this th belongs to by its onclick attr
+    var oc=th.getAttribute('onclick')||'';
+    var m=oc.match(/sortTh\('[^']+','([^']+)'\)/);
+    if(m&&m[1]===_tblSort[tbl].col){
+      th.classList.add(_tblSort[tbl].dir===1?'asc':'desc');
+    }
+  });
+}
+function _sortArr(arr,col,dir){
+  return arr.slice().sort(function(a,b){
+    var va=a[col]||'', vb=b[col]||'';
+    if(typeof va==='number'||typeof vb==='number'){
+      return (Number(va)-Number(vb))*dir;
+    }
+    return String(va).localeCompare(String(vb))*dir;
+  });
+}
 
 // ---- DEFAULT DATA ----
 const DEF_FLOTA=[
@@ -1868,8 +1952,10 @@ function renderMantenimiento(){
     <div class="kpi red"><div class="kpi-val c-red">${fmt(totalCosto)}</div><div class="kpi-lbl">COSTO TOTAL MANT.</div></div>
     <div class="kpi orange"><div class="kpi-val c-orange">${mantenimiento.length>0?fmt(Math.round(totalCosto/mantenimiento.length)):'—'}</div><div class="kpi-lbl">COSTO PROMEDIO</div></div>
   `;
+  const mantSorted=_sortArr(mantenimiento,_tblSort.mant.col,_tblSort.mant.dir);
+  _updateSortHeaders('mant');
   $('mantTbody').innerHTML=mantenimiento.length===0?`<tr><td colspan="9"><div class="empty">Sin registros de mantenimiento</div></td></tr>`:
-    [...mantenimiento].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>`<tr>
+    mantSorted.map(m=>`<tr>
       <td><span class="plate" style="font-size:13px">${m.pat}</span></td>
       <td><span class="badge badge-info">${m.tipo}</span></td>
       <td class="mono">${fmtD(m.fecha)}</td>
@@ -1968,7 +2054,9 @@ function renderFacturacion(){
     if(femp&&f.emp!==femp)return false;
     if(fanio&&(!f.fecha||!f.fecha.startsWith(fanio)))return false;
     return true;
-  }).sort((a,b)=>String(b.num).localeCompare(String(a.num),undefined,{numeric:true}));
+  });
+  list=_sortArr(list,_tblSort.fac.col,_tblSort.fac.dir);
+  _updateSortHeaders('fac');
   const hoy=today();
   $('facTbody').innerHTML=list.map(f=>{
     const esNota=f.est==='NOTA',esPago=f.est==='PAGO';
@@ -2139,7 +2227,8 @@ function renderCheques(){
   let list=cheques;
   if(chequeTabActual==='pendientes')list=cheques.filter(c=>c.est==='pendiente');
   else if(chequeTabActual==='cobrados')list=cheques.filter(c=>c.est==='cobrado');
-  list=[...list].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  list=_sortArr(list,_tblSort.cheq.col,_tblSort.cheq.dir);
+  _updateSortHeaders('cheq');
   $('cheqTbody').innerHTML=list.map(c=>{
     const dias=diffDays(c.fecha,hoy);
     const esCobrado=c.est==='cobrado';
@@ -2300,7 +2389,9 @@ function renderGastos(){
     if(desde&&g.fecha&&g.fecha.slice(0,7)<desde)return false;
     if(hasta&&g.fecha&&g.fecha.slice(0,7)>hasta)return false;
     return true;
-  }).sort((a,b)=>b.fecha?.localeCompare(a.fecha||'')||0);
+  });
+  list=_sortArr(list,_tblSort.gas.col,_tblSort.gas.dir);
+  _updateSortHeaders('gas');
   $('gasTbody').innerHTML=list.map(g=>`<tr>
     <td>${g.con}</td>
     <td class="mono">${fmtD(g.fecha)}</td>
@@ -2504,11 +2595,25 @@ function deleteGasto(id){if(!confirm('¿Eliminar?'))return;gastos=gastos.filter(
 // ============================================================
 // COSTOS MENSUALES
 // ============================================================
+function _sortCostosKeys(keys){
+  var MES_N={ENE:1,FEB:2,MAR:3,ABR:4,MAY:5,JUN:6,JUL:7,AGO:8,SEP:9,OCT:10,NOV:11,DIC:12};
+  return keys.slice().sort(function(a,b){
+    var pa=a.split('-'), pb=b.split('-');
+    var ya=parseInt(pa[1])||0, yb=parseInt(pb[1])||0;
+    if(ya!==yb) return ya-yb;
+    return (MES_N[pa[0]]||0)-(MES_N[pb[0]]||0);
+  });
+}
+function _labelCostos(k){
+  var MES_NOM={ENE:'Enero',FEB:'Febrero',MAR:'Marzo',ABR:'Abril',MAY:'Mayo',JUN:'Junio',
+    JUL:'Julio',AGO:'Agosto',SEP:'Septiembre',OCT:'Octubre',NOV:'Noviembre',DIC:'Diciembre'};
+  var p=k.split('-'); return (p[1]||'')+' — '+(MES_NOM[p[0]]||p[0]);
+}
 function renderCostos(){
   const sel=$('costos-mes');
-  const mkeys=Object.keys(costosMes).sort();
+  const mkeys=_sortCostosKeys(Object.keys(costosMes));
   const prevVal=sel.value;
-  sel.innerHTML=mkeys.map(k=>`<option value="${k}">${k}</option>`).join('');
+  sel.innerHTML=mkeys.map(k=>`<option value="${k}">${_labelCostos(k)}</option>`).join('');
   // restore previous selection if valid, otherwise default to latest
   if(prevVal && costosMes[prevVal]) sel.value=prevVal;
   else if(!sel.value||!costosMes[sel.value]) sel.value=mkeys[mkeys.length-1];
@@ -3122,7 +3227,9 @@ function renderHB(){
     if(desde&&h.fecha&&h.fecha.slice(0,7)<desde)return false;
     if(hasta&&h.fecha&&h.fecha.slice(0,7)>hasta)return false;
     return true;
-  }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  });
+  list=_sortArr(list,_tblSort.hb.col,_tblSort.hb.dir);
+  _updateSortHeaders('hb');
   const tb=$('hbTbody');
   tb.innerHTML=list.slice(0,300).map(h=>'<tr><td class="mono">'+fmtD(h.fecha)+'</td><td>'+h.desc+'</td><td style="font-size:11px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(h.concepto||'—')+'</td><td class="amt '+(h.deb>0?'c-red':'')+'">'+( h.deb>0?fmt(h.deb):'—')+'</td><td class="amt '+(h.cred>0?'c-green':'')+'">'+( h.cred>0?fmt(h.cred):'—')+'</td></tr>').join('')+(list.length>300?'<tr><td colspan="5" style="text-align:center;padding:12px;color:var(--muted);font-size:12px">Mostrando 300 de '+list.length+' movimientos. Usá los filtros para acotar.</td></tr>':'');
 }
