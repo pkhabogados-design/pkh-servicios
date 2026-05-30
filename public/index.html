@@ -654,7 +654,10 @@ input[type="date"]::placeholder{color:var(--muted);}
 <div class="panel" id="panel-checklist">
   <div class="section-hdr">
     <div class="section-title">CHECKLIST <span>MENSUAL</span></div>
-    <div id="checklist-periodo" style="font-family:var(--fm);font-size:13px;color:var(--muted);"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="cl-mes-sel" onchange="cambiarMesChecklist(this.value)" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);"></select>
+      <button class="btn btn-secondary btn-sm" onclick="cambiarMesChecklist('HOY')"><i class="ti ti-calendar-today"></i> Hoy</button>
+    </div>
   </div>
   <div class="card" id="checklist-content"></div>
 </div>
@@ -4224,9 +4227,54 @@ function setPeriod(type,value,btn){
 // ============================================================
 // CHECKLIST_GRUPOS definido antes de init() — ver arriba
 
+var _clMesActivo = null; // null = mes actual
+
+function _clMesHoy(){
+  var h=new Date();
+  return 'pkhv2_checklist_'+h.getFullYear()+'_'+String(h.getMonth()+1).padStart(2,'0');
+}
+
 function getChecklistKey(){
-  const h=new Date();
-  return `pkhv2_checklist_${h.getFullYear()}_${String(h.getMonth()+1).padStart(2,'0')}`;
+  return _clMesActivo || _clMesHoy();
+}
+
+function _clKeyLabel(key){
+  // pkhv2_checklist_2026_05 → "Mayo 2026"
+  var parts=key.replace('pkhv2_checklist_','').split('_');
+  var anio=parts[0], mes=parseInt(parts[1])-1;
+  return MESES[mes]+' '+anio;
+}
+
+function _clGetMesesGuardados(){
+  var keys=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.startsWith('pkhv2_checklist_')) keys.push(k);
+  }
+  // Ordenar cronológicamente
+  keys.sort();
+  // Asegurarse de que el mes actual esté incluido
+  var hoy=_clMesHoy();
+  if(keys.indexOf(hoy)<0) keys.push(hoy);
+  return keys;
+}
+
+function cambiarMesChecklist(val){
+  if(val==='HOY') _clMesActivo=null;
+  else _clMesActivo=val;
+  renderChecklist();
+}
+
+function _clPoblarSelector(){
+  var sel=$('cl-mes-sel');
+  if(!sel)return;
+  var meses=_clGetMesesGuardados();
+  var activo=_clMesActivo||_clMesHoy();
+  sel.innerHTML=meses.reverse().map(function(k){
+    var esHoy=k===_clMesHoy();
+    var label=_clKeyLabel(k)+(esHoy?' (actual)':'');
+    return '<option value="'+k+'"'+(k===activo?' selected':'')+'>'+label+'</option>';
+  }).join('');
 }
 
 var _checklistError='';
@@ -4335,12 +4383,14 @@ function renderChecklist(){
   var cc = $('checklist-content');
   if(!cc)return;
   try{
+  _clPoblarSelector();
   var tasks = getChecklist();
   if(!tasks||tasks.length===0){cc.innerHTML='<div style="color:var(--red);padding:16px;font-family:var(--fm);font-size:12px;">Error al cargar tareas. GRUPOS: '+(typeof CHECKLIST_GRUPOS!=='undefined'?CHECKLIST_GRUPOS.length:'UNDEFINED')+'. '+(_checklistError||'sin detalle')+'</div>';return;}
+  var esHistorico = _clMesActivo && _clMesActivo!==_clMesHoy();
   var hoy = new Date();
-  var diaHoy = hoy.getDate();
+  var diaHoy = esHistorico ? 99 : hoy.getDate(); // si es histórico no resalta ningún grupo
   var el = $('checklist-periodo');
-  if (el) el.textContent = MESES[hoy.getMonth()] + ' ' + hoy.getFullYear();
+  if(el) el.textContent = ''; // limpiamos — ya está en el selector
   var done = tasks.filter(function(t){ return t.done; }).length;
   var pend = tasks.filter(function(t){ return !t.done; }).length;
   var pct  = tasks.length ? Math.round(done/tasks.length*100) : 0;
@@ -4354,7 +4404,13 @@ function renderChecklist(){
     ? '<div style="font-size:11px;color:var(--red);margin-top:6px;">Permiso denegado. Habilitalo desde la configuraci&#243;n del sitio.</div>'
     : '';
 
-  var resumen = '<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">'
+  var bannerHistorico = esHistorico
+    ? '<div style="background:#fef9ee;border:0.5px solid var(--orange);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--orange);display:flex;align-items:center;gap:8px;">'
+      +'<i class="ti ti-history"></i> Estás viendo el historial de <b>'+_clKeyLabel(_clMesActivo)+'</b>. Los cambios que hagas se guardan en ese mes.'
+      +'</div>'
+    : '';
+
+  var resumen = bannerHistorico + '<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">'
     + '<div style="background:#fef2f2;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:70px;"><div style="font-size:26px;font-weight:700;color:var(--red);">'+pend+'</div><div style="font-size:10px;color:var(--muted);">PENDIENTES</div></div>'
     + '<div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:70px;"><div style="font-size:26px;font-weight:700;color:var(--green);">'+done+'</div><div style="font-size:10px;color:var(--muted);">COMPLETADAS</div></div>'
     + '<div style="background:#EEF4FF;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:70px;"><div style="font-size:26px;font-weight:700;color:var(--accent);">'+pct+'%</div><div style="font-size:10px;color:var(--muted);">PROGRESO</div></div>'
