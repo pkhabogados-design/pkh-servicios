@@ -436,6 +436,7 @@ input[type="checkbox"]{accent-color:var(--accent);}
   <div class="section-hdr">
     <div class="section-title">FACTURACIÓN <span>PKH</span></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="importarSeccion('facturas')"><i class="ti ti-upload"></i> Importar</button>
       <button class="btn btn-secondary btn-sm" onclick="showModalFacturaContrato()"><i class="ti ti-file-text"></i> Desde contrato</button>
       <button class="btn btn-primary btn-sm" onclick="abrirNuevaFactura()"><i class="ti ti-plus"></i> Nueva factura</button>
     </div>
@@ -504,7 +505,10 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-gastos">
   <div class="section-hdr">
     <div class="section-title">GASTOS <span>SOCIEDAD</span></div>
-    <button class="btn btn-primary btn-sm" onclick="abrirModalGasto()"><i class="ti ti-plus"></i> Nuevo gasto</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="importarSeccion('gastos')"><i class="ti ti-upload"></i> Importar</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirModalGasto()"><i class="ti ti-plus"></i> Nuevo gasto</button>
+    </div>
   </div>
   <div class="kpi-grid" id="gas-kpis"></div>
   <div class="chart-grid"><div class="chart-box"><h4>GASTOS POR MES</h4><div class="chart-wrap"><canvas id="gasChart"></canvas></div></div>
@@ -527,6 +531,7 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <div class="section-title">COSTOS <span>MENSUALES</span></div>
     <div style="display:flex;gap:8px;align-items:center;">
       <select id="costos-mes" onchange="renderCostos()" style="width:auto;background:var(--surface);border:0.5px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;"></select>
+      <button class="btn btn-secondary btn-sm" onclick="importarSeccion('costos')"><i class="ti ti-upload"></i> Importar</button>
       <button class="btn btn-primary btn-sm" onclick="abrirCargarMes()"><i class="ti ti-plus"></i> Cargar mes</button>
     </div>
   </div>
@@ -879,6 +884,23 @@ input[type="checkbox"]{accent-color:var(--accent);}
     </div>
   </div>
 </div>
+<!-- ======= MODAL IMPORTAR SECCIÓN ======= -->
+<div class="modal-overlay" id="modal-import-seccion">
+  <div class="modal" style="max-width:660px">
+    <h2 id="mis-titulo">Importar</h2>
+    <div id="mis-guia" style="background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;"></div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;">
+      <input type="file" id="mis-file" accept=".csv,.json,.xlsx" style="display:none" onchange="parsearArchivoSeccion()">
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('mis-file').click()"><i class="ti ti-file-upload"></i> Seleccionar archivo (.csv / .json)</button>
+      <span id="mis-filename" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="mis-preview" style="display:none;max-height:300px;overflow-y:auto;margin-bottom:14px;border:0.5px solid var(--border);border-radius:8px;"></div>
+    <div class="modal-footer" id="mis-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-import-seccion')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======= MODAL IMPORTAR ======= -->
 <div class="modal-overlay" id="modal-importar">
   <div class="modal" style="max-width:500px">
@@ -3337,6 +3359,268 @@ var CHECKLIST_GRUPOS=[
     ]
   },
 ];
+
+// ============================================================
+// IMPORTAR POR SECCIÓN
+// ============================================================
+var _misSeccion='', _misData=null;
+
+var _misGuias={
+  gastos:'<b>Formato CSV esperado</b> — columnas en este orden (separadas por coma):<br>'
+    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">CONCEPTO, FECHA (DD/MM/AAAA), MONTO, ORIGEN, CATEGORIA</code><br><br>'
+    +'<b>Exportar desde Excel:</b> Archivo → Guardar como → CSV UTF-8<br>'
+    +'Las columnas ORIGEN y CATEGORIA son opcionales. Fechas en formato DD/MM/AAAA o AAAA-MM-DD.',
+  facturas:'<b>Formato CSV esperado</b> — columnas:<br>'
+    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">FECHA, N°FACTURA, EMPRESA, CUIT, NETO, IVA, TOTAL, VENCIMIENTO, ESTADO, FECHA_PAGO, FORMA_PAGO, OBS</code><br><br>'
+    +'ESTADO acepta: PAGADO, PENDIENTE, NOTA CREDITO, ANULADA. '
+    +'Fechas en DD/MM/AAAA. N° duplicados se ignorarán.',
+  costos:'<b>Formato JSON</b> — clave del mes + secciones vars/fijos/imp/ing:<br>'
+    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">'
+    +'{ "ABR-2026": { "vars": [["Vep Autónomo", 132778]], "fijos": [...], "imp": [...], "ing": [...] } }</code><br><br>'
+    +'Los meses existentes se actualizarán. Usá el botón <b>Exportar datos</b> como base.'
+};
+
+function importarSeccion(tipo){
+  _misSeccion=tipo; _misData=null;
+  var titulos={gastos:'Importar Gastos',facturas:'Importar Facturas',costos:'Importar Costos'};
+  $('mis-titulo').textContent=titulos[tipo]||'Importar';
+  $('mis-guia').innerHTML=_misGuias[tipo]||'';
+  $('mis-preview').style.display='none'; $('mis-preview').innerHTML='';
+  $('mis-filename').textContent='';
+  var f=$('mis-file'); if(f) f.value='';
+  $('mis-footer').innerHTML='<button class="btn btn-secondary" onclick="hideModal(\'modal-import-seccion\')">Cancelar</button>';
+  showModal('modal-import-seccion');
+}
+
+function _parseFecha(s){
+  if(!s) return '';
+  s=String(s).trim();
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){
+    var p=s.split('/');
+    return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
+  }
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substr(0,10);
+  // Excel serial
+  var n=parseFloat(s);
+  if(!isNaN(n)&&n>40000&&n<60000){
+    var d=new Date((n-25569)*86400*1000);
+    return d.toISOString().split('T')[0];
+  }
+  return s;
+}
+
+function _parseCSV(text){
+  var lines=text.replace(/\r/g,'').trim().split('\n');
+  var headers=_splitCSVLine(lines[0]).map(function(h){return h.trim().replace(/^"|"$/g,'').toUpperCase();});
+  var rows=[];
+  for(var i=1;i<lines.length;i++){
+    var line=lines[i].trim(); if(!line) continue;
+    var vals=_splitCSVLine(line);
+    var row={};
+    headers.forEach(function(h,idx){ row[h]=(vals[idx]||'').trim().replace(/^"|"$/g,''); });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function _splitCSVLine(line){
+  var vals=[],cur='',inQ=false;
+  for(var i=0;i<line.length;i++){
+    var c=line[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){vals.push(cur);cur='';}
+    else cur+=c;
+  }
+  vals.push(cur);
+  return vals;
+}
+
+function parsearArchivoSeccion(){
+  var file=$('mis-file').files[0]; if(!file)return;
+  $('mis-filename').textContent=file.name;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var text=ev.target.result;
+      var isJson=file.name.toLowerCase().endsWith('.json');
+      if(isJson){
+        _misData=JSON.parse(text);
+        _mostrarPreviewSeccion(_misData);
+      } else {
+        var rows=_parseCSV(text);
+        _misData=rows;
+        _mostrarPreviewSeccion(rows);
+      }
+    }catch(e){ showToast('Error al leer el archivo: '+e.message,true); }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function _mostrarPreviewSeccion(data){
+  var prev=$('mis-preview');
+  var html='';
+  var count=0;
+
+  if(_misSeccion==='gastos'){
+    var parsed=_procesarCSVGastos(Array.isArray(data)?data:[]);
+    count=parsed.length;
+    html='<table style="width:100%;border-collapse:collapse;font-size:11px;">'
+      +'<thead><tr style="background:var(--surface2)">'
+      +'<th style="padding:6px 8px;text-align:left;border-bottom:0.5px solid var(--border)">CONCEPTO</th>'
+      +'<th style="padding:6px 8px;text-align:left;border-bottom:0.5px solid var(--border)">FECHA</th>'
+      +'<th style="padding:6px 8px;text-align:right;border-bottom:0.5px solid var(--border)">MONTO</th>'
+      +'<th style="padding:6px 8px;text-align:left;border-bottom:0.5px solid var(--border)">ORIGEN</th>'
+      +'<th style="padding:6px 8px;text-align:left;border-bottom:0.5px solid var(--border)">CAT.</th>'
+      +'</tr></thead><tbody>'
+      +parsed.slice(0,20).map(function(g){
+        return '<tr style="border-bottom:0.5px solid var(--border);">'
+          +'<td style="padding:5px 8px">'+g.con+'</td>'
+          +'<td style="padding:5px 8px">'+fmtD(g.fecha)+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-family:var(--fm)">'+fmt(g.monto)+'</td>'
+          +'<td style="padding:5px 8px">'+g.orig+'</td>'
+          +'<td style="padding:5px 8px">'+g.cat+'</td>'
+          +'</tr>';
+      }).join('')
+      +(parsed.length>20?'<tr><td colspan="5" style="padding:8px;color:var(--muted);text-align:center">... y '+(parsed.length-20)+' más</td></tr>':'')
+      +'</tbody></table>';
+    _misData=parsed;
+
+  } else if(_misSeccion==='facturas'){
+    var parsed=_procesarCSVFacturas(Array.isArray(data)?data:[]);
+    count=parsed.length;
+    html='<table style="width:100%;border-collapse:collapse;font-size:11px;">'
+      +'<thead><tr style="background:var(--surface2)">'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">N°</th>'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">EMPRESA</th>'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">FECHA</th>'
+      +'<th style="padding:6px 8px;text-align:right;border-bottom:0.5px solid var(--border)">NETO</th>'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">ESTADO</th>'
+      +'</tr></thead><tbody>'
+      +parsed.slice(0,20).map(function(f){
+        return '<tr style="border-bottom:0.5px solid var(--border);">'
+          +'<td style="padding:5px 8px;font-family:var(--fm)">'+f.num+'</td>'
+          +'<td style="padding:5px 8px">'+f.emp+'</td>'
+          +'<td style="padding:5px 8px">'+fmtD(f.fecha)+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-family:var(--fm)">'+fmt(f.monto)+'</td>'
+          +'<td style="padding:5px 8px"><span class="badge '+(f.est==='PAGO'?'badge-paid':f.est==='NOTA'?'badge-nota':'badge-pend')+'">'+(f.est||'PEND.')+'</span></td>'
+          +'</tr>';
+      }).join('')
+      +(parsed.length>20?'<tr><td colspan="5" style="padding:8px;color:var(--muted);text-align:center">... y '+(parsed.length-20)+' más</td></tr>':'')
+      +'</tbody></table>';
+    _misData=parsed;
+
+  } else if(_misSeccion==='costos'){
+    var meses=Object.keys(data);
+    count=meses.length;
+    html='<div style="padding:10px 12px;font-size:12px;">'
+      +'<b>Meses a importar:</b> '+meses.join(', ')+'<br><br>'
+      +meses.map(function(m){
+        var d=data[m]||{};
+        var totalFijos=(d.fijos||[]).reduce(function(a,r){return a+(r[1]||0);},0);
+        var totalVars=(d.vars||[]).reduce(function(a,r){return a+(r[1]||0);},0);
+        var totalIng=(d.ing||[]).reduce(function(a,r){return a+(r[1]||0);},0);
+        return '<div style="margin-bottom:6px;padding:8px;background:var(--surface2);border-radius:6px;">'
+          +'<b>'+m+'</b>: Fijos '+fmt(totalFijos)+' · Vars '+fmt(totalVars)+' · Ingresos '+fmt(totalIng)+'</div>';
+      }).join('')
+      +'</div>';
+  }
+
+  if(count===0){
+    prev.innerHTML='<div style="padding:16px;color:var(--red);text-align:center">No se encontraron registros válidos. Revisá el formato del archivo.</div>';
+    prev.style.display='block';
+    return;
+  }
+
+  prev.innerHTML=html; prev.style.display='block';
+  $('mis-footer').innerHTML='<button class="btn btn-secondary" onclick="hideModal(\'modal-import-seccion\')">Cancelar</button>'
+    +'<button class="btn btn-primary" onclick="confirmarImportSeccion()"><i class="ti ti-check"></i> Importar '+count+' registro'+(count!==1?'s':'')+'</button>';
+}
+
+function _procesarCSVGastos(rows){
+  // Acepta columnas: CONCEPTO/EN QUÉ/EN QUE, FECHA, MONTO, ORIGEN/DE DONDE, CATEGORIA
+  var result=[];
+  rows.forEach(function(r){
+    var con=r['CONCEPTO']||r['EN QUÉ?']||r['EN QUÉ']||r['EN QUE']||'';
+    var fecha=_parseFecha(r['FECHA']||'');
+    var monto=parseFloat((r['MONTO']||'0').replace(/[$.,\s]/g,'').replace(',','.'));
+    if(isNaN(monto)) monto=0;
+    var orig=(r['ORIGEN']||r['DE DONDE']||r['CUENTA']||'').toUpperCase();
+    var cat=r['CATEGORIA']||r['CATEGORÍA']||'';
+    if(!con&&!monto) return;
+    if(!cat){
+      var c=con.toUpperCase();
+      if(/SEGURO/.test(c)) cat='Seguros';
+      else if(/VEP|IVA|IIBB|BRUTOS|IMP\./.test(c)) cat='Impuestos';
+      else if(/CONTADOR|AROCENA|HONORARIO/.test(c)) cat='Contador';
+      else if(/MICROTRACK|RSV|SERVICE/.test(c)) cat='Operativo';
+      else if(/PATENTE/.test(c)) cat='Patentes';
+      else cat='Otro';
+    }
+    result.push({id:null,con:con.toUpperCase(),fecha:fecha,monto:monto,orig:orig,cat:cat});
+  });
+  return result;
+}
+
+function _procesarCSVFacturas(rows){
+  var estadoMap={'PAGADO':'PAGO','PAGO':'PAGO','PAID':'PAGO',
+    'NOTA CREDITO':'NOTA','NOTA CRÉDITO':'NOTA','NOTA':'NOTA',
+    'ANULADA':'NOTA','PENDIENTE':'',''  :''};
+  var maxId=facturas.reduce(function(a,b){return typeof b.id==='number'&&b.id>a?b.id:a;},0);
+  var existingNums={};
+  facturas.forEach(function(f){existingNums[String(f.num)]=true;});
+  var result=[];
+  rows.forEach(function(r){
+    var num=r['N°FACTURA']||r['NUMERO']||r['N° FACTURA']||r['NRO']||r['NUM']||'';
+    if(!num) return;
+    if(existingNums[String(num)]){return;} // ya existe
+    var est=(r['ESTADO']||'').toUpperCase().trim();
+    est=estadoMap[est]!==undefined?estadoMap[est]:'';
+    var monto=parseFloat((r['NETO']||'0').replace(/[$., ]/g,''))||0;
+    var iva=parseFloat((r['IVA']||'0').replace(/[$., ]/g,''))||0;
+    var total=parseFloat((r['TOTAL']||'0').replace(/[$., ]/g,''))||monto+iva;
+    maxId++;
+    result.push({
+      id:maxId,num:isNaN(Number(num))?num:Number(num),
+      fecha:_parseFecha(r['FECHA']||r['FECHA EMISIÓN']||''),
+      emp:(r['EMPRESA']||'').trim().toUpperCase(),
+      cuit:(r['CUIT']||'').trim(),
+      monto:monto,iva:iva,total:total,
+      venc:_parseFecha(r['VENCIMIENTO']||''),
+      est:est,
+      fpago:_parseFecha(r['FECHA_PAGO']||r['FECHA PAGO']||''),
+      forma:(r['FORMA_PAGO']||r['FORMA DE PAGO']||'').trim(),
+      obs:(r['OBS']||r['OBSERVACIONES']||'').trim()
+    });
+  });
+  return result;
+}
+
+function confirmarImportSeccion(){
+  if(!_misData) return;
+  if(_misSeccion==='gastos'){
+    var added=0;
+    _misData.forEach(function(g){
+      g.id=nextId(gastos);
+      gastos.push(g); added++;
+    });
+    save('pkhv2_gas',gastos);
+    hideModal('modal-import-seccion');
+    renderGastos();
+    showToast('✓ '+added+' gastos importados');
+  } else if(_misSeccion==='facturas'){
+    _misData.forEach(function(f){ facturas.push(f); });
+    save('pkhv2_fac',facturas);
+    hideModal('modal-import-seccion');
+    renderFacturacion(); updateAlertBadges();
+    showToast('✓ '+_misData.length+' facturas importadas');
+  } else if(_misSeccion==='costos'){
+    costosMes=Object.assign({},costosMes,_misData);
+    save('pkhv2_costos',costosMes);
+    hideModal('modal-import-seccion');
+    renderCostos();
+    showToast('✓ '+Object.keys(_misData).length+' meses de costos importados');
+  }
+}
 
 // ============================================================
 // IMPORTAR DATOS
