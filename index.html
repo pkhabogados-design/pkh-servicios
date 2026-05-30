@@ -2353,17 +2353,18 @@ function exportarTodo() {
   const hoy = new Date();
   const fecha = hoy.toISOString().slice(0,10);
   const datos = {
-    flota:        window.flota        || [],
-    km:           window.km           || [],
-    facturas:     window.facturas     || [],
-    gastos:       window.gastos       || [],
-    mantenimiento:window.mantenimiento|| [],
-    documentos:   window.documentos   || [],
-    cheques:      window.cheques      || [],
-    contratos:    window.contratos    || [],
-    socios:       window.socios       || [],
-    aportes:      window.aportes      || [],
-    costosMes:    window.costosMes    || []
+    flota:        load('pkhv2_flota',     []),
+    km:           load('pkhv2_km',        []),
+    facturas:     load('pkhv2_fac',       []),
+    gastos:       load('pkhv2_gas',       []),
+    mantenimiento:load('pkhv2_mant',      []),
+    documentos:   load('pkhv2_docs',      []),
+    cheques:      load('pkhv2_cheq',      []),
+    homebanking:  load('pkhv2_hb',        []),
+    contratos:    load('pkhv2_contratos', []),
+    socios:       load('pkhv2_socios',    []),
+    aportes:      load('pkhv2_aport',     []),
+    costosMes:    load('pkhv2_costos',    [])
   };
   const blob = new Blob([JSON.stringify(datos, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
