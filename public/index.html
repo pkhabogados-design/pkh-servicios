@@ -2612,6 +2612,8 @@ async function startApp() {
     }
     setupRealtimeSync();
   }
+  checkDataVersion();
+  reloadAllState();
   initPeriodSelector();
   updateAlertBadges();
   populateSelects();
@@ -2668,6 +2670,60 @@ window.checkPin = function() {
   if ($('login-overlay').style.display === 'none') {
     sessionStorage.setItem('pkh_logged', 'true');
   }
+}
+
+// ============================================================
+// VERSIONADO DE DATOS — actualizar al agregar nuevos defaults
+// ============================================================
+const DATA_VERSION = '2026-05-30';
+
+function checkDataVersion(){
+  var stored = localStorage.getItem('pkhv2_data_version');
+  if(stored === DATA_VERSION) return; // ya está al día
+
+  console.log('[PKH] Migrando datos a versión', DATA_VERSION, '...');
+
+  // --- KM: agregar entradas que no existan (por pat+mes+anio) ---
+  var curKm = load('pkhv2_km', []);
+  var kmAdded = 0;
+  DEF_KM.forEach(function(def){
+    var exists = curKm.some(function(k){
+      return k.pat===def.pat && k.mes===def.mes && String(k.anio)===String(def.anio);
+    });
+    if(!exists){ curKm.push(def); kmAdded++; }
+  });
+  if(kmAdded > 0){ save('pkhv2_km', curKm); console.log('[PKH] KM agregados:', kmAdded); }
+
+  // --- FACTURAS: agregar las que no existan (por id) ---
+  var curFac = load('pkhv2_fac', []);
+  var facIds = {};
+  curFac.forEach(function(f){ facIds[String(f.id)] = true; });
+  var facAdded = 0;
+  DEF_FAC.forEach(function(def){
+    if(!facIds[String(def.id)]){ curFac.push(def); facAdded++; }
+  });
+  if(facAdded > 0){ save('pkhv2_fac', curFac); console.log('[PKH] Facturas agregadas:', facAdded); }
+
+  // --- COSTOS MENSUALES: agregar meses nuevos ---
+  var curCostos = load('pkhv2_costos', {});
+  var costosAdded = 0;
+  Object.keys(DEF_COSTOS).forEach(function(mes){
+    if(!curCostos[mes]){ curCostos[mes] = DEF_COSTOS[mes]; costosAdded++; }
+  });
+  if(costosAdded > 0){ save('pkhv2_costos', curCostos); console.log('[PKH] Meses costos agregados:', costosAdded); }
+
+  // --- FLOTA: agregar unidades nuevas (por id/pat) ---
+  var curFlota = load('pkhv2_flota', []);
+  var flotaIds = {};
+  curFlota.forEach(function(u){ flotaIds[u.id] = true; });
+  var flotaAdded = 0;
+  DEF_FLOTA.forEach(function(def){
+    if(!flotaIds[def.id]){ curFlota.push(def); flotaAdded++; }
+  });
+  if(flotaAdded > 0){ save('pkhv2_flota', curFlota); console.log('[PKH] Flota agregada:', flotaAdded); }
+
+  localStorage.setItem('pkhv2_data_version', DATA_VERSION);
+  console.log('[PKH] Migración completada.');
 }
 
 // CHECKLIST_GRUPOS debe estar antes de init() para evitar TDZ
