@@ -2555,7 +2555,6 @@ async function startApp() {
   verificarNotificacionDia();
 }
 
-async 
 // PWA Install
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2607,42 +2606,8 @@ window.checkPin = function() {
   }
 }
 
-init();
-
-// ============================================================
-// PERIOD SELECTOR
-// ============================================================
-window.selectedPeriod=(function(){
-  const h=new Date();
-  return{type:'month',value:`${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}`};
-})();
-
-function initPeriodSelector(){
-  const container=$('period-selector');
-  if(!container)return;
-  const hoy=new Date();
-  const mShort=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const curM=hoy.getMonth();
-  const curY=hoy.getFullYear();
-  let html=mShort.map((m,i)=>{
-    const val=`${curY}-${String(i+1).padStart(2,'0')}`;
-    return `<button class="period-btn${i===curM?' active':''}" onclick="setPeriod('month','${val}',this)">${m}</button>`;
-  }).join('');
-  html+=`<button class="period-btn" onclick="setPeriod('year','${curY}',this)">Año</button>`;
-  container.innerHTML=html;
-}
-
-function setPeriod(type,value,btn){
-  window.selectedPeriod={type,value};
-  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if($('panel-dashboard')&&$('panel-dashboard').classList.contains('active'))renderDashboard();
-}
-
-// ============================================================
-// CHECKLIST MENSUAL — 46 tareas en 6 secciones
-// ============================================================
-const CHECKLIST_GRUPOS=[
+// CHECKLIST_GRUPOS debe estar antes de init() para evitar TDZ
+var CHECKLIST_GRUPOS=[
   {
     id:'g1',titulo:'Saldos, seguros y contador',dias:'Días 1 al 5',diaDesde:1,diaHasta:5,
     tareas:[
@@ -2720,6 +2685,43 @@ const CHECKLIST_GRUPOS=[
     ]
   },
 ];
+
+init();
+
+// ============================================================
+// PERIOD SELECTOR
+// ============================================================
+window.selectedPeriod=(function(){
+  const h=new Date();
+  return{type:'month',value:`${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}`};
+})();
+
+function initPeriodSelector(){
+  const container=$('period-selector');
+  if(!container)return;
+  const hoy=new Date();
+  const mShort=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const curM=hoy.getMonth();
+  const curY=hoy.getFullYear();
+  let html=mShort.map((m,i)=>{
+    const val=`${curY}-${String(i+1).padStart(2,'0')}`;
+    return `<button class="period-btn${i===curM?' active':''}" onclick="setPeriod('month','${val}',this)">${m}</button>`;
+  }).join('');
+  html+=`<button class="period-btn" onclick="setPeriod('year','${curY}',this)">Año</button>`;
+  container.innerHTML=html;
+}
+
+function setPeriod(type,value,btn){
+  window.selectedPeriod={type,value};
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if($('panel-dashboard')&&$('panel-dashboard').classList.contains('active'))renderDashboard();
+}
+
+// ============================================================
+// CHECKLIST MENSUAL — 46 tareas en 6 secciones
+// ============================================================
+// CHECKLIST_GRUPOS definido antes de init() — ver arriba
 
 function getChecklistKey(){
   const h=new Date();
