@@ -2765,78 +2765,92 @@ function getGrupoActivo(){
   return CHECKLIST_GRUPOS[4];
 }
 
+function _clItemHtml(t, tDef) {
+  var fechaHtml = t.fechaDone ? '<div style="font-size:10px;color:var(--muted);">&#10003; '+fmtD(t.fechaDone)+'</div>' : '';
+  var linkBtn = (tDef && tDef.link) ? '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();navTo(\''+tDef.link+'\')" style="padding:2px 8px;font-size:10px;flex-shrink:0;">&#8594;</button>' : '';
+  var bg = t.done ? 'var(--surface2)' : '#fff';
+  var textStyle = t.done ? 'text-decoration:line-through;color:var(--muted);' : '';
+  var checked = t.done ? 'checked' : '';
+  return '<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:0.5px solid var(--border);background:'+bg+';">'
+    + '<input type="checkbox" '+checked+' onchange="toggleChecklistTask(\''+t.id+'\')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">'
+    + '<div style="flex:1;min-width:0;">'
+    +   '<div style="font-size:12px;'+textStyle+'">'+t.desc+'</div>'
+    +   fechaHtml
+    + '</div>'
+    + linkBtn
+    + '<span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:20px;flex-shrink:0;">'+t.resp+'</span>'
+    + '</div>';
+}
+
+function _clGrupoHtml(g, tasks, diaHoy) {
+  var gTasks = tasks.filter(function(t){ return g.tareas.some(function(gt){ return gt.id===t.id; }); });
+  var gDone = gTasks.filter(function(t){ return t.done; }).length;
+  var gPend = gTasks.length - gDone;
+  var isActive = diaHoy >= g.diaDesde && diaHoy <= g.diaHasta;
+  var isCompleto = gPend === 0;
+  var borderCol = isActive ? 'var(--accent)' : isCompleto ? 'var(--green)' : 'var(--border)';
+  var headerBg  = isActive ? '#EEF4FF'       : isCompleto ? '#d1fae5'      : 'var(--surface2)';
+  var titleCol  = isActive ? 'var(--accent)'  : isCompleto ? 'var(--green)' : 'var(--text)';
+  var prefix    = isActive ? '&#128276; '     : isCompleto ? '&#9989; '     : '';
+  var countCol  = gPend > 0 ? 'var(--red)' : 'var(--green)';
+  var bodyDisplay = (isActive || gPend > 0) ? 'block' : 'none';
+
+  var tasksHtml = gTasks.map(function(t) {
+    var tDef = null;
+    for (var i=0; i<g.tareas.length; i++) { if (g.tareas[i].id===t.id){ tDef=g.tareas[i]; break; } }
+    return _clItemHtml(t, tDef);
+  }).join('');
+
+  return '<div style="margin-bottom:14px;border:1px solid '+borderCol+';border-radius:10px;overflow:hidden;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:'+headerBg+';cursor:pointer;" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\'">'
+    +   '<div>'
+    +     '<div style="font-weight:700;font-size:13px;color:'+titleCol+';">'+prefix+g.titulo+'</div>'
+    +     '<div style="font-size:11px;color:var(--muted);">'+g.dias+'</div>'
+    +   '</div>'
+    +   '<div style="text-align:right;">'
+    +     '<div style="font-size:13px;font-weight:700;color:'+countCol+';">'+gDone+'/'+gTasks.length+'</div>'
+    +     '<div style="font-size:10px;color:var(--muted);">'+(gPend>0?(gPend+' pend.'):'todo ok')+'</div>'
+    +   '</div>'
+    + '</div>'
+    + '<div style="display:'+bodyDisplay+';">'+tasksHtml+'</div>'
+    + '</div>';
+}
+
 function renderChecklist(){
-  const tasks=getChecklist();
-  const hoy=new Date();
-  const diaHoy=hoy.getDate();
-  const el=$('checklist-periodo');
-  if(el)el.textContent=MESES[hoy.getMonth()]+' '+hoy.getFullYear();
-  const done=tasks.filter(t=>t.done).length;
-  const pend=tasks.filter(t=>!t.done).length;
-  const pct=tasks.length?Math.round(done/tasks.length*100):0;
-  const cc=$('checklist-content');
-  if(!cc)return;
-  const notifPerm=('Notification' in window)?Notification.permission:'unsupported';
-  cc.innerHTML=`
-    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-      <div style="background:#fef2f2;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:80px;">
-        <div style="font-size:26px;font-weight:700;color:var(--red);">${pend}</div>
-        <div style="font-size:10px;color:var(--muted);">PENDIENTES</div>
-      </div>
-      <div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:80px;">
-        <div style="font-size:26px;font-weight:700;color:var(--green);">${done}</div>
-        <div style="font-size:10px;color:var(--muted);">COMPLETADAS</div>
-      </div>
-      <div style="background:#EEF4FF;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:80px;">
-        <div style="font-size:26px;font-weight:700;color:var(--accent);">${pct}%</div>
-        <div style="font-size:10px;color:var(--muted);">PROGRESO</div>
-      </div>
-    </div>
-    ${CHECKLIST_GRUPOS.map(g=>{
-      const gTasks=tasks.filter(t=>g.tareas.some(gt=>gt.id===t.id));
-      const gDone=gTasks.filter(t=>t.done).length;
-      const gPend=gTasks.length-gDone;
-      const isActive=diaHoy>=g.diaDesde&&diaHoy<=g.diaHasta;
-      const isCompleto=gPend===0;
-      const borderCol=isActive?'var(--accent)':isCompleto?'var(--green)':'var(--border)';
-      const headerBg=isActive?'#EEF4FF':isCompleto?'#d1fae5':'var(--surface2)';
-      const titleCol=isActive?'var(--accent)':isCompleto?'var(--green)':'var(--text)';
-      return `<div style="margin-bottom:14px;border:1px solid ${borderCol};border-radius:10px;overflow:hidden;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:${headerBg};cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
-          <div>
-            <div style="font-weight:700;font-size:13px;color:${titleCol};">${isActive?'🔔 ':isCompleto?'✅ ':''}${g.titulo}</div>
-            <div style="font-size:11px;color:var(--muted);">${g.dias}</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:13px;font-weight:700;color:${gPend>0?'var(--red)':'var(--green)'};">${gDone}/${gTasks.length}</div>
-            <div style="font-size:10px;color:var(--muted);">${gPend>0?gPend+' pend.':'todo ok'}</div>
-          </div>
-        </div>
-        <div style="display:${isActive||gPend>0?'block':'none'};">
-          ${gTasks.map(t=>{
-            const tDef=g.tareas.find(gt=>gt.id===t.id);
-            return `<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:0.5px solid var(--border);background:${t.done?'var(--surface2)':'#fff'};">
-              <input type="checkbox" ${t.done?'checked':''} onchange="toggleChecklistTask('${t.id}')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12px;${t.done?'text-decoration:line-through;color:var(--muted);':''};">${t.desc}</div>
-                ${t.fechaDone?`<div style="font-size:10px;color:var(--muted);">✓ ${fmtD(t.fechaDone)}</div>`:''}
-              </div>
-              ${tDef?.link?`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();navTo('${tDef.link}')" style="padding:2px 8px;font-size:10px;flex-shrink:0;">→</button>`:''}
-              <span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:20px;flex-shrink:0;">${t.resp}</span>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`;
-    }).join('')}
-    <div style="margin-top:16px;padding:14px;background:#EEF4FF;border-radius:8px;border:0.5px solid var(--accent);">
-      <div style="font-weight:600;font-size:12px;color:var(--accent);margin-bottom:6px;">🔔 Notificaciones del navegador</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Recibí recordatorios automáticos según el momento del mes, una vez por día al abrir el sistema.</div>
-      <button class="btn btn-secondary btn-sm" onclick="solicitarNotificaciones()">
-        ${notifPerm==='granted'?'✅ Notificaciones activas':'🔔 Activar notificaciones'}
-      </button>
-      ${notifPerm==='denied'?'<div style="font-size:11px;color:var(--red);margin-top:6px;">Permiso denegado en el navegador. Habilitalo desde la configuración del sitio.</div>':''}
-    </div>
-  `;
+  var tasks = getChecklist();
+  var hoy = new Date();
+  var diaHoy = hoy.getDate();
+  var el = $('checklist-periodo');
+  if (el) el.textContent = MESES[hoy.getMonth()] + ' ' + hoy.getFullYear();
+  var done = tasks.filter(function(t){ return t.done; }).length;
+  var pend = tasks.filter(function(t){ return !t.done; }).length;
+  var pct  = tasks.length ? Math.round(done/tasks.length*100) : 0;
+  var cc = $('checklist-content');
+  if (!cc) return;
+  var notifPerm = ('Notification' in window) ? Notification.permission : 'unsupported';
+  var notifBtn = notifPerm==='granted'
+    ? '&#9989; Notificaciones activas'
+    : '&#128276; Activar notificaciones';
+  var notifDenied = notifPerm==='denied'
+    ? '<div style="font-size:11px;color:var(--red);margin-top:6px;">Permiso denegado. Habilitalo desde la configuraci&#243;n del sitio.</div>'
+    : '';
+
+  var resumen = '<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">'
+    + '<div style="background:#fef2f2;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:70px;"><div style="font-size:26px;font-weight:700;color:var(--red);">'+pend+'</div><div style="font-size:10px;color:var(--muted);">PENDIENTES</div></div>'
+    + '<div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:70px;"><div style="font-size:26px;font-weight:700;color:var(--green);">'+done+'</div><div style="font-size:10px;color:var(--muted);">COMPLETADAS</div></div>'
+    + '<div style="background:#EEF4FF;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:70px;"><div style="font-size:26px;font-weight:700;color:var(--accent);">'+pct+'%</div><div style="font-size:10px;color:var(--muted);">PROGRESO</div></div>'
+    + '</div>';
+
+  var grupos = CHECKLIST_GRUPOS.map(function(g){ return _clGrupoHtml(g, tasks, diaHoy); }).join('');
+
+  var notif = '<div style="margin-top:16px;padding:14px;background:#EEF4FF;border-radius:8px;border:0.5px solid var(--accent);">'
+    + '<div style="font-weight:600;font-size:12px;color:var(--accent);margin-bottom:6px;">&#128276; Notificaciones del navegador</div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Recib&#237; recordatorios autom&#225;ticos seg&#250;n el momento del mes, una vez por d&#237;a al abrir el sistema.</div>'
+    + '<button class="btn btn-secondary btn-sm" onclick="solicitarNotificaciones()">'+notifBtn+'</button>'
+    + notifDenied
+    + '</div>';
+
+  cc.innerHTML = resumen + grupos + notif;
 }
 
 // ============================================================
