@@ -577,6 +577,10 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-homebanking">
   <div class="section-hdr">
     <div class="section-title">HOME <span>BANKING</span></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="importarSeccion('hb')"><i class="ti ti-upload"></i> Importar extracto</button>
+      <button class="btn btn-danger btn-sm" onclick="limpiarHB()" style="font-size:11px;padding:5px 10px;"><i class="ti ti-trash"></i> Limpiar</button>
+    </div>
   </div>
   <div class="kpi-grid" id="hb-kpis"></div>
   <div class="chart-grid">
@@ -3378,6 +3382,11 @@ var _misGuias={
     +'<span style="color:var(--muted);font-size:11px;">ESTADO: PAGADO, PENDIENTE, NOTA CREDITO. Números duplicados se ignoran.</span></div>'
     +'<button class="btn btn-secondary btn-sm" onclick="descargarPlantilla(\'facturas\')" style="flex-shrink:0"><i class="ti ti-download"></i> Plantilla CSV</button>'
     +'</div>',
+  hb:'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
+    +'<div><b>Exportá el extracto del banco como CSV</b> — el sistema acepta el formato directo de Galicia/BBVA:<br>'
+    +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">Fecha | Descripción | Origen | Débitos | Créditos | Grupo de Conceptos | Concepto | N° Terminal | Obs. Cliente | N° Comprobante | Leyendas 1-4 | Tipo de Movimiento | Saldo</code><br>'
+    +'<span style="color:var(--muted);font-size:11px;">Acepta separador coma o punto y coma. Fechas DD/MM/AAAA. Números con coma o punto decimal. Registros duplicados (mismo N° comprobante) se ignoran.</span></div>'
+    +'</div>',
   costos:'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
     +'<div><b>Formato JSON</b> — estructura por mes:<br>'
     +'<code style="background:var(--border);padding:2px 6px;border-radius:4px;font-size:11px;">'
@@ -3497,7 +3506,7 @@ function descargarPlantilla(seccion){
 
 function importarSeccion(tipo){
   _misSeccion=tipo; _misData=null;
-  var titulos={gastos:'Importar Gastos',facturas:'Importar Facturas',costos:'Importar Costos'};
+  var titulos={gastos:'Importar Gastos',facturas:'Importar Facturas',costos:'Importar Costos',hb:'Importar extracto bancario'};
   $('mis-titulo').textContent=titulos[tipo]||'Importar';
   $('mis-guia').innerHTML=_misGuias[tipo]||'';
   $('mis-preview').style.display='none'; $('mis-preview').innerHTML='';
@@ -3524,13 +3533,14 @@ function _parseFecha(s){
   return s;
 }
 
-function _parseCSV(text){
+function _parseCSV(text, sep){
+  sep=sep||',';
   var lines=text.replace(/\r/g,'').trim().split('\n');
-  var headers=_splitCSVLine(lines[0]).map(function(h){return h.trim().replace(/^"|"$/g,'').toUpperCase();});
+  var headers=_splitCSVLine(lines[0],sep).map(function(h){return h.trim().replace(/^"|"$/g,'').toUpperCase();});
   var rows=[];
   for(var i=1;i<lines.length;i++){
     var line=lines[i].trim(); if(!line) continue;
-    var vals=_splitCSVLine(line);
+    var vals=_splitCSVLine(line,sep);
     var row={};
     headers.forEach(function(h,idx){ row[h]=(vals[idx]||'').trim().replace(/^"|"$/g,''); });
     rows.push(row);
@@ -3538,12 +3548,13 @@ function _parseCSV(text){
   return rows;
 }
 
-function _splitCSVLine(line){
+function _splitCSVLine(line,sep){
+  sep=sep||',';
   var vals=[],cur='',inQ=false;
   for(var i=0;i<line.length;i++){
     var c=line[i];
     if(c==='"'){inQ=!inQ;}
-    else if(c===','&&!inQ){vals.push(cur);cur='';}
+    else if(c===sep&&!inQ){vals.push(cur);cur='';}
     else cur+=c;
   }
   vals.push(cur);
@@ -3562,7 +3573,9 @@ function parsearArchivoSeccion(){
         _misData=JSON.parse(text);
         _mostrarPreviewSeccion(_misData);
       } else {
-        var rows=_parseCSV(text);
+        var fl=text.split('\n')[0]||'';
+        var sep=(fl.split(';').length>fl.split(',').length)?';':',';
+        var rows=_parseCSV(text,sep);
         _misData=rows;
         _mostrarPreviewSeccion(rows);
       }
@@ -3640,6 +3653,33 @@ function _mostrarPreviewSeccion(data){
       +'</div>';
   }
 
+  } else if(_misSeccion==='hb'){
+    var parsed=_procesarCSVHB(Array.isArray(data)?data:[]);
+    count=parsed.length;
+    html='<table style="width:100%;border-collapse:collapse;font-size:11px;">'
+      +'<thead><tr style="background:var(--surface2)">'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">FECHA</th>'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">DESCRIPCIÓN</th>'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">CONCEPTO</th>'
+      +'<th style="padding:6px 8px;text-align:right;border-bottom:0.5px solid var(--border)">DÉBITO</th>'
+      +'<th style="padding:6px 8px;text-align:right;border-bottom:0.5px solid var(--border)">CRÉDITO</th>'
+      +'<th style="padding:6px 8px;border-bottom:0.5px solid var(--border)">TIPO</th>'
+      +'</tr></thead><tbody>'
+      +parsed.slice(0,25).map(function(h){
+        return '<tr style="border-bottom:0.5px solid var(--border);">'
+          +'<td style="padding:5px 8px;white-space:nowrap">'+fmtD(h.fecha)+'</td>'
+          +'<td style="padding:5px 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+h.desc+'">'+h.desc+'</td>'
+          +'<td style="padding:5px 8px">'+h.concepto+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-family:var(--fm);color:var(--red)">'+(h.deb?fmt(h.deb):'')+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-family:var(--fm);color:var(--green)">'+(h.cred?fmt(h.cred):'')+'</td>'
+          +'<td style="padding:5px 8px;font-size:10px;color:var(--muted)">'+h.tipo+'</td>'
+          +'</tr>';
+      }).join('')
+      +(parsed.length>25?'<tr><td colspan="6" style="padding:8px;color:var(--muted);text-align:center">... y '+(parsed.length-25)+' más</td></tr>':'')
+      +'</tbody></table>';
+    _misData=parsed;
+  }
+
   if(count===0){
     prev.innerHTML='<div style="padding:16px;color:var(--red);text-align:center">No se encontraron registros válidos. Revisá el formato del archivo.</div>';
     prev.style.display='block';
@@ -3649,6 +3689,61 @@ function _mostrarPreviewSeccion(data){
   prev.innerHTML=html; prev.style.display='block';
   $('mis-footer').innerHTML='<button class="btn btn-secondary" onclick="hideModal(\'modal-import-seccion\')">Cancelar</button>'
     +'<button class="btn btn-primary" onclick="confirmarImportSeccion()"><i class="ti ti-check"></i> Importar '+count+' registro'+(count!==1?'s':'')+'</button>';
+}
+
+function _parseMonto(s){
+  if(!s) return 0;
+  s=String(s).trim().replace(/[$\s]/g,'');
+  // Formato argentino: 1.234.567,89 → 1234567.89
+  if(/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(s)) s=s.replace(/\./g,'').replace(',','.');
+  // Formato internacional: 1,234,567.89
+  else if(/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(s)) s=s.replace(/,/g,'');
+  return parseFloat(s)||0;
+}
+
+function _procesarCSVHB(rows){
+  // Detectar separador: si los rows vienen como strings (separador ;) re-parsear
+  var existingComp={};
+  homebanking.forEach(function(h){ if(h.comp) existingComp[h.comp]=true; });
+  var result=[];
+  rows.forEach(function(r){
+    // Columnas del banco: Fecha, Descripción, Origen, Débitos, Créditos, Grupo de Conceptos,
+    // Concepto, Número de Terminal, Observaciones Cliente, Número de Comprobante,
+    // Leyendas Adicionales 1-4, Tipo de Movimiento, Saldo
+    var fecha=_parseFecha(r['FECHA']||r['Fecha']||'');
+    var desc=(r['DESCRIPCIÓN']||r['Descripción']||r['DESCRIPCION']||'').trim();
+    var origen=(r['ORIGEN']||r['Origen']||'').trim();
+    var deb=_parseMonto(r['DÉBITOS']||r['Débitos']||r['DEBITOS']||r['DEBITO']||'');
+    var cred=_parseMonto(r['CRÉDITOS']||r['Créditos']||r['CREDITOS']||r['CREDITO']||'');
+    var grupo=(r['GRUPO DE CONCEPTOS']||r['Grupo de Conceptos']||r['GRUPO']||'').trim();
+    var concepto=(r['CONCEPTO']||r['Concepto']||'').trim();
+    var obs=(r['OBSERVACIONES CLIENTE']||r['Observaciones Cliente']||r['OBS']||'').trim();
+    var comp=(r['NÚMERO DE COMPROBANTE']||r['Número de Comprobante']||r['COMPROBANTE']||'').trim();
+    var tipo=(r['TIPO DE MOVIMIENTO']||r['Tipo de Movimiento']||r['TIPO']||'').trim();
+    var saldo=_parseMonto(r['SALDO']||r['Saldo']||'');
+    var ley=(r['LEYENDAS ADICIONALES 1']||r['Leyendas Adicionales 1']||'').trim();
+
+    if(!fecha&&!desc) return;
+    // Deduplicar por comprobante
+    if(comp&&existingComp[comp]) return;
+    if(comp) existingComp[comp]=true;
+
+    result.push({
+      id:null,
+      fecha:fecha,
+      desc:desc||origen,
+      origen:origen,
+      deb:deb,
+      cred:cred,
+      grupo:grupo,
+      concepto:concepto,
+      obs:obs||ley,
+      comp:comp,
+      tipo:tipo,
+      saldo:saldo
+    });
+  });
+  return result;
 }
 
 function _procesarCSVGastos(rows){
@@ -3734,7 +3829,25 @@ function confirmarImportSeccion(){
     hideModal('modal-import-seccion');
     renderCostos();
     showToast('✓ '+Object.keys(_misData).length+' meses de costos importados');
+  } else if(_misSeccion==='hb'){
+    var added=0;
+    _misData.forEach(function(h){
+      h.id=nextId(homebanking);
+      homebanking.push(h); added++;
+    });
+    save('pkhv2_hb',homebanking);
+    hideModal('modal-import-seccion');
+    renderHB();
+    showToast('✓ '+added+' movimientos importados');
   }
+}
+
+function limpiarHB(){
+  if(!confirm('¿Eliminar TODOS los movimientos del Home Banking? Esta acción no se puede deshacer.'))return;
+  homebanking=[];
+  save('pkhv2_hb',homebanking);
+  renderHB();
+  showToast('Home Banking limpiado');
 }
 
 // ============================================================
