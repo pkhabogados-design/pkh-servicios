@@ -367,13 +367,39 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-kilometros">
   <div class="section-hdr">
     <div class="section-title">REGISTRO DE <span>KILÓMETROS</span></div>
-    <div style="display:flex;gap:8px;align-items:center;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <select id="km-filtro" onchange="renderKm()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
         <option value="">Todos los vehículos</option>
       </select>
-      <button class="btn btn-primary btn-sm" onclick="showModal('modal-km')">+ REGISTRAR KM</button>
+      <button class="btn btn-secondary btn-sm" onclick="toggleKmRapido()"><i class="ti ti-table"></i> Carga mensual</button>
+      <button class="btn btn-primary btn-sm" onclick="showModal('modal-km')"><i class="ti ti-plus"></i> Registrar KM</button>
     </div>
   </div>
+
+  <!-- CARGA RÁPIDA MENSUAL -->
+  <div id="km-carga-rapida" style="display:none;margin-bottom:20px;">
+    <div class="card" style="border-top-color:var(--accent2);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div style="font-weight:700;font-size:14px;color:var(--accent2);display:flex;align-items:center;gap:6px;"><i class="ti ti-table"></i> Carga rápida del mes</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="km-r-mes" onchange="renderKmRapido()" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);">
+            <option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option>
+            <option>MAYO</option><option>JUNIO</option><option>JULIO</option><option>AGOSTO</option>
+            <option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
+          </select>
+          <select id="km-r-anio" onchange="renderKmRapido()" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);">
+            <option>2025</option><option>2026</option><option>2027</option>
+          </select>
+        </div>
+      </div>
+      <div id="km-rapido-tabla"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-secondary btn-sm" onclick="toggleKmRapido()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="guardarKmRapido()"><i class="ti ti-device-floppy"></i> Guardar todo</button>
+      </div>
+    </div>
+  </div>
+
   <div class="chart-grid" id="km-charts"></div>
   <div id="km-cards"></div>
 </div>
@@ -409,7 +435,10 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-facturacion">
   <div class="section-hdr">
     <div class="section-title">FACTURACIÓN <span>PKH</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-factura')">+ NUEVA FACTURA</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="showModalFacturaContrato()"><i class="ti ti-file-text"></i> Desde contrato</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirNuevaFactura()"><i class="ti ti-plus"></i> Nueva factura</button>
+    </div>
   </div>
   <div class="kpi-grid" id="fac-kpis"></div>
   <div class="filters">
@@ -649,6 +678,18 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="hideModal('modal-doc')">CANCELAR</button>
       <button class="btn btn-primary" onclick="addDoc()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESDE CONTRATO -->
+<div class="modal-overlay" id="modal-factura-contrato">
+  <div class="modal" style="max-width:520px">
+    <h2>📄 Factura desde contrato</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Seleccioná el contrato activo para pre-llenar la factura automáticamente.</p>
+    <div id="fac-contratos-lista" style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-factura-contrato')">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1566,6 +1607,135 @@ function renderKm(){
       </div>
     </div>`;
   }).join('');
+}
+
+// ---- CARGA RÁPIDA KM ----
+function toggleKmRapido(){
+  const el=$('km-carga-rapida');
+  if(el.style.display==='none'){
+    el.style.display='block';
+    // Mes actual por defecto
+    const hoy=new Date();
+    const mesEl=$('km-r-mes'); if(mesEl) mesEl.value=MESES[hoy.getMonth()];
+    const anioEl=$('km-r-anio'); if(anioEl) anioEl.value=String(hoy.getFullYear());
+    renderKmRapido();
+  } else {
+    el.style.display='none';
+  }
+}
+
+function renderKmRapido(){
+  const mes=$('km-r-mes').value;
+  const anio=$('km-r-anio').value;
+  const tabla=$('km-rapido-tabla');
+  if(!tabla)return;
+  tabla.innerHTML='<table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr style="background:var(--surface2)">'
+    +'<th style="padding:8px 12px;font-size:11px;color:var(--muted);text-align:left;border-bottom:0.5px solid var(--border)">PATENTE</th>'
+    +'<th style="padding:8px 12px;font-size:11px;color:var(--muted);text-align:left;border-bottom:0.5px solid var(--border)">CLIENTE</th>'
+    +'<th style="padding:8px 12px;font-size:11px;color:var(--muted);text-align:left;border-bottom:0.5px solid var(--border)">KM ANTERIOR</th>'
+    +'<th style="padding:8px 12px;font-size:11px;color:var(--muted);text-align:left;border-bottom:0.5px solid var(--border)">KM '+mes.substr(0,3)+' '+anio+'</th>'
+    +'</tr></thead><tbody>'
+    +flota.map(function(u){
+      const existing=km.find(function(k){ return k.pat===u.pat&&k.mes===mes&&String(k.anio)===anio; });
+      const prev=km.filter(function(k){ return k.pat===u.pat; }).sort(function(a,b){ return MESES_IDX(a.mes,a.anio)-MESES_IDX(b.mes,b.anio); });
+      const lastKm=prev.length?prev[prev.length-1].km:0;
+      const lastLabel=prev.length?(prev[prev.length-1].mes.substr(0,3)+' '+prev[prev.length-1].anio):'—';
+      return '<tr style="border-bottom:0.5px solid var(--border);">'
+        +'<td style="padding:8px 12px;font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600">'+u.pat+'</td>'
+        +'<td style="padding:8px 12px;font-size:12px;color:var(--muted)">'+u.cli.split(' ').slice(0,2).join(' ')+'</td>'
+        +'<td style="padding:8px 12px;font-size:12px;color:var(--muted)">'+lastKm.toLocaleString('es-AR')+' <span style="font-size:10px">('+lastLabel+')</span></td>'
+        +'<td style="padding:6px 12px;">'
+        +'<input type="number" id="kmr-'+u.pat.replace(/-/g,'_')+'" placeholder="0" value="'+(existing?existing.km:'')+'" '
+        +'style="width:120px;padding:6px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--fm);background:var(--surface);" '
+        +'oninput="this.style.borderColor=this.value?\'var(--accent)\':\' var(--border)\'">'
+        +'</td></tr>';
+    }).join('')
+    +'</tbody></table>';
+}
+
+function guardarKmRapido(){
+  const mes=$('km-r-mes').value;
+  const anio=$('km-r-anio').value;
+  var guardados=0;
+  flota.forEach(function(u){
+    const inputId='kmr-'+u.pat.replace(/-/g,'_');
+    const input=document.getElementById(inputId);
+    if(!input||!input.value)return;
+    const val=Number(input.value);
+    if(!val)return;
+    const idx=km.findIndex(function(k){ return k.pat===u.pat&&k.mes===mes&&String(k.anio)===anio; });
+    if(idx>=0) km[idx].km=val; else km.push({pat:u.pat,mes:mes,anio:anio,km:val});
+    guardados++;
+  });
+  if(!guardados){showToast('No ingresaste ningún km',true);return;}
+  save('pkhv2_km',km);
+  $('km-carga-rapida').style.display='none';
+  renderKm();
+  showToast('✓ '+guardados+' registros de km guardados');
+}
+
+// ---- FACTURA DESDE CONTRATO ----
+function abrirNuevaFactura(){
+  // Limpiar form y abrir
+  ['nf-num','nf-cuit','nf-monto','nf-iva','nf-obs','nf-forma'].forEach(function(id){ var el=$(id); if(el)el.value=''; });
+  var fd=$(id='nf-fecha'); if(fd) fd.value=new Date().toISOString().split('T')[0];
+  var fv=$('nf-venc'); if(fv) fv.value='';
+  var fe=$('nf-emp'); if(fe) fe.value='';
+  var fest=$('nf-est'); if(fest) fest.value='';
+  var ft=$('nf-tipo'); if(ft) ft.value='';
+  showModal('modal-factura');
+}
+
+function showModalFacturaContrato(){
+  const lista=$('fac-contratos-lista');
+  if(!lista)return;
+  const activos=contratos.filter(function(c){ return c.est==='activo'; });
+  if(!activos.length){
+    lista.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px">No hay contratos activos.</div>';
+  } else {
+    lista.innerHTML=activos.map(function(c){
+      const total=Math.round(c.precio*(1+(c.iva||0.21)));
+      return '<div onclick="facturaDesdContrato(\''+c.id+'\')" style="cursor:pointer;padding:14px 16px;border:0.5px solid var(--border);border-radius:8px;transition:.15s;display:flex;justify-content:space-between;align-items:center;" '
+        +'onmouseover="this.style.borderColor=\'var(--accent)\';this.style.background=\'#EEF4FF\'" '
+        +'onmouseout="this.style.borderColor=\'var(--border)\';this.style.background=\'\'">'
+        +'<div>'
+        +'<div style="font-weight:700;font-size:13px">'+c.emp+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:2px"><i class="ti ti-car"></i> '+c.pat+' &nbsp;·&nbsp; Día '+c.dia+'</div>'
+        +'</div>'
+        +'<div style="text-align:right">'
+        +'<div style="font-family:var(--fm);font-size:14px;color:var(--accent)">$'+total.toLocaleString('es-AR')+'</div>'
+        +'<div style="font-size:10px;color:var(--muted)">neto $'+c.precio.toLocaleString('es-AR')+'</div>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+  showModal('modal-factura-contrato');
+}
+
+function facturaDesdContrato(cid){
+  const c=contratos.find(function(x){ return String(x.id)===String(cid); });
+  if(!c)return;
+  hideModal('modal-factura-contrato');
+  // Pre-llenar el form
+  const hoy=new Date();
+  var fe=$('nf-fecha'); if(fe) fe.value=hoy.toISOString().split('T')[0];
+  var femp=$('nf-emp'); if(femp) femp.value=c.emp;
+  // CUIT desde facturas anteriores del mismo cliente
+  const facAnterior=facturas.filter(function(f){ return f.emp===c.emp&&f.cuit; });
+  var fcuit=$('nf-cuit'); if(fcuit) fcuit.value=facAnterior.length?facAnterior[facAnterior.length-1].cuit:'';
+  var fmonto=$('nf-monto'); if(fmonto){ fmonto.value=c.precio; calcIVA(); }
+  var fiva=$('nf-iva'); if(fiva) fiva.value=Math.round(c.precio*(c.iva||0.21));
+  // Vencimiento: día del contrato + ~30 días
+  const venc=new Date(hoy); venc.setDate(c.dia||hoy.getDate()+30);
+  var fvenc=$('nf-venc'); if(fvenc) fvenc.value=venc.toISOString().split('T')[0];
+  var fest=$('nf-est'); if(fest) fest.value='';
+  var fnum=$('nf-num'); if(fnum) fnum.value=''; // auto
+  // N° de factura sugerido
+  var maxNum=facturas.filter(function(f){ return typeof f.num==='number'; }).reduce(function(a,b){ return b.num>a?b.num:a; },0);
+  if(fnum) fnum.placeholder='Auto (siguiente: '+(maxNum+1)+')';
+  showModal('modal-factura');
+  showToast('✓ Form pre-llenado desde contrato '+c.emp.split(' ')[0]);
 }
 
 function addKm(){
