@@ -2552,6 +2552,7 @@ async function startApp() {
   updateAlertBadges();
   populateSelects();
   renderDashboard();
+  verificarNotificacionDia();
 }
 
 async 
@@ -2639,18 +2640,85 @@ function setPeriod(type,value,btn){
 }
 
 // ============================================================
-// CHECKLIST MENSUAL
+// CHECKLIST MENSUAL — 46 tareas en 6 secciones
 // ============================================================
-const CHECKLIST_TAREAS=[
-  {id:'seguros',desc:'Verificar seguros vigentes',resp:'ADM'},
-  {id:'facturas',desc:'Emitir facturas del mes',resp:'ADM'},
-  {id:'cobros',desc:'Confirmar cobros pendientes',resp:'ADM'},
-  {id:'km_service',desc:'Revisar km y coordinar service',resp:'OPE'},
-  {id:'contratos',desc:'Actualizar contratos vencidos',resp:'ADM'},
-  {id:'polizas',desc:'Descargar pólizas Trinfo',resp:'ADM'},
-  {id:'rto',desc:'Verificar RTO de cada unidad',resp:'OPE'},
-  {id:'gastos',desc:'Registrar gastos del mes',resp:'ADM'},
-  {id:'resumen',desc:'Distribuir resumen a socios',resp:'ADM'},
+const CHECKLIST_GRUPOS=[
+  {
+    id:'g1',titulo:'Saldos, seguros y contador',dias:'Días 1 al 5',diaDesde:1,diaHasta:5,
+    tareas:[
+      {id:'g1_1',desc:'Verificar saldo disponible en Banco Galicia',resp:'ADM'},
+      {id:'g1_2',desc:'Verificar saldo disponible en Banco BBVA',resp:'ADM'},
+      {id:'g1_3',desc:'Prever fondos para vencimientos de tarjetas (días 6-9)',resp:'ADM'},
+      {id:'g1_4',desc:'Verificar pago de tarjetas de crédito (ambos bancos)',resp:'ADM'},
+      {id:'g1_5',desc:'Controlar débito de seguros de camionetas desde Banco Galicia',resp:'ADM'},
+      {id:'g1_6',desc:'Verificar montos debitados de los seguros',resp:'ADM'},
+      {id:'g1_7',desc:'Registrar pagos de seguros en planilla (Costos Fijos)',resp:'ADM',link:'gastos'},
+      {id:'g1_8',desc:'Recepcionar factura de honorarios del Contador Gustavo Arocena',resp:'ADM'},
+      {id:'g1_9',desc:'Abonar honorarios del contador (HB Banco Galicia)',resp:'ADM'},
+      {id:'g1_10',desc:'Enviar comprobante de pago al contador',resp:'ADM'},
+      {id:'g1_11',desc:'Registrar pago del contador en planilla',resp:'ADM',link:'gastos'},
+      {id:'g1_12',desc:'Recepcionar agenda de vencimientos del estudio contable',resp:'ADM'},
+      {id:'g1_13',desc:'Verificar vencimiento y monto del VEP Autónomos',resp:'ADM'},
+      {id:'g1_14',desc:'Transferir VEP Autónomos al socio Leonel Herrera Montovio',resp:'ADM'},
+      {id:'g1_15',desc:'Confirmar que el VEP Autónomos fue abonado',resp:'ADM'},
+      {id:'g1_16',desc:'Enviar comprobante VEP Autónomos al estudio contable',resp:'ADM'},
+      {id:'g1_17',desc:'Registrar pago del VEP Autónomos en planilla',resp:'ADM',link:'gastos'},
+    ]
+  },
+  {
+    id:'g2',titulo:'Facturación y kilómetros',dias:'Días 5 al 10',diaDesde:5,diaHasta:10,
+    tareas:[
+      {id:'g2_1',desc:'Verificar km recorridos por cada camioneta (tope 5.000 km/mes)',resp:'OPE',link:'kilometros'},
+      {id:'g2_2',desc:'Calcular km excedentes conforme cada contrato',resp:'OPE',link:'contratos'},
+      {id:'g2_3',desc:'Emitir facturación mensual a los clientes',resp:'ADM',link:'facturacion'},
+      {id:'g2_4',desc:'Controlar que montos facturados coincidan con contratos vigentes',resp:'ADM',link:'contratos'},
+      {id:'g2_5',desc:'Enviar facturas por correo electrónico a cada cliente',resp:'ADM'},
+      {id:'g2_6',desc:'Verificar que el correo incluya: datos factura, período y datos bancarios',resp:'ADM'},
+      {id:'g2_7',desc:'Registrar todas las facturas emitidas en planilla de facturación',resp:'ADM',link:'facturacion'},
+    ]
+  },
+  {
+    id:'g3',titulo:'Ingresos Brutos',dias:'Días 10 al 15',diaDesde:10,diaHasta:15,
+    tareas:[
+      {id:'g3_1',desc:'Verificar vencimiento y monto del VEP Ingresos Brutos',resp:'ADM'},
+      {id:'g3_2',desc:'Abonar VEP Ingresos Brutos desde cuenta bancaria',resp:'ADM'},
+      {id:'g3_3',desc:'Enviar comprobante de pago al estudio contable',resp:'ADM'},
+      {id:'g3_4',desc:'Registrar pago de Ingresos Brutos en planilla',resp:'ADM',link:'gastos'},
+    ]
+  },
+  {
+    id:'g4',titulo:'Control Documental',dias:'Días 15 al 20',diaDesde:15,diaHasta:20,
+    tareas:[
+      {id:'g4_1',desc:'Verificar vencimiento del servicio de Control Documental',resp:'ADM'},
+      {id:'g4_2',desc:'Abonar el servicio de Control Documental',resp:'ADM'},
+      {id:'g4_3',desc:'Enviar comprobante por WhatsApp y correo electrónico',resp:'ADM'},
+      {id:'g4_4',desc:'Registrar pago de Control Documental en planilla',resp:'ADM',link:'gastos'},
+    ]
+  },
+  {
+    id:'g5',titulo:'Cierre de mes — Proveedores',dias:'Últimos días hábiles',diaDesde:25,diaHasta:31,
+    tareas:[
+      {id:'g5_1',desc:'Recepcionar facturas de Microtrack / Micracel S.A.',resp:'ADM'},
+      {id:'g5_2',desc:'Verificar cantidad de servicios facturados por Microtrack',resp:'ADM'},
+      {id:'g5_3',desc:'Abonar facturas de Microtrack',resp:'ADM'},
+      {id:'g5_4',desc:'Enviar comprobantes de pago a Microtrack',resp:'ADM'},
+      {id:'g5_5',desc:'Registrar pagos de Microtrack en planilla',resp:'ADM',link:'gastos'},
+      {id:'g5_6',desc:'Recepcionar facturas de otros proveedores (RSV, etc.)',resp:'ADM'},
+      {id:'g5_7',desc:'Abonar facturas de otros proveedores',resp:'ADM'},
+      {id:'g5_8',desc:'Registrar pagos de otros proveedores en planilla',resp:'ADM',link:'gastos'},
+      {id:'g5_9',desc:'Descargar todas las facturas del mes',resp:'ADM'},
+      {id:'g5_10',desc:'Subir facturas a carpeta compartida "COMPROBANTES DE COMPRAS"',resp:'ADM'},
+      {id:'g5_11',desc:'Ordenar documentación por año y mes',resp:'ADM'},
+    ]
+  },
+  {
+    id:'g6',titulo:'Control final del mes',dias:'Cierre',diaDesde:28,diaHasta:31,
+    tareas:[
+      {id:'g6_1',desc:'Verificar que todos los pagos del mes estén registrados en planilla',resp:'ADM',link:'gastos'},
+      {id:'g6_2',desc:'Verificar que no existan vencimientos impagos',resp:'ADM',link:'alertas'},
+      {id:'g6_3',desc:'Confirmar que la documentación del mes esté completa y archivada',resp:'ADM'},
+    ]
+  },
 ];
 
 function getChecklistKey(){
@@ -2661,8 +2729,9 @@ function getChecklistKey(){
 function getChecklist(){
   const key=getChecklistKey();
   const saved=load(key,null);
-  if(saved&&Array.isArray(saved))return saved;
-  const tasks=CHECKLIST_TAREAS.map(t=>({...t,done:false,fechaDone:null}));
+  // Validate that saved data matches current group structure
+  if(saved&&Array.isArray(saved)&&saved.length>0&&saved[0].id&&saved[0].id.includes('_'))return saved;
+  const tasks=CHECKLIST_GRUPOS.flatMap(g=>g.tareas.map(t=>({...t,done:false,fechaDone:null})));
   save(key,tasks);
   return tasks;
 }
@@ -2687,39 +2756,121 @@ function updateChecklistBadge(){
   if(nb)nb.textContent=pend;
 }
 
+function getGrupoActivo(){
+  const dia=new Date().getDate();
+  if(dia<=5)return CHECKLIST_GRUPOS[0];
+  if(dia<=10)return CHECKLIST_GRUPOS[1];
+  if(dia<=15)return CHECKLIST_GRUPOS[2];
+  if(dia<=20)return CHECKLIST_GRUPOS[3];
+  return CHECKLIST_GRUPOS[4];
+}
+
 function renderChecklist(){
   const tasks=getChecklist();
   const hoy=new Date();
+  const diaHoy=hoy.getDate();
   const el=$('checklist-periodo');
   if(el)el.textContent=MESES[hoy.getMonth()]+' '+hoy.getFullYear();
   const done=tasks.filter(t=>t.done).length;
   const pend=tasks.filter(t=>!t.done).length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
   const cc=$('checklist-content');
   if(!cc)return;
+  const notifPerm=('Notification' in window)?Notification.permission:'unsupported';
   cc.innerHTML=`
-    <div style="display:flex;gap:12px;margin-bottom:18px;">
-      <div style="background:#fef2f2;border-radius:8px;padding:12px 20px;text-align:center;flex:1;">
-        <div style="font-size:28px;font-weight:700;color:var(--red);">${pend}</div>
-        <div style="font-size:11px;color:var(--muted);">PENDIENTES</div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <div style="background:#fef2f2;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:80px;">
+        <div style="font-size:26px;font-weight:700;color:var(--red);">${pend}</div>
+        <div style="font-size:10px;color:var(--muted);">PENDIENTES</div>
       </div>
-      <div style="background:#d1fae5;border-radius:8px;padding:12px 20px;text-align:center;flex:1;">
-        <div style="font-size:28px;font-weight:700;color:var(--green);">${done}</div>
-        <div style="font-size:11px;color:var(--muted);">COMPLETADAS</div>
+      <div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:80px;">
+        <div style="font-size:26px;font-weight:700;color:var(--green);">${done}</div>
+        <div style="font-size:10px;color:var(--muted);">COMPLETADAS</div>
+      </div>
+      <div style="background:#EEF4FF;border-radius:8px;padding:12px 16px;text-align:center;flex:1;min-width:80px;">
+        <div style="font-size:26px;font-weight:700;color:var(--accent);">${pct}%</div>
+        <div style="font-size:10px;color:var(--muted);">PROGRESO</div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      ${tasks.map(t=>`
-        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:8px;border:0.5px solid var(--border);background:${t.done?'var(--surface2)':'#fff'};">
-          <input type="checkbox" ${t.done?'checked':''} onchange="toggleChecklistTask('${t.id}')" style="width:17px;height:17px;cursor:pointer;accent-color:var(--accent);">
-          <div style="flex:1;">
-            <div style="font-size:13px;${t.done?'text-decoration:line-through;color:var(--muted);':'font-weight:500;'}">${t.desc}</div>
-            ${t.fechaDone?`<div style="font-size:10px;color:var(--muted);margin-top:2px;">Completada: ${fmtD(t.fechaDone)}</div>`:''}
+    ${CHECKLIST_GRUPOS.map(g=>{
+      const gTasks=tasks.filter(t=>g.tareas.some(gt=>gt.id===t.id));
+      const gDone=gTasks.filter(t=>t.done).length;
+      const gPend=gTasks.length-gDone;
+      const isActive=diaHoy>=g.diaDesde&&diaHoy<=g.diaHasta;
+      const isCompleto=gPend===0;
+      const borderCol=isActive?'var(--accent)':isCompleto?'var(--green)':'var(--border)';
+      const headerBg=isActive?'#EEF4FF':isCompleto?'#d1fae5':'var(--surface2)';
+      const titleCol=isActive?'var(--accent)':isCompleto?'var(--green)':'var(--text)';
+      return `<div style="margin-bottom:14px;border:1px solid ${borderCol};border-radius:10px;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:${headerBg};cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:${titleCol};">${isActive?'🔔 ':isCompleto?'✅ ':''}${g.titulo}</div>
+            <div style="font-size:11px;color:var(--muted);">${g.dias}</div>
           </div>
-          <span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:3px 9px;border-radius:20px;white-space:nowrap;">${t.resp}</span>
+          <div style="text-align:right;">
+            <div style="font-size:13px;font-weight:700;color:${gPend>0?'var(--red)':'var(--green)'};">${gDone}/${gTasks.length}</div>
+            <div style="font-size:10px;color:var(--muted);">${gPend>0?gPend+' pend.':'todo ok'}</div>
+          </div>
         </div>
-      `).join('')}
+        <div style="display:${isActive||gPend>0?'block':'none'};">
+          ${gTasks.map(t=>{
+            const tDef=g.tareas.find(gt=>gt.id===t.id);
+            return `<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:0.5px solid var(--border);background:${t.done?'var(--surface2)':'#fff'};">
+              <input type="checkbox" ${t.done?'checked':''} onchange="toggleChecklistTask('${t.id}')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;${t.done?'text-decoration:line-through;color:var(--muted);':''};">${t.desc}</div>
+                ${t.fechaDone?`<div style="font-size:10px;color:var(--muted);">✓ ${fmtD(t.fechaDone)}</div>`:''}
+              </div>
+              ${tDef?.link?`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();navTo('${tDef.link}')" style="padding:2px 8px;font-size:10px;flex-shrink:0;">→</button>`:''}
+              <span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:20px;flex-shrink:0;">${t.resp}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+    <div style="margin-top:16px;padding:14px;background:#EEF4FF;border-radius:8px;border:0.5px solid var(--accent);">
+      <div style="font-weight:600;font-size:12px;color:var(--accent);margin-bottom:6px;">🔔 Notificaciones del navegador</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Recibí recordatorios automáticos según el momento del mes, una vez por día al abrir el sistema.</div>
+      <button class="btn btn-secondary btn-sm" onclick="solicitarNotificaciones()">
+        ${notifPerm==='granted'?'✅ Notificaciones activas':'🔔 Activar notificaciones'}
+      </button>
+      ${notifPerm==='denied'?'<div style="font-size:11px;color:var(--red);margin-top:6px;">Permiso denegado en el navegador. Habilitalo desde la configuración del sitio.</div>':''}
     </div>
   `;
+}
+
+// ============================================================
+// NOTIFICACIONES
+// ============================================================
+function solicitarNotificaciones(){
+  if(!('Notification' in window)){showToast('Tu navegador no soporta notificaciones',true);return;}
+  Notification.requestPermission().then(perm=>{
+    if(perm==='granted'){showToast('✓ Notificaciones activadas');renderChecklist();verificarNotificacionDia();}
+    else{showToast('Permiso denegado por el navegador',true);renderChecklist();}
+  });
+}
+
+function verificarNotificacionDia(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const hoy=new Date().toISOString().split('T')[0];
+  if(localStorage.getItem('pkhv2_ultima_notif')===hoy)return;
+  const tasks=getChecklist();
+  const pend=tasks.filter(t=>!t.done).length;
+  if(pend===0)return;
+  const grupo=getGrupoActivo();
+  const grupoTasks=tasks.filter(t=>grupo.tareas.some(gt=>gt.id===t.id));
+  const grupoPend=grupoTasks.filter(t=>!t.done).length;
+  if(grupoPend>0){
+    try{
+      new Notification('PKH Servicios — Checklist mensual',{
+        body:`📋 ${grupoPend} tarea${grupoPend>1?'s':''} pendiente${grupoPend>1?'s':''} en "${grupo.titulo}" (${grupo.dias}).\nTotal del mes: ${pend} pendientes.`,
+        icon:'icon-192.png',
+        badge:'icon-192.png',
+        tag:'pkh-checklist',
+      });
+      localStorage.setItem('pkhv2_ultima_notif',hoy);
+    }catch(e){console.warn('Notificación fallida:',e);}
+  }
 }
 </script>
 
