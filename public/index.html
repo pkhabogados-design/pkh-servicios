@@ -476,7 +476,7 @@ input[type="checkbox"]{accent-color:var(--accent);}
       <select id="cont-filtro" onchange="renderContratos()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
         <option value="">Todos</option>
       </select>
-      <button class="btn btn-primary btn-sm" onclick="showModal('modal-contrato')">+ NUEVO CONTRATO</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirNuevoContrato()"><i class="ti ti-plus"></i> Nuevo contrato</button>
     </div>
   </div>
   <div class="kpi-grid" id="cont-kpis"></div>
@@ -486,7 +486,7 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-cheques">
   <div class="section-hdr">
     <div class="section-title">CHEQUES <span>DIFERIDOS</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-cheque')">+ AGREGAR CHEQUE</button>
+    <button class="btn btn-primary btn-sm" onclick="abrirModalCheque()"><i class="ti ti-plus"></i> Agregar cheque</button>
   </div>
   <div class="kpi-grid" id="cheq-kpis"></div>
   <div class="inline-tabs">
@@ -724,12 +724,29 @@ input[type="checkbox"]{accent-color:var(--accent);}
   <div class="modal">
     <h2>REGISTRAR CHEQUE DIFERIDO</h2>
     <div class="form-grid">
-      <div class="form-group"><label>N° CHEQUE</label><input id="nc-num" placeholder="28903918"></div>
-      <div class="form-group"><label>BANCO</label><input id="nc-banco" placeholder="BCO GALICIA"></div>
-      <div class="form-group"><label>EMPRESA EMISORA</label><input id="nc-emp" placeholder="Nombre empresa"></div>
+      <div class="form-group"><label>N° CHEQUE / E-CHEQ</label><input id="nc-num" placeholder="28903918"></div>
+      <div class="form-group">
+        <label>BANCO</label>
+        <input id="nc-banco" placeholder="BCO GALICIA" list="nc-banco-list" autocomplete="off">
+        <datalist id="nc-banco-list">
+          <option value="BCO GALICIA"><option value="BBVA FRANCÉS">
+          <option value="BANCO NACIÓN"><option value="BANCO PROVINCIA">
+          <option value="SANTANDER"><option value="ICBC"><option value="HSBC">
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label>EMPRESA EMISORA</label>
+        <input id="nc-emp" placeholder="Nombre empresa" list="nc-emp-list" onchange="chequeEmpresaChange()" oninput="chequeEmpresaChange()" autocomplete="off">
+        <datalist id="nc-emp-list"></datalist>
+      </div>
       <div class="form-group"><label>MONTO ($)</label><input id="nc-monto" type="number" placeholder="0"></div>
       <div class="form-group"><label>FECHA DE COBRO</label><input id="nc-fecha" type="date"></div>
-      <div class="form-group"><label>FACTURA ASOCIADA (N°)</label><input id="nc-fac" placeholder="Opcional"></div>
+      <div class="form-group">
+        <label>FACTURA ASOCIADA</label>
+        <select id="nc-fac" style="padding:9px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:13px;background:var(--surface);color:var(--text);">
+          <option value="">Sin vincular</option>
+        </select>
+      </div>
       <div class="form-group full"><label>OBSERVACIONES</label><input id="nc-obs" placeholder="Notas"></div>
     </div>
     <div class="modal-footer">
@@ -829,12 +846,27 @@ input[type="checkbox"]{accent-color:var(--accent);}
 
 <div class="modal-overlay" id="modal-contrato">
   <div class="modal">
-    <h2>NUEVO CONTRATO</h2>
+    <h2 id="nc2-titulo">NUEVO CONTRATO</h2>
+    <input type="hidden" id="nc2-edit-id">
     <div class="form-grid">
-      <div class="form-group"><label>EMPRESA / CLIENTE</label><input id="nc2-emp" placeholder="Nombre empresa" list="emp-list2"><datalist id="emp-list2"></datalist></div>
+      <div class="form-group">
+        <label>EMPRESA / CLIENTE</label>
+        <input id="nc2-emp" placeholder="Nombre empresa" list="emp-list2" autocomplete="off">
+        <datalist id="emp-list2"></datalist>
+      </div>
       <div class="form-group"><label>UNIDAD (PATENTE)</label><select id="nc2-pat"></select></div>
-      <div class="form-group"><label>PRECIO NETO MENSUAL ($)</label><input id="nc2-precio" type="number" placeholder="0"></div>
-      <div class="form-group"><label>IVA</label><select id="nc2-iva"><option value="0.21">21%</option><option value="0.105">10.5%</option><option value="0">Exento</option></select></div>
+      <div class="form-group"><label>PRECIO NETO MENSUAL ($)</label><input id="nc2-precio" type="number" placeholder="0" oninput="nc2PreviewTotal()"></div>
+      <div class="form-group">
+        <label>IVA</label>
+        <select id="nc2-iva" onchange="nc2PreviewTotal()">
+          <option value="0.21">21%</option><option value="0.105">10.5%</option><option value="0">Exento</option>
+        </select>
+      </div>
+      <div class="form-group full" id="nc2-total-row" style="display:none;">
+        <div style="background:#EEF4FF;border-radius:6px;padding:8px 12px;font-size:13px;color:var(--accent);">
+          Total con IVA: <strong id="nc2-total-preview">$0</strong>
+        </div>
+      </div>
       <div class="form-group"><label>FECHA INICIO</label><input id="nc2-inicio" type="date"></div>
       <div class="form-group"><label>FECHA FIN (opcional)</label><input id="nc2-fin" type="date"></div>
       <div class="form-group"><label>DÍA DE FACTURACIÓN</label><input id="nc2-dia" type="number" placeholder="1-31" min="1" max="31"></div>
@@ -843,7 +875,7 @@ input[type="checkbox"]{accent-color:var(--accent);}
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="hideModal('modal-contrato')">CANCELAR</button>
-      <button class="btn btn-primary" onclick="addContrato()">GUARDAR</button>
+      <button class="btn btn-primary" onclick="saveContrato()">GUARDAR</button>
     </div>
   </div>
 </div>
@@ -2103,13 +2135,119 @@ function renderCheques(){
   }).join('')||`<tr><td colspan="8"><div class="empty">Sin cheques en esta vista</div></td></tr>`;
 }
 
+function abrirModalCheque(){
+  // Poblar datalist de empresas desde clientes de contratos + facturas
+  var emps=[...new Set([
+    ...contratos.map(function(c){return c.emp;}),
+    ...facturas.map(function(f){return f.emp;})
+  ])].sort();
+  var dl=$('nc-emp-list');
+  if(dl) dl.innerHTML=emps.map(function(e){return '<option value="'+e.replace(/"/g,'&quot;')+'">';}).join('');
+  // Limpiar campos
+  ['nc-num','nc-banco','nc-emp','nc-monto','nc-obs'].forEach(function(id){var el=$(id);if(el)el.value='';});
+  $('nc-fecha').value='';
+  $('nc-fac').innerHTML='<option value="">Sin vincular</option>';
+  showModal('modal-cheque');
+}
+
+function chequeEmpresaChange(){
+  var emp=($('nc-emp').value||'').trim().toUpperCase();
+  var sel=$('nc-fac');
+  if(!sel)return;
+  var pendFac=facturas.filter(function(f){
+    return f.est!=='PAGO'&&f.est!=='NOTA'&&(!emp||f.emp.toUpperCase().includes(emp)||emp.includes(f.emp.split(' ')[0]));
+  });
+  sel.innerHTML='<option value="">Sin vincular</option>'
+    +pendFac.map(function(f){
+      return '<option value="'+f.num+'">N°'+f.num+' — '+f.emp.split(' ')[0]+' — '+fmt(f.total)+'</option>';
+    }).join('');
+}
+
 function addCheque(){
-  const c={id:nextId(cheques),num:$('nc-num').value.trim(),banco:$('nc-banco').value.trim(),emp:$('nc-emp').value.trim().toUpperCase(),monto:Number($('nc-monto').value)||0,fecha:$('nc-fecha').value,factura:$('nc-fac').value.trim(),est:'pendiente',obs:$('nc-obs').value.trim()};
+  const c={id:nextId(cheques),num:$('nc-num').value.trim(),banco:$('nc-banco').value.trim(),
+    emp:$('nc-emp').value.trim().toUpperCase(),monto:Number($('nc-monto').value)||0,
+    fecha:$('nc-fecha').value,factura:$('nc-fac').value.trim(),est:'pendiente',obs:$('nc-obs').value.trim()};
   if(!c.fecha||!c.emp)return showToast('Completá empresa y fecha',true);
   cheques.push(c);save('pkhv2_cheq',cheques);hideModal('modal-cheque');renderCheques();updateAlertBadges();showToast('✓ Cheque registrado');
 }
-function cobrarCheque(id){const c=cheques.find(x=>x.id===id);if(c){c.est='cobrado';save('pkhv2_cheq',cheques);renderCheques();updateAlertBadges();showToast('✓ Cheque cobrado');}}
+
+function cobrarCheque(id){
+  const c=cheques.find(x=>x.id===id);if(!c)return;
+  c.est='cobrado';c.fechaCobro=today();
+  save('pkhv2_cheq',cheques);
+  // Vincular a factura si tiene
+  if(c.factura){
+    const fac=facturas.find(function(f){return String(f.num)===String(c.factura);});
+    if(fac&&fac.est!=='PAGO'){
+      if(confirm('¿Marcar factura N°'+fac.num+' ('+fac.emp+') como PAGADA?')){
+        fac.est='PAGO'; fac.fpago=today(); fac.forma=(fac.forma?fac.forma+' / ':'')+'Cheque N°'+c.num;
+        save('pkhv2_fac',facturas);
+      }
+    }
+  }
+  renderCheques();updateAlertBadges();showToast('✓ Cheque cobrado');
+}
 function deleteCheque(id){if(!confirm('¿Eliminar?'))return;cheques=cheques.filter(c=>c.id!==id);save('pkhv2_cheq',cheques);renderCheques();showToast('Eliminado');}
+
+// ---- CONTRATOS ----
+function nc2PreviewTotal(){
+  var precio=Number($('nc2-precio').value)||0;
+  var iva=Number($('nc2-iva').value)||0;
+  var total=Math.round(precio*(1+iva));
+  var row=$('nc2-total-row'), prev=$('nc2-total-preview');
+  if(precio>0){
+    if(row) row.style.display='block';
+    if(prev) prev.textContent='$'+total.toLocaleString('es-AR');
+  } else {
+    if(row) row.style.display='none';
+  }
+}
+
+function abrirNuevoContrato(){
+  $('nc2-titulo').textContent='NUEVO CONTRATO';
+  $('nc2-edit-id').value='';
+  ['nc2-emp','nc2-precio','nc2-inicio','nc2-fin','nc2-obs'].forEach(function(id){var el=$(id);if(el)el.value='';});
+  $('nc2-iva').value='0.21'; $('nc2-est').value='activo'; $('nc2-dia').value='';
+  var row=$('nc2-total-row'); if(row) row.style.display='none';
+  showModal('modal-contrato'); populateSelects();
+}
+
+function editContratoModal(id){
+  const c=contratos.find(function(x){return x.id===id;});if(!c)return;
+  $('nc2-titulo').textContent='EDITAR CONTRATO';
+  $('nc2-edit-id').value=id;
+  $('nc2-emp').value=c.emp||'';
+  populateSelects();
+  setTimeout(function(){ $('nc2-pat').value=c.pat||''; },50);
+  $('nc2-precio').value=c.precio||'';
+  $('nc2-iva').value=String(c.iva||0.21);
+  $('nc2-inicio').value=c.inicio||'';
+  $('nc2-fin').value=c.fin||'';
+  $('nc2-dia').value=c.dia||'';
+  $('nc2-est').value=c.est||'activo';
+  $('nc2-obs').value=c.obs||'';
+  nc2PreviewTotal();
+  showModal('modal-contrato');
+}
+
+function saveContrato(){
+  const editId=$('nc2-edit-id').value;
+  const data={emp:$('nc2-emp').value.trim().toUpperCase(),pat:$('nc2-pat').value,
+    precio:Number($('nc2-precio').value)||0,iva:Number($('nc2-iva').value)||0.21,
+    inicio:$('nc2-inicio').value,fin:$('nc2-fin').value,dia:Number($('nc2-dia').value)||1,
+    est:$('nc2-est').value,obs:$('nc2-obs').value.trim()};
+  if(!data.emp||!data.precio)return showToast('Ingresá empresa y precio',true);
+  if(editId){
+    // Editar existente
+    const idx=contratos.findIndex(function(x){return String(x.id)===String(editId);});
+    if(idx>=0) contratos[idx]=Object.assign({},contratos[idx],data);
+    save('pkhv2_contratos',contratos);hideModal('modal-contrato');renderContratos();showToast('✓ Contrato actualizado');
+  } else {
+    // Nuevo
+    contratos.push(Object.assign({id:nextId(contratos)},data));
+    save('pkhv2_contratos',contratos);hideModal('modal-contrato');renderContratos();showToast('✓ Contrato registrado');
+  }
+}
 
 // ============================================================
 // GASTOS
@@ -2892,7 +3030,7 @@ function renderContratos(){
       </div>
       ${c.obs?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${c.obs}</div>`:''}
       <div style="display:flex;gap:6px">
-        <button class="btn btn-ghost btn-sm" onclick="editContrato(${c.id})">✏ EDITAR</button>
+        <button class="btn btn-ghost btn-sm" onclick="editContratoModal(${c.id})"><i class="ti ti-edit"></i> Editar</button>
         <button class="btn btn-danger" onclick="deleteContrato(${c.id})">✕</button>
       </div>
     </div>`;
