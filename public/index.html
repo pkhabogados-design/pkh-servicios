@@ -2727,13 +2727,27 @@ function getChecklistKey(){
 }
 
 function getChecklist(){
-  const key=getChecklistKey();
-  const saved=load(key,null);
-  // Validate that saved data matches current group structure
-  if(saved&&Array.isArray(saved)&&saved.length>0&&saved[0].id&&saved[0].id.includes('_'))return saved;
-  const tasks=CHECKLIST_GRUPOS.flatMap(g=>g.tareas.map(t=>({...t,done:false,fechaDone:null})));
-  save(key,tasks);
-  return tasks;
+  try{
+    var key=getChecklistKey();
+    var saved=load(key,null);
+    if(saved&&Array.isArray(saved)&&saved.length>0&&saved[0].id&&String(saved[0].id).indexOf('_')>-1)return saved;
+    // Build flat task list from groups (no flatMap for compatibility)
+    var tasks=[];
+    for(var i=0;i<CHECKLIST_GRUPOS.length;i++){
+      var g=CHECKLIST_GRUPOS[i];
+      for(var j=0;j<g.tareas.length;j++){
+        var t=g.tareas[j];
+        var task={id:t.id,desc:t.desc,resp:t.resp,done:false,fechaDone:null};
+        if(t.link)task.link=t.link;
+        tasks.push(task);
+      }
+    }
+    save(key,tasks);
+    return tasks;
+  }catch(e){
+    console.error('getChecklist error:',e);
+    return [];
+  }
 }
 
 function toggleChecklistTask(id){
@@ -2817,7 +2831,11 @@ function _clGrupoHtml(g, tasks, diaHoy) {
 }
 
 function renderChecklist(){
+  var cc = $('checklist-content');
+  if(!cc)return;
+  try{
   var tasks = getChecklist();
+  if(!tasks||tasks.length===0){cc.innerHTML='<div style="color:var(--red);padding:16px;">Error: no se pudieron cargar las tareas. Recargá la página.</div>';return;}
   var hoy = new Date();
   var diaHoy = hoy.getDate();
   var el = $('checklist-periodo');
@@ -2851,6 +2869,10 @@ function renderChecklist(){
     + '</div>';
 
   cc.innerHTML = resumen + grupos + notif;
+  }catch(e){
+    cc.innerHTML='<div style="color:var(--red);padding:16px;font-family:var(--fm);font-size:12px;">Error al renderizar checklist: '+e.message+'</div>';
+    console.error('renderChecklist error:',e);
+  }
 }
 
 // ============================================================
