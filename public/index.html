@@ -454,6 +454,7 @@ input[type="date"]::placeholder{color:var(--muted);}
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-secondary btn-sm" onclick="importarSeccion('facturas')"><i class="ti ti-upload"></i> Importar</button>
       <button class="btn btn-secondary btn-sm" onclick="showModalFacturaContrato()"><i class="ti ti-file-text"></i> Desde contrato</button>
+      <button class="btn btn-secondary btn-sm" style="color:var(--green);border-color:var(--green)" onclick="generarFacturacionMasiva()"><i class="ti ti-bolt"></i> Facturar mes</button>
       <button class="btn btn-primary btn-sm" onclick="abrirNuevaFactura()"><i class="ti ti-plus"></i> Nueva factura</button>
     </div>
   </div>
@@ -1040,6 +1041,77 @@ const FIREBASE_CONFIG = {
 
 // PIN de acceso compartido (podés cambiarlo)
 const ACCESS_PIN = "PKH2024";
+
+// ============================================================
+// API — conexión al backend Railway
+// ============================================================
+const API_BASE = 'https://pkh-backend-production.up.railway.app';
+let _apiToken  = sessionStorage.getItem('pkh_token') || null;
+
+async function apiCall(method, path, body, isFormData) {
+  const headers = { 'Authorization': `Bearer ${_apiToken}` };
+  if (!isFormData) headers['Content-Type'] = 'application/json';
+  const opts = { method, headers };
+  if (body) opts.body = isFormData ? body : JSON.stringify(body);
+  try {
+    const res = await fetch(API_BASE + path, opts);
+    if (res.status === 401) { _apiToken = null; sessionStorage.removeItem('pkh_token'); }
+    return res.ok ? await res.json() : null;
+  } catch (e) {
+    console.warn('[API]', path, e.message);
+    return null;
+  }
+}
+
+// Sincronizar datos locales al backend (background, no bloquea UI)
+async function syncToAPI() {
+  if (!_apiToken) return;
+  // Flota
+  const flotaAPI = await apiCall('GET', '/api/flota');
+  if (flotaAPI !== null) {
+    const existIds = new Set(flotaAPI.map(u => u.id));
+    for (const u of flota) {
+      if (!existIds.has(u.id)) await apiCall('POST', '/api/flota', { id:u.id, pat:u.pat, tipo:u.tipo, cliente:u.cli, fecha_entrega:u.fecha, km_entrega:u.kmEnt, modelo:u.modelo, anio:u.anio, valor:u.valor, notas:u.notas });
+    }
+  }
+  // Facturas
+  const facAPI = await apiCall('GET', '/api/facturas');
+  if (facAPI !== null) {
+    const existNums = new Set(facAPI.map(f => String(f.numero)));
+    for (const f of facturas) {
+      if (!existNums.has(String(f.num))) {
+        await apiCall('POST', '/api/facturas', { numero:String(f.num), fecha_emision:f.fecha, empresa:f.emp, cuit:f.cuit, monto_neto:f.monto, iva:f.iva, total:f.total, fecha_vencimiento:f.venc, estado:f.est==='PAGO'?'pagado':f.est==='NOTA'?'nota_credito':f.est==='ANULADA'?'anulada':'pendiente', fecha_pago:f.fpago||null, forma_pago:f.forma, observaciones:f.obs });
+      }
+    }
+  }
+  // KM
+  const kmAPI = await apiCall('GET', '/api/km');
+  if (kmAPI !== null) {
+    const existKm = new Set(kmAPI.map(k => `${k.patente}|${k.mes}|${k.anio}`));
+    const nuevosKm = km.filter(k => !existKm.has(`${k.pat}|${k.mes}|${k.anio}`));
+    if (nuevosKm.length) await apiCall('POST', '/api/km/bulk', { registros: nuevosKm.map(k => ({ patente:k.pat, mes:k.mes, anio:k.anio, km:k.km })) });
+  }
+  console.log('[API] Sync completado');
+}
+
+// Facturación masiva desde el backend
+async function generarFacturacionMasiva() {
+  if (!_apiToken) { showToast('Sesión no autenticada con el backend', true); return; }
+  showToast('Generando facturas...');
+  const res = await apiCall('POST', '/api/facturas/generar-mensual');
+  if (res) {
+    showToast(`✓ ${res.generadas} facturas generadas — Total: $${(res.total||0).toLocaleString('es-AR')}`);
+    // Recargar facturas desde API
+    const facAPI = await apiCall('GET', '/api/facturas');
+    if (facAPI) {
+      facturas = facAPI.map(f => ({ id:f.id, num:f.numero, fecha:f.fecha_emision?.split('T')[0], emp:f.empresa, cuit:f.cuit||'', monto:parseFloat(f.monto_neto)||0, iva:parseFloat(f.iva)||0, total:parseFloat(f.total)||0, venc:f.fecha_vencimiento?.split('T')[0], est:f.estado==='pagado'?'PAGO':f.estado==='nota_credito'?'NOTA':f.estado==='anulada'?'NOTA':'', fpago:f.fecha_pago?.split('T')[0]||'', forma:f.forma_pago||'', obs:f.observaciones||'' }));
+      save('pkhv2_fac', facturas);
+      renderFacturacion();
+    }
+  } else {
+    showToast('Error al generar facturas', true);
+  }
+}
 
 let db = null;
 let firebaseReady = false;
@@ -3272,16 +3344,34 @@ function exportarTodo() {
   URL.revokeObjectURL(a.href);
 }
 
-function checkPin() {
+async function checkPin() {
   const pin = $('pin-input').value.trim();
-  if (pin === ACCESS_PIN) {
-    $('login-overlay').style.display = 'none';
-    startApp();
-  } else {
+  if (pin !== ACCESS_PIN) {
     $('pin-error').style.display = 'block';
     $('pin-input').value = '';
     $('pin-input').focus();
+    return;
   }
+  // Login local OK → también autenticar con el backend
+  $('login-overlay').style.display = 'none';
+  try {
+    const res = await fetch(API_BASE + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      _apiToken = data.token;
+      sessionStorage.setItem('pkh_token', _apiToken);
+      console.log('[API] Token JWT obtenido');
+      // Sync en background después de cargar
+      setTimeout(() => syncToAPI(), 3000);
+    }
+  } catch (e) {
+    console.warn('[API] Backend no disponible, modo local activo');
+  }
+  startApp();
 }
 
 async function startApp() {
