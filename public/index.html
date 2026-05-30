@@ -2468,15 +2468,50 @@ function saveContrato(){
     est:$('nc2-est').value,obs:$('nc2-obs').value.trim()};
   if(!data.emp||!data.precio)return showToast('Ingresá empresa y precio',true);
   if(editId){
-    // Editar existente
     const idx=contratos.findIndex(function(x){return String(x.id)===String(editId);});
     if(idx>=0) contratos[idx]=Object.assign({},contratos[idx],data);
-    save('pkhv2_contratos',contratos);hideModal('modal-contrato');renderContratos();showToast('✓ Contrato actualizado');
+    save('pkhv2_contratos',contratos);
+    // Sync al backend
+    if(_apiToken){
+      var apiData={empresa:data.emp,patente:data.pat,precio_neto:data.precio,iva:data.iva,
+        fecha_inicio:data.inicio||null,fecha_fin:data.fin||null,
+        dia_facturacion:data.dia,estado:data.est,observaciones:data.obs};
+      // Buscar id en backend por patente+empresa
+      apiCall('GET','/api/contratos').then(function(list){
+        if(!list)return;
+        var bc=list.find(function(c){return c.patente===data.pat&&c.empresa===data.emp;});
+        if(bc) apiCall('PATCH','/api/contratos/'+bc.id,apiData);
+        else   apiCall('POST','/api/contratos',apiData);
+      });
+    }
+    hideModal('modal-contrato');renderContratos();showToast('✓ Contrato actualizado');
   } else {
-    // Nuevo
-    contratos.push(Object.assign({id:nextId(contratos)},data));
-    save('pkhv2_contratos',contratos);hideModal('modal-contrato');renderContratos();showToast('✓ Contrato registrado');
+    var newC=Object.assign({id:nextId(contratos)},data);
+    contratos.push(newC);
+    save('pkhv2_contratos',contratos);
+    if(_apiToken) apiCall('POST','/api/contratos',{empresa:data.emp,patente:data.pat,
+      precio_neto:data.precio,iva:data.iva,fecha_inicio:data.inicio||null,
+      fecha_fin:data.fin||null,dia_facturacion:data.dia,estado:data.est,observaciones:data.obs});
+    hideModal('modal-contrato');renderContratos();showToast('✓ Contrato registrado');
   }
+}
+
+// Actualizar solo la fecha de vencimiento de un contrato
+function actualizarVencimientoContrato(id){
+  var c=contratos.find(function(x){return x.id===id;});if(!c)return;
+  var nueva=prompt('Nueva fecha de vencimiento (AAAA-MM-DD):', c.fin||'');
+  if(nueva===null)return;
+  c.fin=nueva;
+  save('pkhv2_contratos',contratos);
+  if(_apiToken){
+    apiCall('GET','/api/contratos').then(function(list){
+      if(!list)return;
+      var bc=list.find(function(x){return x.patente===c.pat&&x.empresa===c.emp;});
+      if(bc) apiCall('PATCH','/api/contratos/'+bc.id,{fecha_fin:nueva||null});
+    });
+  }
+  renderContratos();
+  showToast('✓ Vencimiento actualizado: '+(nueva||'sin fecha'));
 }
 
 // ============================================================
@@ -3275,8 +3310,9 @@ function renderContratos(){
         </div>
       </div>
       ${c.obs?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${c.obs}</div>`:''}
-      <div style="display:flex;gap:6px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-ghost btn-sm" onclick="editContratoModal(${c.id})"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--orange)" onclick="actualizarVencimientoContrato(${c.id})"><i class="ti ti-calendar-event"></i> Vencimiento</button>
         <button class="btn btn-danger" onclick="deleteContrato(${c.id})">✕</button>
       </div>
     </div>`;
