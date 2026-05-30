@@ -12,49 +12,51 @@
   <meta name="apple-mobile-web-app-title" content="PKH">
   <meta name="theme-color" content="#e8b84b">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg:#0d0f14; --surface:#161921; --surface2:#1e222d; --surface3:#252a38;
-  --border:#2a2f3d; --accent:#e8b84b; --accent2:#5b9cf6; --green:#3ecf8e;
-  --red:#f26b6b; --orange:#f59e42; --purple:#a78bfa;
-  --text:#e2e6f0; --muted:#6b7280;
-  --fh:'Barlow Condensed',sans-serif; --fb:'Barlow',sans-serif; --fm:'DM Mono',monospace;
+  --bg:#f8f9fb; --surface:#ffffff; --surface2:#f3f4f6; --surface3:#e9eaec;
+  --border:#e5e5e5; --accent:#1D3557; --accent2:#2563eb; --green:#1D9E75;
+  --red:#E24B4A; --orange:#BA7517; --purple:#7c3aed;
+  --text:#111827; --muted:#6b7280;
+  --fh:system-ui,-apple-system,sans-serif; --fb:system-ui,-apple-system,sans-serif; --fm:'DM Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden;}
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-/* HEADER */
-header{background:linear-gradient(135deg,#0d0f14,#161921);border-bottom:2px solid var(--accent);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
-.logo{display:flex;align-items:center;gap:12px;}
-.logo-hex{width:42px;height:42px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:900;font-size:16px;color:#0d0f14;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);}
-.logo-name{font-family:var(--fh);font-size:20px;font-weight:700;letter-spacing:2px;}
-.logo-sub{font-size:10px;color:var(--muted);letter-spacing:3px;font-family:var(--fm);}
-.header-kpis{display:flex;gap:20px;flex-wrap:wrap;}
-.hkpi{text-align:center;padding:0 12px;border-left:1px solid var(--border);}
-.hkpi:first-child{border-left:none;}
-.hkpi-val{font-family:var(--fm);font-size:18px;color:var(--accent);font-weight:500;}
-.hkpi-lbl{font-size:9px;color:var(--muted);letter-spacing:2px;font-family:var(--fm);}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+/* TOPBAR */
+header{background:#fff;border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:16px;min-height:57px;}
+.topbar-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.topbar-logo{width:34px;height:34px;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:700;font-size:13px;}
+.topbar-name{font-weight:600;font-size:15px;color:var(--text);}
+.period-selector{display:flex;gap:3px;flex-wrap:wrap;flex:1;justify-content:center;}
+.period-btn{padding:4px 9px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;font-size:11px;color:var(--muted);font-family:inherit;transition:.15s;line-height:1.5;}
+.period-btn:hover{background:var(--surface2);color:var(--text);}
+.period-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
+.topbar-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.topbar-bell{position:relative;background:transparent;border:none;cursor:pointer;font-size:18px;color:var(--muted);padding:4px;line-height:1;}
+.bell-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--red);border:1px solid #fff;}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
 /* ALERT BANNER */
-#alertBanner{display:none;background:linear-gradient(90deg,#f26b6b22,#f59e4222);border-bottom:1px solid var(--red);padding:8px 28px;font-size:12px;font-family:var(--fm);}
+#alertBanner{display:none;background:#fff5f5;border-bottom:1px solid #fecaca;padding:8px 24px;font-size:12px;}
 #alertBanner.show{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .alert-pill{background:var(--red);color:white;padding:2px 8px;border-radius:10px;font-size:11px;cursor:pointer;white-space:nowrap;}
 .alert-pill.warn{background:var(--orange);}
 /* LAYOUT */
-.app{display:flex;min-height:calc(100vh - 70px);}
+.app{display:flex;min-height:calc(100vh - 57px);}
 /* SIDEBAR */
-.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;position:sticky;top:70px;height:calc(100vh - 70px);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar{width:220px;min-width:220px;background:#fff;border-right:1px solid var(--border);padding:10px 0;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;display:flex;flex-direction:column;}
 .sidebar-section{margin-bottom:4px;}
-.sidebar-label{font-size:9px;letter-spacing:3px;color:var(--muted);padding:12px 18px 6px;font-family:var(--fm);}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-family:var(--fh);font-size:14px;letter-spacing:1.5px;color:var(--muted);transition:.15s;border-left:3px solid transparent;}
-.nav-item:hover{color:var(--text);background:#ffffff06;}
-.nav-item.active{color:var(--accent);background:linear-gradient(90deg,#e8b84b15,transparent);border-left-color:var(--accent);}
-.nav-item .icon{font-size:16px;width:20px;text-align:center;}
-.nav-badge{margin-left:auto;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-family:var(--fm);}
+.sidebar-label{font-size:10px;letter-spacing:2px;color:var(--muted);padding:10px 16px 4px;font-weight:600;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;font-size:13px;color:var(--muted);transition:.15s;border-left:3px solid transparent;}
+.nav-item:hover{color:var(--text);background:#f5f7fa;}
+.nav-item.active{color:var(--accent);background:#EEF4FF;border-left-color:var(--accent);font-weight:600;}
+.nav-item .ti{font-size:16px;width:18px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-family:var(--fm);}
 .nav-badge.warn{background:var(--orange);}
 /* MAIN */
 .main{flex:1;padding:24px;overflow-x:hidden;min-width:0;}
@@ -64,11 +66,11 @@ header{background:linear-gradient(135deg,#0d0f14,#161921);border-bottom:2px soli
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 /* SECTION HEADER */
 .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-.section-title{font-family:var(--fh);font-size:26px;font-weight:700;letter-spacing:2px;}
+.section-title{font-size:24px;font-weight:700;color:var(--text);}
 .section-title span{color:var(--accent);}
 /* KPI GRID */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:22px;}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden;cursor:default;}
+.kpi{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden;cursor:default;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
 .kpi.gold::before{background:var(--accent);}
 .kpi.green::before{background:var(--green);}
@@ -76,58 +78,58 @@ header{background:linear-gradient(135deg,#0d0f14,#161921);border-bottom:2px soli
 .kpi.blue::before{background:var(--accent2);}
 .kpi.purple::before{background:var(--purple);}
 .kpi.orange::before{background:var(--orange);}
-.kpi-val{font-family:var(--fm);font-size:22px;font-weight:500;margin-bottom:4px;}
-.kpi-lbl{font-size:10px;color:var(--muted);letter-spacing:2px;font-family:var(--fm);}
+.kpi-val{font-family:var(--fm);font-size:22px;font-weight:500;margin-bottom:4px;color:var(--text);}
+.kpi-lbl{font-size:10px;color:var(--muted);letter-spacing:1.5px;}
 .kpi-delta{font-size:11px;margin-top:4px;font-family:var(--fm);}
 .kpi-delta.up{color:var(--green);}
 .kpi-delta.down{color:var(--red);}
 /* CARDS */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;border-top:3px solid var(--accent);transition:.2s;}
-.card:hover{transform:translateY(-2px);border-color:var(--accent);}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:18px;border-top:3px solid var(--accent);transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.08);}
 .card.blue-top{border-top-color:var(--accent2);}
 .card.red-top{border-top-color:var(--red);}
 .card.green-top{border-top-color:var(--green);}
 .card.orange-top{border-top-color:var(--orange);}
 /* TABLE */
-.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-bottom:20px;}
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:0.5px solid var(--border);margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
 table{width:100%;border-collapse:collapse;}
 thead tr{background:var(--surface2);}
-th{padding:11px 13px;font-family:var(--fh);font-size:12px;letter-spacing:2px;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
-td{padding:10px 13px;font-size:13px;border-bottom:1px solid var(--border);}
+th{padding:11px 13px;font-size:11px;letter-spacing:1.5px;color:var(--muted);text-align:left;border-bottom:0.5px solid var(--border);white-space:nowrap;font-weight:600;}
+td{padding:10px 13px;font-size:13px;border-bottom:0.5px solid var(--border);color:var(--text);}
 tr:last-child td{border-bottom:none;}
-tr:hover td{background:#ffffff04;}
+tr:hover td{background:#f8faff;}
 .mono{font-family:var(--fm);font-size:12px;}
 .amt{font-family:var(--fm);text-align:right;}
 .c-green{color:var(--green);} .c-red{color:var(--red);} .c-gold{color:var(--accent);} .c-blue{color:var(--accent2);} .c-muted{color:var(--muted);} .c-orange{color:var(--orange);} .c-purple{color:var(--purple);}
 /* BADGES */
-.badge{padding:2px 9px;border-radius:3px;font-size:10px;font-family:var(--fm);letter-spacing:1px;display:inline-block;}
-.badge-paid{background:#3ecf8e22;color:var(--green);border:1px solid #3ecf8e44;}
-.badge-pend{background:#f26b6b22;color:var(--red);border:1px solid #f26b6b44;}
-.badge-warn{background:#f59e4222;color:var(--orange);border:1px solid #f59e4244;}
-.badge-nota{background:#a78bfa22;color:var(--purple);border:1px solid #a78bfa44;}
-.badge-own{background:#e8b84b22;color:var(--accent);border:1px solid #e8b84b44;}
-.badge-sub{background:#5b9cf622;color:var(--accent2);border:1px solid #5b9cf644;}
-.badge-info{background:#ffffff11;color:var(--muted);border:1px solid #ffffff22;}
+.badge{padding:2px 9px;border-radius:4px;font-size:10px;font-family:var(--fm);letter-spacing:1px;display:inline-block;}
+.badge-paid{background:#d1fae5;color:#065f46;}
+.badge-pend{background:#fee2e2;color:#991b1b;}
+.badge-warn{background:#fef3c7;color:#92400e;}
+.badge-nota{background:#ede9fe;color:#5b21b6;}
+.badge-own{background:#e0e7ff;color:var(--accent);}
+.badge-sub{background:#dbeafe;color:#1e40af;}
+.badge-info{background:var(--surface2);color:var(--muted);}
 /* FORM */
-.form-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:22px;margin-bottom:20px;}
-.form-panel h3{font-family:var(--fh);font-size:17px;letter-spacing:2px;margin-bottom:16px;color:var(--accent);}
+.form-panel{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:22px;margin-bottom:20px;}
+.form-panel h3{font-size:15px;font-weight:700;margin-bottom:16px;color:var(--accent);}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
 .form-group{display:flex;flex-direction:column;}
 .form-group.full{grid-column:1/-1;}
-label{font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:5px;font-family:var(--fm);}
-input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 12px;color:var(--text);font-family:var(--fb);font-size:13px;transition:.2s;}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);background:#0d0f1488;}
-select option{background:var(--bg);}
+label{font-size:10px;color:var(--muted);letter-spacing:1.5px;margin-bottom:5px;font-weight:600;}
+input,select,textarea{width:100%;background:var(--surface);border:0.5px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--fb);font-size:13px;transition:.2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);}
+select option{background:#fff;color:var(--text);}
 textarea{resize:vertical;min-height:70px;}
 .form-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;}
 /* BUTTONS */
-.btn{padding:9px 20px;border:none;border-radius:4px;cursor:pointer;font-family:var(--fh);font-size:13px;letter-spacing:2px;transition:.2s;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
-.btn-primary{background:var(--accent);color:#0d0f14;}
-.btn-primary:hover{background:#d4a43e;}
-.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-family:var(--fb);font-size:13px;font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--accent);color:white;}
+.btn-primary:hover{background:#16294a;}
+.btn-secondary{background:transparent;color:var(--text);border:0.5px solid var(--border);}
 .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
-.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);font-size:11px;padding:4px 10px;}
+.btn-danger{background:transparent;color:var(--red);border:0.5px solid var(--red);font-size:11px;padding:4px 10px;}
 .btn-danger:hover{background:var(--red);color:white;}
 .btn-sm{padding:6px 14px;font-size:11px;}
 .btn-ghost{background:transparent;color:var(--muted);border:none;font-size:11px;padding:4px 8px;}
@@ -135,29 +137,29 @@ textarea{resize:vertical;min-height:70px;}
 /* FILTERS */
 .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
 .filters input,.filters select{width:auto;flex:1;min-width:130px;}
-.filter-label{font-size:10px;color:var(--muted);letter-spacing:2px;font-family:var(--fm);white-space:nowrap;}
+.filter-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;white-space:nowrap;}
 /* CHART */
 .chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px;margin-bottom:20px;}
-.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;}
-.chart-box h4{font-family:var(--fh);font-size:15px;letter-spacing:2px;margin-bottom:14px;color:var(--muted);}
+.chart-box{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.chart-box h4{font-size:13px;font-weight:600;letter-spacing:1px;margin-bottom:14px;color:var(--muted);}
 .chart-wrap{position:relative;height:220px;}
 /* PROGRESS */
-.progress-wrap{background:var(--bg);border-radius:4px;height:8px;overflow:hidden;margin-top:6px;}
+.progress-wrap{background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;margin-top:6px;}
 .progress-bar{height:100%;border-radius:4px;transition:width .8s ease;}
-/* TABS (inline) */
-.inline-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px;width:fit-content;}
-.itab{padding:8px 18px;font-family:var(--fh);font-size:12px;letter-spacing:1.5px;cursor:pointer;color:var(--muted);background:var(--surface);border:none;transition:.15s;}
-.itab.active{background:var(--accent);color:#0d0f14;}
+/* TABS */
+.inline-tabs{display:flex;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;width:fit-content;}
+.itab{padding:8px 18px;font-size:12px;cursor:pointer;color:var(--muted);background:var(--surface);border:none;transition:.15s;font-family:inherit;}
+.itab.active{background:var(--accent);color:white;}
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:#00000088;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay{position:fixed;inset:0;background:#00000055;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-overlay.show{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:28px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;}
-.modal h2{font-family:var(--fh);font-size:22px;letter-spacing:2px;margin-bottom:20px;color:var(--accent);}
+.modal{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:28px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
+.modal h2{font-size:20px;font-weight:700;margin-bottom:20px;color:var(--accent);}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:6px;font-family:var(--fh);font-size:14px;letter-spacing:1px;transform:translateY(60px);opacity:0;transition:.3s;z-index:999;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:white;padding:12px 20px;border-radius:8px;font-size:14px;transform:translateY(60px);opacity:0;transition:.3s;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.2);}
 .toast.show{transform:translateY(0);opacity:1;}
-.toast.error{border-color:var(--red);color:var(--red);}
+.toast.error{background:var(--red);}
 /* TIMELINE */
 .timeline{padding:0 0 0 20px;border-left:2px solid var(--border);}
 .tl-item{position:relative;padding:0 0 18px 20px;}
@@ -168,36 +170,40 @@ textarea{resize:vertical;min-height:70px;}
 /* RESPONSIVE */
 @media(max-width:900px){
   .sidebar{display:none;}
+  .period-selector{display:none;}
   .kpi-grid{grid-template-columns:repeat(2,1fr);}
   .chart-grid{grid-template-columns:1fr;}
 }
 @media(max-width:600px){
-  .header-kpis{display:none;}
   .kpi-grid{grid-template-columns:1fr 1fr;}
   .main{padding:14px;}
 }
 /* SPECIAL */
-.plate{font-family:var(--fm);font-size:16px;letter-spacing:3px;color:var(--accent);}
+.plate{font-family:var(--fm);font-size:15px;letter-spacing:2px;color:var(--accent);}
 .plate.blue{color:var(--accent2);}
-.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.divider{border:none;border-top:0.5px solid var(--border);margin:16px 0;}
 .empty{text-align:center;padding:40px;color:var(--muted);font-family:var(--fm);}
-.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-family:var(--fm);background:var(--surface2);color:var(--muted);margin:2px;}
-.highlight-row td{background:#e8b84b08!important;}
-.overdue-row td{background:#f26b6b08!important;}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;background:var(--surface2);color:var(--muted);margin:2px;}
+.highlight-row td{background:#f0f7ff!important;}
+.overdue-row td{background:#fef2f2!important;}
 /* CHEQUES */
-.cheque-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;border-left:4px solid var(--accent2);}
+.cheque-card{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:16px;border-left:4px solid var(--accent2);}
 .cheque-card.vencido{border-left-color:var(--green);}
 .cheque-card.urgente{border-left-color:var(--orange);}
 /* SOCIOS */
-.socio-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-.socio-avatar{width:36px;height:36px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:700;font-size:14px;color:var(--accent);}
-/* DASHBOARD special */
-.dash-hero{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden;}
-.dash-hero::after{content:'PKH';position:absolute;right:-10px;bottom:-20px;font-family:var(--fh);font-size:120px;font-weight:900;color:#ffffff04;pointer-events:none;}
+.socio-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border);}
+.socio-avatar{width:36px;height:36px;border-radius:50%;background:#EEF4FF;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--accent);}
+/* DASHBOARD */
 .dash-alert-list{display:flex;flex-direction:column;gap:8px;}
-.dash-alert{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:6px;padding:10px 14px;border-left:3px solid var(--red);font-size:13px;}
+.dash-alert{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:8px;padding:10px 14px;border-left:3px solid var(--red);font-size:13px;cursor:pointer;transition:.15s;}
+.dash-alert:hover{background:#fef2f2;}
 .dash-alert.warn{border-left-color:var(--orange);}
+.dash-alert.warn:hover{background:#fffbeb;}
 .dash-alert.info{border-left-color:var(--accent2);}
+/* CHECKLIST */
+input[type="checkbox"]{accent-color:var(--accent);}
+/* COMPAT */
+.logo-hex{width:42px;height:42px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:white;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);}
 </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -206,26 +212,27 @@ textarea{resize:vertical;min-height:70px;}
 <body>
 
 <header>
-  <div class="logo">
-    <div class="logo-hex">PKH</div>
-    <div>
-      <div class="logo-name">PKH SERVICIOS S.A.S</div>
-      <div class="logo-sub">SISTEMA DE GESTIÓN INTEGRAL</div>
+  <div class="topbar-brand">
+    <div class="topbar-logo">PKH</div>
+    <span class="topbar-name">PKH Servicios</span>
+  </div>
+  <div class="period-selector" id="period-selector"></div>
+  <div class="topbar-actions">
+    <div id="sync-status">
+      <span style="color:var(--muted);font-size:11px;font-family:var(--fm)">🔴 LOCAL</span>
     </div>
+    <button id="pwa-install-btn" onclick="installPWA()" style="display:none;background:var(--accent);color:white;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600">📲 Instalar</button>
+    <button class="topbar-bell" onclick="navTo('alertas')" title="Alertas">
+      <i class="ti ti-bell"></i>
+      <span class="bell-dot" id="bell-dot" style="display:none"></span>
+    </button>
+    <div class="topbar-avatar">PK</div>
   </div>
-  <div class="header-kpis">
-    <div class="hkpi"><div class="hkpi-val" id="hk-flota">7</div><div class="hkpi-lbl">UNIDADES</div></div>
-    <div class="hkpi"><div class="hkpi-val" id="hk-fac">—</div><div class="hkpi-lbl">FACTURADO</div></div>
-    <div class="hkpi"><div class="hkpi-val" id="hk-cobrado">—</div><div class="hkpi-lbl">COBRADO</div></div>
-    <div class="hkpi"><div class="hkpi-val c-red" id="hk-pend">—</div><div class="hkpi-lbl">PENDIENTE</div></div>
-    <div class="hkpi"><div class="hkpi-val c-orange" id="hk-alertas">0</div><div class="hkpi-lbl">ALERTAS</div></div>
-  </div>
-    <button id="pwa-install-btn" onclick="installPWA()" style="display:none;background:var(--accent);color:#0d0f14;border:none;border-radius:4px;padding:6px 14px;font-family:var(--fh);font-size:12px;letter-spacing:1px;cursor:pointer;font-weight:700">
-    📲 INSTALAR APP
-  </button>
-  <div id="sync-status" style="padding:0 8px">
-    <span style="color:var(--muted);font-size:11px;font-family:var(--fm)">🔴 LOCAL</span>
-  </div>
+  <span id="hk-flota" style="display:none"></span>
+  <span id="hk-fac" style="display:none"></span>
+  <span id="hk-cobrado" style="display:none"></span>
+  <span id="hk-pend" style="display:none"></span>
+  <span id="hk-alertas" style="display:none"></span>
 </header>
 
 <div id="alertBanner">
@@ -254,36 +261,34 @@ textarea{resize:vertical;min-height:70px;}
 <!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-section">
-    <div class="sidebar-label">PRINCIPAL</div>
-    <div class="nav-item active" data-panel="dashboard"><span class="icon">📊</span>DASHBOARD</div>
-    <div class="nav-item" data-panel="alertas"><span class="icon">🔔</span>ALERTAS <span class="nav-badge" id="nb-alertas">0</span></div>
+    <div class="sidebar-label">Principal</div>
+    <div class="nav-item active" data-panel="dashboard"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+    <div class="nav-item" data-panel="checklist"><i class="ti ti-checklist"></i>Checklist <span class="nav-badge" id="nb-checklist">0</span></div>
+    <div class="nav-item" data-panel="alertas"><i class="ti ti-bell"></i>Alertas <span class="nav-badge" id="nb-alertas">0</span></div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">FLOTA</div>
-    <div class="nav-item" data-panel="flota"><span class="icon">🚛</span>UNIDADES</div>
-    <div class="nav-item" data-panel="kilometros"><span class="icon">📍</span>KILÓMETROS</div>
-    <div class="nav-item" data-panel="mantenimiento"><span class="icon">🔧</span>MANTENIMIENTO</div>
-    <div class="nav-item" data-panel="documentos"><span class="icon">📋</span>DOCUMENTACIÓN</div>
+    <div class="sidebar-label">Operaciones</div>
+    <div class="nav-item" data-panel="flota"><i class="ti ti-truck"></i>Flota</div>
+    <div class="nav-item" data-panel="kilometros"><i class="ti ti-map-pin"></i>Kilómetros</div>
+    <div class="nav-item" data-panel="mantenimiento"><i class="ti ti-tool"></i>Mantenimiento</div>
+    <div class="nav-item" data-panel="documentos"><i class="ti ti-file-description"></i>Documentación</div>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">FINANZAS</div>
-    <div class="nav-item" data-panel="facturacion"><span class="icon">💰</span>FACTURACIÓN</div>
-    <div class="nav-item" data-panel="clientes"><span class="icon">🏢</span>CLIENTES</div>
-    <div class="nav-item" data-panel="contratos"><span class="icon">📄</span>CONTRATOS</div>
-    <div class="nav-item" data-panel="cheques"><span class="icon">🏦</span>CHEQUES</div>
-    <div class="nav-item" data-panel="homebanking"><span class="icon">🏧</span>HOME BANKING</div>
-    <div class="nav-item" data-panel="gastos"><span class="icon">📤</span>GASTOS</div>
-    <div class="nav-item" data-panel="costos"><span class="icon">📈</span>COSTOS MENSUALES</div>
-  </div>
-  <div class="sidebar-section">
-    <div class="sidebar-label">SOCIEDAD</div>
-    <div class="nav-item" data-panel="socios"><span class="icon">👥</span>SOCIOS</div>
-    <div class="nav-item" data-panel="subalquiler"><span class="icon">🔄</span>SUBALQUILER</div>
-    <div class="nav-item" data-panel="proyeccion"><span class="icon">🔭</span>PROYECCIÓN</div>
+    <div class="sidebar-label">Finanzas</div>
+    <div class="nav-item" data-panel="facturacion"><i class="ti ti-receipt"></i>Facturación</div>
+    <div class="nav-item" data-panel="clientes"><i class="ti ti-building"></i>Clientes</div>
+    <div class="nav-item" data-panel="gastos"><i class="ti ti-cash"></i>Gastos</div>
+    <div class="nav-item" data-panel="socios"><i class="ti ti-users"></i>Socios</div>
+    <div class="nav-item" data-panel="cheques"><i class="ti ti-writing"></i>Cheques</div>
+    <div class="nav-item" data-panel="contratos"><i class="ti ti-file-text"></i>Contratos</div>
+    <div class="nav-item" data-panel="homebanking"><i class="ti ti-building-bank"></i>Home Banking</div>
+    <div class="nav-item" data-panel="costos"><i class="ti ti-chart-bar"></i>Costos</div>
+    <div class="nav-item" data-panel="subalquiler"><i class="ti ti-arrows-exchange"></i>Subalquiler</div>
+    <div class="nav-item" data-panel="proyeccion"><i class="ti ti-telescope"></i>Proyección</div>
   </div>
   <div style="flex:1;"></div>
-  <div style="padding:12px 18px;border-top:1px solid var(--border);">
-    <button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportarTodo()">💾 EXPORTAR DATOS</button>
+  <div style="padding:12px 16px;border-top:0.5px solid var(--border);">
+    <button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportarTodo()"><i class="ti ti-download"></i> Exportar datos</button>
   </div>
 </nav>
 
@@ -292,25 +297,24 @@ textarea{resize:vertical;min-height:70px;}
 
 <!-- ======= DASHBOARD ======= -->
 <div class="panel active" id="panel-dashboard">
-  <div class="dash-hero">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
-      <div>
-        <div style="font-family:var(--fh);font-size:13px;letter-spacing:3px;color:var(--muted);margin-bottom:4px;">RESUMEN EJECUTIVO</div>
-        <div style="font-family:var(--fh);font-size:32px;font-weight:700;" id="dash-fecha">—</div>
-        <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="dash-estado">Cargando...</div>
-      </div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;" id="dash-hero-kpis"></div>
-    </div>
-  </div>
-  <div class="kpi-grid" id="dash-kpis"></div>
-  <div class="chart-grid" id="dash-charts"></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="dash-bottom">
-    <div>
-      <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">🔔 ALERTAS RECIENTES</div>
+  <div class="kpi-grid" id="dash-kpis" style="grid-template-columns:repeat(4,1fr);"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div class="card" style="border-top-color:var(--red);">
+      <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--red);display:flex;align-items:center;gap:6px;"><i class="ti ti-alert-triangle"></i>Alertas activas</div>
       <div class="dash-alert-list" id="dash-alerts-list"></div>
     </div>
-    <div>
-      <div style="font-family:var(--fh);font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">🏦 PRÓXIMOS COBROS</div>
+    <div class="card" style="border-top-color:var(--accent);">
+      <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--accent);display:flex;align-items:center;gap:6px;"><i class="ti ti-checklist"></i>Checklist del mes</div>
+      <div id="dash-checklist-preview"></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="card" style="border-top-color:var(--accent2);">
+      <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--accent2);display:flex;align-items:center;gap:6px;"><i class="ti ti-truck"></i>Estado de flota</div>
+      <div id="dash-flota-table"></div>
+    </div>
+    <div class="card" style="border-top-color:var(--green);">
+      <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--green);display:flex;align-items:center;gap:6px;"><i class="ti ti-chart-bar"></i>Cobros pendientes por cliente</div>
       <div id="dash-cobros"></div>
     </div>
   </div>
@@ -514,6 +518,15 @@ textarea{resize:vertical;min-height:70px;}
     <thead><tr><th>FECHA</th><th>DESCRIPCIÓN</th><th>CONCEPTO</th><th>DÉBITO</th><th>CRÉDITO</th></tr></thead>
     <tbody id="hbTbody"></tbody>
   </table></div>
+</div>
+
+<!-- ======= CHECKLIST ======= -->
+<div class="panel" id="panel-checklist">
+  <div class="section-hdr">
+    <div class="section-title">CHECKLIST <span>MENSUAL</span></div>
+    <div id="checklist-periodo" style="font-family:var(--fm);font-size:13px;color:var(--muted);"></div>
+  </div>
+  <div class="card" id="checklist-content"></div>
 </div>
 
 </main>
@@ -1110,6 +1123,7 @@ document.querySelectorAll('.nav-item').forEach(n=>{
 function renderPanel(name){
   switch(name){
     case'dashboard':renderDashboard();break;
+    case'checklist':renderChecklist();break;
     case'alertas':renderAlertas();break;
     case'flota':renderFlota();break;
     case'kilometros':renderKm();break;
@@ -1170,18 +1184,22 @@ function getAlertas(){
 function updateAlertBadges(){
   const a=getAlertas();
   const cnt=a.length;
-  $('hk-alertas').textContent=cnt;
-  $('nb-alertas').textContent=cnt;
+  const hkA=$('hk-alertas');if(hkA)hkA.textContent=cnt;
+  const nbA=$('nb-alertas');if(nbA)nbA.textContent=cnt;
+  const bellDot=$('bell-dot');if(bellDot)bellDot.style.display=cnt>0?'block':'none';
   if(cnt>0){
     const banner=$('alertBanner');
     const pills=$('alertPills');
-    banner.classList.add('show');
-    const groups={};
-    a.forEach(al=>{groups[al.cat]=(groups[al.cat]||0)+1;});
-    pills.innerHTML=Object.entries(groups).map(([k,v])=>
-      `<span class="alert-pill warn" onclick="navTo('alertas')">${k} (${v})</span>`
-    ).join('');
+    if(banner)banner.classList.add('show');
+    if(pills){
+      const groups={};
+      a.forEach(al=>{groups[al.cat]=(groups[al.cat]||0)+1;});
+      pills.innerHTML=Object.entries(groups).map(([k,v])=>
+        `<span class="alert-pill warn" onclick="navTo('alertas')">${k} (${v})</span>`
+      ).join('');
+    }
   }
+  updateChecklistBadge();
 }
 function navTo(panel){
   document.querySelectorAll('.nav-item').forEach(n=>{
@@ -1194,80 +1212,95 @@ function navTo(panel){
 // ============================================================
 function renderDashboard(){
   const hoy=new Date();
-  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  $('dash-fecha').textContent=`${meses[hoy.getMonth()]} ${hoy.getFullYear()}`;
-
+  const period=window.selectedPeriod||{type:'month',value:`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`};
   const validas=facturas.filter(f=>f.est!=='NOTA');
-  const totalFac=validas.reduce((a,b)=>a+(b.monto||0),0);
-  const cobrado=validas.filter(f=>f.est==='PAGO').reduce((a,b)=>a+(b.monto||0),0);
-  const pend=validas.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
-  const alertas=getAlertas();
 
-  $('hk-fac').textContent='$'+Math.round(totalFac/1000000)+'M';
-  $('hk-cobrado').textContent='$'+Math.round(cobrado/1000000)+'M';
-  $('hk-pend').textContent='$'+Math.round(pend/1000000)+'M';
-  $('hk-flota').textContent=flota.length;
+  // Filter by selected period
+  let periodoFac;
+  if(period.type==='month'){
+    periodoFac=validas.filter(f=>f.fecha&&f.fecha.startsWith(period.value));
+  } else {
+    periodoFac=validas.filter(f=>f.fecha&&f.fecha.startsWith(String(period.value)));
+  }
+  const ingresos=periodoFac.reduce((a,b)=>a+(b.monto||0),0);
+  const totalPend=validas.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
 
-  const pctCobrado=totalFac>0?Math.round(cobrado/totalFac*100):0;
-  $('dash-estado').textContent=`${flota.length} unidades activas · ${alertas.length} alertas · ${pctCobrado}% cobrado`;
+  // KM del período
+  let kmPeriodo=0;
+  if(period.type==='month'){
+    const[y,m]=period.value.split('-');
+    const mesName=MESES[parseInt(m)-1];
+    kmPeriodo=km.filter(k=>k.mes===mesName&&String(k.anio)===y).reduce((a,b)=>a+(b.km||0),0);
+  } else {
+    kmPeriodo=km.filter(k=>String(k.anio)===String(period.value)).reduce((a,b)=>a+(b.km||0),0);
+  }
 
-  // Hero KPIs
-  $('dash-hero-kpis').innerHTML=[
-    {lbl:'FACTURADO',val:fmt(totalFac),cls:'c-gold'},
-    {lbl:'COBRADO',val:fmt(cobrado),cls:'c-green'},
-    {lbl:'PENDIENTE',val:fmt(pend),cls:'c-red'},
-  ].map(k=>`<div style="text-align:right"><div style="font-family:var(--fm);font-size:22px;" class="${k.cls}">${k.val}</div><div style="font-size:10px;color:var(--muted);letter-spacing:2px;font-family:var(--fm)">${k.lbl}</div></div>`).join('');
-
-  // KPIs
-  const mesActual=`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
-  const facMes=validas.filter(f=>f.fecha&&f.fecha.startsWith(mesActual));
-  const totalGas=gastos.reduce((a,b)=>a+(b.monto||0),0);
+  // 4 KPI cards
   $('dash-kpis').innerHTML=`
-    <div class="kpi gold"><div class="kpi-val c-gold">${flota.length}</div><div class="kpi-lbl">UNIDADES EN FLOTA</div><div class="kpi-delta">${flota.filter(f=>f.tipo==='propia').length} propias · ${flota.filter(f=>f.tipo==='subalquilada').length} subalq.</div></div>
-    <div class="kpi green"><div class="kpi-val c-green">${fmt(cobrado)}</div><div class="kpi-lbl">TOTAL COBRADO</div><div class="kpi-delta up">↑ ${pctCobrado}% del total</div></div>
-    <div class="kpi red"><div class="kpi-val c-red">${fmt(pend)}</div><div class="kpi-lbl">POR COBRAR</div><div class="kpi-delta down">${validas.filter(f=>f.est!=='PAGO').length} facturas pendientes</div></div>
-    <div class="kpi blue"><div class="kpi-val c-blue">${facMes.length}</div><div class="kpi-lbl">FACTURAS ESTE MES</div><div class="kpi-delta">${fmt(facMes.reduce((a,b)=>a+(b.monto||0),0))}</div></div>
-    <div class="kpi orange"><div class="kpi-val c-orange">${alertas.length}</div><div class="kpi-lbl">ALERTAS ACTIVAS</div><div class="kpi-delta down">${alertas.filter(a=>a.tipo==='danger').length} críticas</div></div>
-    <div class="kpi purple"><div class="kpi-val c-purple">${fmt(totalGas)}</div><div class="kpi-lbl">GASTOS REGISTRADOS</div><div class="kpi-delta">${gastos.length} registros</div></div>
+    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(ingresos)}</div><div class="kpi-lbl">INGRESOS DEL PERÍODO</div></div>
+    <div class="kpi green"><div class="kpi-val" style="color:var(--green)">${flota.length}</div><div class="kpi-lbl">FLOTA ACTIVA</div><div class="kpi-delta">${flota.filter(f=>f.tipo==='propia').length} propias · ${flota.filter(f=>f.tipo==='subalquilada').length} subalq.</div></div>
+    <div class="kpi red"><div class="kpi-val" style="color:var(--red)">${fmt(totalPend)}</div><div class="kpi-lbl">COBROS PENDIENTES</div><div class="kpi-delta down">${validas.filter(f=>f.est!=='PAGO').length} facturas</div></div>
+    <div class="kpi blue"><div class="kpi-val" style="color:var(--accent2)">${kmPeriodo.toLocaleString('es-AR')}</div><div class="kpi-lbl">KM TOTALES</div></div>
   `;
 
-  // Charts
-  const mesKeys=Object.keys(costosMes).sort();
-  const labels=mesKeys.slice(-8);
-  const ingData=labels.map(k=>{ const d=costosMes[k]; return d?(d.ing||[]).reduce((a,[,v])=>a+(v||0),0):0; });
-  const egrData=labels.map(k=>{ const d=costosMes[k]; const vars=(d?.vars||[]).reduce((a,[,v])=>a+(typeof v==='number'?v:0),0); const fij=(d?.fijos||[]).reduce((a,[,v])=>a+(typeof v==='number'?v:0),0); const imp=(d?.imp||[]).reduce((a,[,v])=>a+(typeof v==='number'?v:0),0); return vars+fij+imp; });
-  $('dash-charts').innerHTML=`
-    <div class="chart-box"><h4>INGRESOS VS EGRESOS (ÚLTIMOS 8 MESES)</h4><div class="chart-wrap"><canvas id="dashChart1"></canvas></div></div>
-    <div class="chart-box"><h4>FACTURACIÓN POR CLIENTE</h4><div class="chart-wrap"><canvas id="dashChart2"></canvas></div></div>
-  `;
-  setTimeout(()=>{
-    const c1=document.getElementById('dashChart1');
-    if(c1){ new Chart(c1,{type:'bar',data:{labels,datasets:[{label:'Ingresos',data:ingData,backgroundColor:'#3ecf8e44',borderColor:'#3ecf8e',borderWidth:2},{label:'Egresos',data:egrData,backgroundColor:'#f26b6b44',borderColor:'#f26b6b',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'#2a2f3d'}},y:{ticks:{color:'#6b7280',font:{size:10},callback:v=>'$'+Math.round(v/1000000)+'M'},grid:{color:'#2a2f3d'}}}}}); }
-    const empTot={};
-    validas.forEach(f=>{ empTot[f.emp]=(empTot[f.emp]||0)+(f.monto||0); });
-    const sorted=Object.entries(empTot).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    const c2=document.getElementById('dashChart2');
-    if(c2){ new Chart(c2,{type:'doughnut',data:{labels:sorted.map(x=>x[0].split(' ')[0]),datasets:[{data:sorted.map(x=>x[1]),backgroundColor:COLORES,borderColor:'#161921',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#6b7280',font:{size:10},boxWidth:12}}}}}); }
-  },50);
-
-  // Alerts
+  // Alertas
+  const alertas=getAlertas();
   $('dash-alerts-list').innerHTML=alertas.slice(0,5).map(a=>`
-    <div class="dash-alert ${a.tipo==='warn'?'warn':''}" onclick="navTo('${a.link}')">
+    <div class="dash-alert${a.tipo==='warn'?' warn':''}" onclick="navTo('${a.link}')">
       <span>${a.tipo==='danger'?'🔴':'🟡'}</span>
-      <div><div style="font-size:12px;font-weight:500">${a.cat}</div><div style="font-size:11px;color:var(--muted)">${a.msg}</div></div>
-      ${a.val?`<span style="margin-left:auto;font-family:var(--fm);font-size:12px;color:var(--accent)">${a.val}</span>`:''}
+      <div style="flex:1"><div style="font-size:12px;font-weight:500">${a.cat}</div><div style="font-size:11px;color:var(--muted)">${a.msg}</div></div>
+      ${a.val?`<span style="font-family:var(--fm);font-size:12px;color:var(--accent)">${a.val}</span>`:''}
     </div>
-  `).join('')||'<div style="color:var(--muted);font-size:12px;padding:12px">✅ Sin alertas activas</div>';
+  `).join('')||'<div style="color:var(--muted);font-size:12px;padding:8px">✅ Sin alertas activas</div>';
 
-  // Próximos cobros (cheques)
-  const proxCobros=cheques.filter(c=>c.est==='pendiente').sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  $('dash-cobros').innerHTML=proxCobros.slice(0,5).map(c=>{
-    const dias=diffDays(c.fecha,today());
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-      <div><div style="font-size:12px">${c.emp}</div><div style="font-size:10px;color:var(--muted);font-family:var(--fm)">Cheque #${c.num} · ${fmtD(c.fecha)}</div></div>
-      <div style="text-align:right"><div style="font-family:var(--fm);font-size:13px;color:var(--accent)">${fmt(c.monto)}</div><div style="font-size:10px;color:${dias<=7?'var(--red)':'var(--muted)'}">en ${dias} días</div></div>
-    </div>`;
-  }).join('')||'<div style="color:var(--muted);font-size:12px;padding:12px">Sin cheques pendientes</div>';
+  // Checklist preview
+  const tasks=getChecklist();
+  const done=tasks.filter(t=>t.done).length;
+  $('dash-checklist-preview').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div style="background:var(--accent);color:white;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;">${done}/${tasks.length}</div>
+      <span style="font-size:12px;color:var(--muted);">completadas este mes</span>
+    </div>
+    ${tasks.map(t=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);">
+        <span style="color:${t.done?'var(--green)':'#d1d5db'};font-size:14px;">${t.done?'✅':'⬜'}</span>
+        <span style="font-size:12px;${t.done?'text-decoration:line-through;color:var(--muted);':''};">${t.desc}</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--muted);background:var(--surface2);padding:1px 7px;border-radius:20px;">${t.resp}</span>
+      </div>
+    `).join('')}
+    <div style="margin-top:10px;"><button class="btn btn-secondary btn-sm" onclick="navTo('checklist')">Ver completo →</button></div>
+  `;
+
+  // Estado de flota
+  $('dash-flota-table').innerHTML=`<table style="width:100%;border-collapse:collapse;">
+    <thead><tr style="background:var(--surface2)">
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">PATENTE</th>
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">CLIENTE</th>
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">TIPO</th>
+    </tr></thead>
+    <tbody>${flota.map(u=>`<tr style="border-bottom:0.5px solid var(--border);">
+      <td style="padding:7px 10px;font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600;">${u.pat}</td>
+      <td style="padding:7px 10px;font-size:12px;">${u.cli.split(' ').slice(0,2).join(' ')}</td>
+      <td style="padding:7px 10px;"><span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${u.tipo==='propia'?'#EEF4FF':'var(--surface2)'};color:${u.tipo==='propia'?'var(--accent)':'var(--muted)'};">${u.tipo}</span></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+
+  // Cobros pendientes por cliente (barras horizontales)
+  const empTot={};
+  validas.filter(f=>f.est!=='PAGO').forEach(f=>{empTot[f.emp]=(empTot[f.emp]||0)+(f.monto||0);});
+  const sorted=Object.entries(empTot).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxVal=sorted.length?sorted[0][1]:1;
+  $('dash-cobros').innerHTML=sorted.length?sorted.map(([emp,val])=>`
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="font-weight:500;">${emp.split(' ').slice(0,2).join(' ')}</span>
+        <span style="font-family:var(--fm);color:var(--accent);font-size:11px;">${fmt(val)}</span>
+      </div>
+      <div style="background:var(--surface2);border-radius:4px;height:7px;overflow:hidden;">
+        <div style="height:100%;border-radius:4px;background:var(--accent);width:${Math.round(val/maxVal*100)}%;transition:width .8s;"></div>
+      </div>
+    </div>
+  `).join(''):'<div style="color:var(--muted);font-size:12px;padding:4px;">✅ Sin cobros pendientes</div>';
 }
 
 // ============================================================
@@ -2361,26 +2394,23 @@ function renderHB(){
 }
 
 function exportarTodo() {
-  const hoy = new Date();
-  const fecha = hoy.toISOString().slice(0,10);
-  const datos = {
-    flota:        window.flota        || [],
-    km:           window.km           || [],
-    facturas:     window.facturas     || [],
-    gastos:       window.gastos       || [],
-    mantenimiento:window.mantenimiento|| [],
-    documentos:   window.documentos   || [],
-    cheques:      window.cheques      || [],
-    contratos:    window.contratos    || [],
-    socios:       window.socios       || [],
-    aportes:      window.aportes      || [],
-    costosMes:    window.costosMes    || []
-  };
-  const blob = new Blob([JSON.stringify(datos, null, 2)], {type:'application/json'});
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('pkh'));
+  const data = {};
+  keys.forEach(k => {
+    try { data[k] = JSON.parse(localStorage.getItem(k)); }
+    catch(e) { data[k] = localStorage.getItem(k); }
+  });
+  if (Object.keys(data).length === 0) {
+    alert('No se encontraron datos en localStorage con prefijo pkh.');
+    return;
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'pkh-backup-' + fecha + '.json';
+  a.download = 'pkh-backup-' + new Date().toISOString().split('T')[0] + '.json';
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
 }
 
@@ -2406,6 +2436,7 @@ async function startApp() {
     }
     setupRealtimeSync();
   }
+  initPeriodSelector();
   updateAlertBadges();
   populateSelects();
   renderDashboard();
@@ -2464,6 +2495,120 @@ window.checkPin = function() {
 }
 
 init();
+
+// ============================================================
+// PERIOD SELECTOR
+// ============================================================
+window.selectedPeriod=(function(){
+  const h=new Date();
+  return{type:'month',value:`${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}`};
+})();
+
+function initPeriodSelector(){
+  const container=$('period-selector');
+  if(!container)return;
+  const hoy=new Date();
+  const mShort=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const curM=hoy.getMonth();
+  const curY=hoy.getFullYear();
+  let html=mShort.map((m,i)=>{
+    const val=`${curY}-${String(i+1).padStart(2,'0')}`;
+    return `<button class="period-btn${i===curM?' active':''}" onclick="setPeriod('month','${val}',this)">${m}</button>`;
+  }).join('');
+  html+=`<button class="period-btn" onclick="setPeriod('year','${curY}',this)">Año</button>`;
+  container.innerHTML=html;
+}
+
+function setPeriod(type,value,btn){
+  window.selectedPeriod={type,value};
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if($('panel-dashboard')&&$('panel-dashboard').classList.contains('active'))renderDashboard();
+}
+
+// ============================================================
+// CHECKLIST MENSUAL
+// ============================================================
+const CHECKLIST_TAREAS=[
+  {id:'seguros',desc:'Verificar seguros vigentes',resp:'ADM'},
+  {id:'facturas',desc:'Emitir facturas del mes',resp:'ADM'},
+  {id:'cobros',desc:'Confirmar cobros pendientes',resp:'ADM'},
+  {id:'km_service',desc:'Revisar km y coordinar service',resp:'OPE'},
+  {id:'contratos',desc:'Actualizar contratos vencidos',resp:'ADM'},
+  {id:'polizas',desc:'Descargar pólizas Trinfo',resp:'ADM'},
+  {id:'rto',desc:'Verificar RTO de cada unidad',resp:'OPE'},
+  {id:'gastos',desc:'Registrar gastos del mes',resp:'ADM'},
+  {id:'resumen',desc:'Distribuir resumen a socios',resp:'ADM'},
+];
+
+function getChecklistKey(){
+  const h=new Date();
+  return `pkhv2_checklist_${h.getFullYear()}_${String(h.getMonth()+1).padStart(2,'0')}`;
+}
+
+function getChecklist(){
+  const key=getChecklistKey();
+  const saved=load(key,null);
+  if(saved&&Array.isArray(saved))return saved;
+  const tasks=CHECKLIST_TAREAS.map(t=>({...t,done:false,fechaDone:null}));
+  save(key,tasks);
+  return tasks;
+}
+
+function toggleChecklistTask(id){
+  const key=getChecklistKey();
+  const tasks=getChecklist();
+  const t=tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=!t.done;
+  t.fechaDone=t.done?today():null;
+  save(key,tasks);
+  renderChecklist();
+  updateChecklistBadge();
+  if($('panel-dashboard')&&$('panel-dashboard').classList.contains('active'))renderDashboard();
+}
+
+function updateChecklistBadge(){
+  const tasks=getChecklist();
+  const pend=tasks.filter(t=>!t.done).length;
+  const nb=$('nb-checklist');
+  if(nb)nb.textContent=pend;
+}
+
+function renderChecklist(){
+  const tasks=getChecklist();
+  const hoy=new Date();
+  const el=$('checklist-periodo');
+  if(el)el.textContent=MESES[hoy.getMonth()]+' '+hoy.getFullYear();
+  const done=tasks.filter(t=>t.done).length;
+  const pend=tasks.filter(t=>!t.done).length;
+  const cc=$('checklist-content');
+  if(!cc)return;
+  cc.innerHTML=`
+    <div style="display:flex;gap:12px;margin-bottom:18px;">
+      <div style="background:#fef2f2;border-radius:8px;padding:12px 20px;text-align:center;flex:1;">
+        <div style="font-size:28px;font-weight:700;color:var(--red);">${pend}</div>
+        <div style="font-size:11px;color:var(--muted);">PENDIENTES</div>
+      </div>
+      <div style="background:#d1fae5;border-radius:8px;padding:12px 20px;text-align:center;flex:1;">
+        <div style="font-size:28px;font-weight:700;color:var(--green);">${done}</div>
+        <div style="font-size:11px;color:var(--muted);">COMPLETADAS</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${tasks.map(t=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:8px;border:0.5px solid var(--border);background:${t.done?'var(--surface2)':'#fff'};">
+          <input type="checkbox" ${t.done?'checked':''} onchange="toggleChecklistTask('${t.id}')" style="width:17px;height:17px;cursor:pointer;accent-color:var(--accent);">
+          <div style="flex:1;">
+            <div style="font-size:13px;${t.done?'text-decoration:line-through;color:var(--muted);':'font-weight:500;'}">${t.desc}</div>
+            ${t.fechaDone?`<div style="font-size:10px;color:var(--muted);margin-top:2px;">Completada: ${fmtD(t.fechaDone)}</div>`:''}
+          </div>
+          <span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:3px 9px;border-radius:20px;white-space:nowrap;">${t.resp}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
 </script>
 
 <script>
