@@ -342,7 +342,12 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-kilometros">
   <div class="section-hdr">
     <div class="section-title">REGISTRO DE <span>KILÓMETROS</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-km')">+ REGISTRAR KM</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="km-filtro" onchange="renderKm()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
+        <option value="">Todos los vehículos</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="showModal('modal-km')">+ REGISTRAR KM</button>
+    </div>
   </div>
   <div class="chart-grid" id="km-charts"></div>
   <div id="km-cards"></div>
@@ -365,7 +370,12 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-documentos">
   <div class="section-hdr">
     <div class="section-title">DOCUMENTACIÓN <span>VENCIMIENTOS</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-doc')">+ AGREGAR DOCUMENTO</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="docs-filtro" onchange="renderDocumentos()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
+        <option value="">Todos</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="showModal('modal-doc')">+ AGREGAR DOCUMENTO</button>
+    </div>
   </div>
   <div id="docs-grid"></div>
 </div>
@@ -394,7 +404,12 @@ input[type="checkbox"]{accent-color:var(--accent);}
 
 <!-- ======= CLIENTES ======= -->
 <div class="panel" id="panel-clientes">
-  <div class="section-hdr"><div class="section-title">ESTADO DE <span>CLIENTES</span></div></div>
+  <div class="section-hdr">
+    <div class="section-title">ESTADO DE <span>CLIENTES</span></div>
+    <select id="cli-filtro" onchange="renderClientes()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
+      <option value="">Todos los clientes</option>
+    </select>
+  </div>
   <div id="clientes-content"></div>
 </div>
 
@@ -403,7 +418,12 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-contratos">
   <div class="section-hdr">
     <div class="section-title">GESTIÓN DE <span>CONTRATOS</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-contrato')">+ NUEVO CONTRATO</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="cont-filtro" onchange="renderContratos()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
+        <option value="">Todos</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="showModal('modal-contrato')">+ NUEVO CONTRATO</button>
+    </div>
   </div>
   <div class="kpi-grid" id="cont-kpis"></div>
   <div id="cont-cards"></div>
@@ -1347,10 +1367,14 @@ function renderFlota(){
     const totalKm=ukm.reduce((a,b)=>a+b.km,0);
     const udocs=documentos.filter(d=>d.pat===u.pat);
     const docVenc=udocs.filter(d=>d.venc&&diffDays(d.venc,today())<=30).length;
-    return `<div class="card ${u.tipo==='subalquilada'?'blue-top':''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div class="plate ${u.tipo==='subalquilada'?'blue':''}">${u.pat}</div>
-        <span class="badge ${u.tipo==='propia'?'badge-own':'badge-sub'}">${u.tipo==='propia'?'PROPIA':'SUBALQ.'}</span>
+    const isPropia=u.tipo==='propia';
+    const borderColor=isPropia?'#1D3557':'#BA7517';
+    const badgeBg=isPropia?'#EEF4FF':'#FEF9EE';
+    const badgeColor=isPropia?'#1D3557':'#BA7517';
+    return `<div class="card" style="border-top-color:${borderColor};border-left:4px solid ${borderColor};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;padding:6px 8px;background:${badgeBg};border-radius:6px;">
+        <div class="plate" style="color:${borderColor}">${u.pat}</div>
+        <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:${borderColor};color:white;">${isPropia?'PROPIA':'SUBALQ.'}</span>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:4px">👤 ${u.cli}</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:12px">${u.modelo||'Hilux'} ${u.anio||''} · Entrega: ${fmtD(u.fecha)}</div>
@@ -1388,29 +1412,47 @@ function deleteUnidad(id){if(!confirm('¿Eliminar unidad?'))return;flota=flota.f
 // KILÓMETROS
 // ============================================================
 function renderKm(){
-  // Chart: km por mes por unidad
-  const mesKeys=[...new Set(km.map(k=>k.anio+'-'+String(MESES.indexOf(k.mes)+1).padStart(2,'0')))].sort().slice(-10);
+  // Populate + apply filter
+  const filtroEl=$('km-filtro');
+  if(filtroEl){
+    const prev=filtroEl.value;
+    filtroEl.innerHTML='<option value="">Todos los vehículos</option>'+
+      flota.map(u=>`<option value="${u.pat}" ${u.pat===prev?'selected':''}>${u.pat} — ${u.cli.split(' ')[0]}</option>`).join('');
+  }
+  const filtro=filtroEl?filtroEl.value:'';
+  const flotaFiltrada=filtro?flota.filter(u=>u.pat===filtro):flota;
+
+  // Chart
+  const mesKeys=[...new Set(km.filter(k=>!filtro||k.pat===filtro).map(k=>k.anio+'-'+String(MESES.indexOf(k.mes)+1).padStart(2,'0')))].sort().slice(-10);
   const labels=mesKeys.map(k=>{const[y,m]=k.split('-');return MESES_SHORT[Number(m)-1]+' '+y.slice(2);});
   $('km-charts').innerHTML=`<div class="chart-box" style="grid-column:1/-1"><h4>KILÓMETROS POR UNIDAD (ÚLTIMOS MESES)</h4><div class="chart-wrap" style="height:250px"><canvas id="kmChart"></canvas></div></div>`;
   setTimeout(()=>{
-    const datasets=flota.map((u,i)=>({label:u.pat,data:mesKeys.map(mk=>{const[y,m]=mk.split('-');const mes=MESES[Number(m)-1];const r=km.find(k=>k.pat===u.pat&&k.mes===mes&&k.anio===y);return r?r.km:null;}),borderColor:COLORES[i%COLORES.length],backgroundColor:COLORES[i%COLORES.length]+'33',tension:.3,fill:false,pointRadius:4,spanGaps:true}));
+    const datasets=flotaFiltrada.map((u,i)=>({label:u.pat,data:mesKeys.map(mk=>{const[y,m]=mk.split('-');const mes=MESES[Number(m)-1];const r=km.find(k=>k.pat===u.pat&&k.mes===mes&&k.anio===y);return r?r.km:null;}),borderColor:COLORES[i%COLORES.length],backgroundColor:COLORES[i%COLORES.length]+'33',tension:.3,fill:false,pointRadius:4,spanGaps:true}));
     const c=document.getElementById('kmChart');
-    if(c)new Chart(c,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'#2a2f3d'}},y:{ticks:{color:'#6b7280',callback:v=>v.toLocaleString('es-AR')},grid:{color:'#2a2f3d'}}}}});
+    if(c)new Chart(c,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'#e5e5e5'}},y:{ticks:{color:'#6b7280',callback:v=>v.toLocaleString('es-AR')},grid:{color:'#e5e5e5'}}}}});
   },50);
 
-  $('km-cards').innerHTML=flota.map(u=>{
+  $('km-cards').innerHTML=flotaFiltrada.map(u=>{
     const ukm=km.filter(k=>k.pat===u.pat).sort((a,b)=>MESES_IDX(a.mes,a.anio)-MESES_IDX(b.mes,b.anio));
     const total=ukm.reduce((a,b)=>a+b.km,0);
-    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px">
+    const isPropia=u.tipo==='propia';
+    const borderColor=isPropia?'#1D3557':'#BA7517';
+    return `<div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;border-left:4px solid ${borderColor};">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div><div class="plate">${u.pat}</div><div style="font-size:12px;color:var(--muted)">${u.cli}</div></div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="plate" style="color:${borderColor}">${u.pat}</div>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${borderColor};color:white;">${isPropia?'PROPIA':'SUBALQ.'}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${u.cli}</div>
+        </div>
         <div style="display:flex;gap:16px">
           <div style="text-align:right"><div style="font-family:var(--fm);font-size:18px;color:var(--accent)">${total.toLocaleString('es-AR')}</div><div style="font-size:9px;color:var(--muted)">KM TOTAL</div></div>
           <div style="text-align:right"><div style="font-family:var(--fm);font-size:18px;color:var(--accent2)">${ukm.length>0?Math.round(total/ukm.length).toLocaleString('es-AR'):'—'}</div><div style="font-size:9px;color:var(--muted)">KM PROM/MES</div></div>
         </div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${ukm.map(k=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:6px 10px;text-align:center;min-width:70px">
+        ${ukm.map(k=>`<div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center;min-width:70px">
           <div style="font-size:9px;color:var(--muted);font-family:var(--fm)">${k.mes.substr(0,3)} ${k.anio}</div>
           <div style="font-family:var(--fm);font-size:13px;color:var(--accent);margin-top:2px">${k.km.toLocaleString('es-AR')}</div>
         </div>`).join('')}
@@ -1464,11 +1506,20 @@ function deleteMant(id){if(!confirm('¿Eliminar?'))return;mantenimiento=mantenim
 // ============================================================
 function renderDocumentos(){
   const hoy=today();
+  // Populate filter
+  const filtroEl=$('docs-filtro');
+  if(filtroEl){
+    const prev=filtroEl.value;
+    filtroEl.innerHTML='<option value="">Todos</option>'+
+      ['SOCIEDAD',...flota.map(u=>u.pat)].map(p=>`<option value="${p}" ${p===prev?'selected':''}>${p}</option>`).join('');
+  }
+  const filtro=filtroEl?filtroEl.value:'';
   const grupos={};
   flota.forEach(u=>{grupos[u.pat]=[];});
   grupos['SOCIEDAD']=[];
   documentos.forEach(d=>{if(!grupos[d.pat])grupos[d.pat]=[];grupos[d.pat].push(d);});
-  $('docs-grid').innerHTML=Object.entries(grupos).filter(([,docs])=>docs.length>0).map(([pat,docs])=>`
+  const entries=Object.entries(grupos).filter(([pat,docs])=>docs.length>0&&(!filtro||pat===filtro));
+  $('docs-grid').innerHTML=entries.map(([pat,docs])=>`
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px">
       <div class="plate" style="margin-bottom:14px">${pat}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
@@ -1592,7 +1643,16 @@ function renderClientes(){
     if(f.fecha>empTot[f.emp].ultima)empTot[f.emp].ultima=f.fecha;
     empTot[f.emp].facList.push(f);
   });
-  const sorted=Object.entries(empTot).sort((a,b)=>b[1].fac-a[1].fac);
+  const allSorted=Object.entries(empTot).sort((a,b)=>b[1].fac-a[1].fac);
+  // Populate filter
+  const filtroEl=$('cli-filtro');
+  if(filtroEl){
+    const prev=filtroEl.value;
+    filtroEl.innerHTML='<option value="">Todos los clientes</option>'+
+      allSorted.map(([emp])=>`<option value="${emp}" ${emp===prev?'selected':''}>${emp.split(' ').slice(0,3).join(' ')}</option>`).join('');
+  }
+  const filtro=filtroEl?filtroEl.value:'';
+  const sorted=filtro?allSorted.filter(([emp])=>emp===filtro):allSorted;
 
   // Get contrato precio for each company
   const contPrecio={};
@@ -2263,16 +2323,26 @@ function renderProyeccion(){
 // CONTRATOS
 // ============================================================
 function renderContratos(){
-  const activos=contratos.filter(c=>c.est==='activo');
+  // Populate filter
+  const filtroEl=$('cont-filtro');
+  if(filtroEl){
+    const prev=filtroEl.value;
+    const emps=[...new Set(contratos.map(c=>c.emp))].sort();
+    filtroEl.innerHTML='<option value="">Todos</option>'+
+      emps.map(e=>`<option value="${e}" ${e===prev?'selected':''}>${e.split(' ').slice(0,3).join(' ')}</option>`).join('');
+  }
+  const filtro=filtroEl?filtroEl.value:'';
+  const contratosFiltrados=filtro?contratos.filter(c=>c.emp===filtro):contratos;
+  const activos=contratosFiltrados.filter(c=>c.est==='activo');
   const totalNetoMes=activos.reduce((a,b)=>a+(b.precio||0),0);
   const totalConIvaMes=activos.reduce((a,b)=>a+(b.precio||0)*(1+(b.iva||0)),0);
   $('cont-kpis').innerHTML=`
-    <div class="kpi gold"><div class="kpi-val c-gold">${contratos.length}</div><div class="kpi-lbl">CONTRATOS TOTALES</div></div>
+    <div class="kpi gold"><div class="kpi-val c-gold">${contratosFiltrados.length}</div><div class="kpi-lbl">CONTRATOS TOTALES</div></div>
     <div class="kpi green"><div class="kpi-val c-green">${activos.length}</div><div class="kpi-lbl">ACTIVOS</div></div>
     <div class="kpi blue"><div class="kpi-val c-blue">${fmt(totalNetoMes)}</div><div class="kpi-lbl">INGRESO NETO MENSUAL</div></div>
     <div class="kpi purple"><div class="kpi-val c-purple">${fmt(Math.round(totalConIvaMes))}</div><div class="kpi-lbl">INGRESO C/IVA MENSUAL</div></div>
   `;
-  const cards=contratos.map(c=>{
+  const cards=contratosFiltrados.map(c=>{
     const total=Math.round(c.precio*(1+(c.iva||0)));
     const ivaM=Math.round(c.precio*(c.iva||0));
     const facEmp=facturas.filter(f=>f.est!=='NOTA'&&f.emp===c.emp);
