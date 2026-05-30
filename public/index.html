@@ -311,8 +311,9 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <div class="nav-item" data-panel="proyeccion"><i class="ti ti-telescope"></i>Proyección</div>
   </div>
   <div style="flex:1;"></div>
-  <div style="padding:12px 16px;border-top:0.5px solid var(--border);">
+  <div style="padding:12px 16px;border-top:0.5px solid var(--border);display:flex;flex-direction:column;gap:6px;">
     <button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportarTodo()"><i class="ti ti-download"></i> Exportar datos</button>
+    <button class="btn btn-secondary btn-sm" style="width:100%" onclick="showModal('modal-importar');importReset()"><i class="ti ti-upload"></i> Importar datos</button>
   </div>
 </nav>
 
@@ -748,6 +749,29 @@ input[type="checkbox"]{accent-color:var(--accent);}
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="hideModal('modal-contrato')">CANCELAR</button>
       <button class="btn btn-primary" onclick="addContrato()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+<!-- ======= MODAL IMPORTAR ======= -->
+<div class="modal-overlay" id="modal-importar">
+  <div class="modal" style="max-width:480px">
+    <h2>📥 Importar datos</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Seleccioná un archivo JSON exportado desde este sistema.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      <label id="lbl-fusionar" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border:1.5px solid var(--accent);border-radius:8px;background:#EEF4FF;">
+        <input type="radio" name="import-modo" value="fusionar" checked onchange="importSelectModo(this)" style="margin-top:2px;accent-color:var(--accent);">
+        <div><div style="font-weight:600;font-size:13px;">Fusionar <span style="font-size:10px;color:var(--green);background:#d1fae5;padding:1px 7px;border-radius:20px;margin-left:4px;">Recomendado</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Agrega registros nuevos y actualiza los existentes sin borrar nada.</div></div>
+      </label>
+      <label id="lbl-reemplazar" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border:0.5px solid var(--border);border-radius:8px;">
+        <input type="radio" name="import-modo" value="reemplazar" onchange="importSelectModo(this)" style="margin-top:2px;accent-color:var(--accent);">
+        <div><div style="font-weight:600;font-size:13px;">Reemplazar todo <span style="font-size:10px;color:var(--red);background:#fee2e2;padding:1px 7px;border-radius:20px;margin-left:4px;">Destructivo</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Borra todos los datos actuales y los reemplaza con el archivo.</div></div>
+      </label>
+    </div>
+    <div id="import-preview" style="display:none;padding:12px;background:var(--surface2);border-radius:8px;font-size:12px;margin-bottom:16px;border-left:3px solid var(--accent);"></div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="procesarImportacion()">
+    <div class="modal-footer" id="import-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-importar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="document.getElementById('import-file').click()"><i class="ti ti-file-import"></i> Seleccionar archivo</button>
     </div>
   </div>
 </div>
@@ -2701,6 +2725,137 @@ var CHECKLIST_GRUPOS=[
     ]
   },
 ];
+
+// ============================================================
+// IMPORTAR DATOS
+// ============================================================
+var _importData = null;
+var _importModo = 'fusionar';
+
+function importReset(){
+  _importData=null; _importModo='fusionar';
+  var prev=$('import-preview'); if(prev){prev.style.display='none';prev.innerHTML='';}
+  var f=$('import-file'); if(f)f.value='';
+  document.querySelector('input[name="import-modo"][value="fusionar"]').checked=true;
+  importSelectModo({value:'fusionar'});
+  $('import-footer').innerHTML=
+    '<button class="btn btn-secondary" onclick="hideModal(\'modal-importar\')">Cancelar</button>'+
+    '<button class="btn btn-primary" onclick="document.getElementById(\'import-file\').click()"><i class="ti ti-file-import"></i> Seleccionar archivo</button>';
+}
+
+function importSelectModo(radio){
+  _importModo=radio.value;
+  var lF=$('lbl-fusionar'), lR=$('lbl-reemplazar');
+  if(_importModo==='fusionar'){
+    lF.style.border='1.5px solid var(--accent)'; lF.style.background='#EEF4FF';
+    lR.style.border='0.5px solid var(--border)'; lR.style.background='';
+  } else {
+    lR.style.border='1.5px solid var(--red)'; lR.style.background='#fef2f2';
+    lF.style.border='0.5px solid var(--border)'; lF.style.background='';
+  }
+}
+
+function procesarImportacion(){
+  var file=$('import-file').files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var raw=JSON.parse(ev.target.result);
+      // Normalizar formato (nuevo: pkhv2_* / viejo: flota, km, etc.)
+      var data={};
+      var keyMap={flota:'pkhv2_flota',km:'pkhv2_km',facturas:'pkhv2_fac',
+        gastos:'pkhv2_gas',mantenimiento:'pkhv2_mant',documentos:'pkhv2_docs',
+        cheques:'pkhv2_cheq',contratos:'pkhv2_contratos',socios:'pkhv2_socios',
+        aportes:'pkhv2_aport',costosMes:'pkhv2_costos',homebanking:'pkhv2_hb'};
+      Object.keys(raw).forEach(function(k){
+        if(k.startsWith('pkhv2_')||k.startsWith('pkhv2_checklist'))data[k]=raw[k];
+        else if(keyMap[k])data[keyMap[k]]=raw[k];
+      });
+      _importData=data;
+
+      // Armar preview
+      var lines=[];
+      if(data.pkhv2_flota)lines.push('<b>Flota:</b> '+data.pkhv2_flota.length+' unidades');
+      if(data.pkhv2_fac)lines.push('<b>Facturas:</b> '+data.pkhv2_fac.length);
+      if(data.pkhv2_km)lines.push('<b>Km:</b> '+data.pkhv2_km.length+' registros');
+      if(data.pkhv2_gas)lines.push('<b>Gastos:</b> '+data.pkhv2_gas.length);
+      if(data.pkhv2_cheq)lines.push('<b>Cheques:</b> '+data.pkhv2_cheq.length);
+      if(data.pkhv2_mant)lines.push('<b>Mantenimiento:</b> '+data.pkhv2_mant.length);
+      if(data.pkhv2_contratos)lines.push('<b>Contratos:</b> '+data.pkhv2_contratos.length);
+      if(data.pkhv2_socios)lines.push('<b>Socios:</b> '+data.pkhv2_socios.length);
+      if(data.pkhv2_hb)lines.push('<b>Home Banking:</b> '+data.pkhv2_hb.length);
+
+      var prev=$('import-preview');
+      prev.innerHTML='<div style="font-weight:600;margin-bottom:6px;">📄 '+file.name+'</div>'+lines.join(' &nbsp;·&nbsp; ');
+      prev.style.display='block';
+
+      // Botón de confirmación
+      var label=_importModo==='fusionar'?'🔀 Fusionar datos':'⚠️ Reemplazar todo';
+      $('import-footer').innerHTML=
+        '<button class="btn btn-secondary" onclick="hideModal(\'modal-importar\')">Cancelar</button>'+
+        '<button class="btn btn-primary" onclick="confirmarImportacion()">'+label+'</button>';
+    }catch(e){
+      showToast('Error al leer el archivo: '+e.message, true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function _mergeById(local, imported){
+  if(!imported||!Array.isArray(imported))return local;
+  var map={};
+  local.forEach(function(item){ map[String(item.id)]=item; });
+  imported.forEach(function(item){ map[String(item.id)]=item; });
+  return Object.values(map);
+}
+
+function _mergeKm(local, imported){
+  if(!imported||!Array.isArray(imported))return local;
+  var map={};
+  local.forEach(function(k){ map[k.pat+'|'+k.mes+'|'+k.anio]=k; });
+  imported.forEach(function(k){ map[k.pat+'|'+k.mes+'|'+k.anio]=k; });
+  return Object.values(map);
+}
+
+function confirmarImportacion(){
+  if(!_importData){showToast('Seleccioná un archivo primero',true);return;}
+  if(_importModo==='reemplazar'){
+    if(!confirm('¿Reemplazar TODOS los datos actuales? Esta acción no se puede deshacer.'))return;
+    Object.keys(_importData).forEach(function(k){
+      localStorage.setItem(k,JSON.stringify(_importData[k]));
+    });
+    reloadAllState();
+    hideModal('modal-importar');
+    updateAlertBadges();
+    populateSelects();
+    renderDashboard();
+    showToast('✓ Datos reemplazados correctamente');
+    return;
+  }
+  // Fusionar
+  var d=_importData;
+  if(d.pkhv2_flota){flota=_mergeById(flota,d.pkhv2_flota);save('pkhv2_flota',flota);}
+  if(d.pkhv2_fac){facturas=_mergeById(facturas,d.pkhv2_fac);save('pkhv2_fac',facturas);}
+  if(d.pkhv2_gas){gastos=_mergeById(gastos,d.pkhv2_gas);save('pkhv2_gas',gastos);}
+  if(d.pkhv2_mant){mantenimiento=_mergeById(mantenimiento,d.pkhv2_mant);save('pkhv2_mant',mantenimiento);}
+  if(d.pkhv2_docs){documentos=_mergeById(documentos,d.pkhv2_docs);save('pkhv2_docs',documentos);}
+  if(d.pkhv2_cheq){cheques=_mergeById(cheques,d.pkhv2_cheq);save('pkhv2_cheq',cheques);}
+  if(d.pkhv2_contratos){contratos=_mergeById(contratos,d.pkhv2_contratos);save('pkhv2_contratos',contratos);}
+  if(d.pkhv2_socios){socios=_mergeById(socios,d.pkhv2_socios);save('pkhv2_socios',socios);}
+  if(d.pkhv2_aport){aportes=_mergeById(aportes,d.pkhv2_aport);save('pkhv2_aport',aportes);}
+  if(d.pkhv2_hb){homebanking=_mergeById(homebanking,d.pkhv2_hb);save('pkhv2_hb',homebanking);}
+  if(d.pkhv2_km){km=_mergeKm(km,d.pkhv2_km);save('pkhv2_km',km);}
+  if(d.pkhv2_costos){costosMes=Object.assign({},costosMes,d.pkhv2_costos);save('pkhv2_costos',costosMes);}
+  hideModal('modal-importar');
+  updateAlertBadges();
+  populateSelects();
+  var activePanel=document.querySelector('.nav-item.active');
+  renderPanel(activePanel?activePanel.dataset.panel:'dashboard');
+  showToast('✓ '+(d.pkhv2_fac?d.pkhv2_fac.length+' facturas, ':'')+
+    (d.pkhv2_km?d.pkhv2_km.length+' km, ':'')+
+    (d.pkhv2_gas?d.pkhv2_gas.length+' gastos ':'')+' fusionados');
+}
 
 init();
 
