@@ -504,7 +504,7 @@ input[type="checkbox"]{accent-color:var(--accent);}
 <div class="panel" id="panel-gastos">
   <div class="section-hdr">
     <div class="section-title">GASTOS <span>SOCIEDAD</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-gasto')">+ NUEVO GASTO</button>
+    <button class="btn btn-primary btn-sm" onclick="abrirModalGasto()"><i class="ti ti-plus"></i> Nuevo gasto</button>
   </div>
   <div class="kpi-grid" id="gas-kpis"></div>
   <div class="chart-grid"><div class="chart-box"><h4>GASTOS POR MES</h4><div class="chart-wrap"><canvas id="gasChart"></canvas></div></div>
@@ -526,7 +526,8 @@ input[type="checkbox"]{accent-color:var(--accent);}
   <div class="section-hdr">
     <div class="section-title">COSTOS <span>MENSUALES</span></div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <select id="costos-mes" onchange="renderCostos()" style="width:auto;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:4px;font-family:var(--fh);font-size:13px;letter-spacing:1px;"></select>
+      <select id="costos-mes" onchange="renderCostos()" style="width:auto;background:var(--surface);border:0.5px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;"></select>
+      <button class="btn btn-primary btn-sm" onclick="abrirCargarMes()"><i class="ti ti-plus"></i> Cargar mes</button>
     </div>
   </div>
   <div class="chart-grid"><div class="chart-box" style="grid-column:1/-1"><h4>EVOLUCIÓN INGRESOS VS EGRESOS</h4><div class="chart-wrap" style="height:260px"><canvas id="costosChart"></canvas></div></div></div>
@@ -742,15 +743,68 @@ input[type="checkbox"]{accent-color:var(--accent);}
   <div class="modal">
     <h2>NUEVO GASTO</h2>
     <div class="form-grid">
-      <div class="form-group full"><label>CONCEPTO</label><input id="ng-con" placeholder="Descripción del gasto"></div>
+      <div class="form-group full">
+        <label>CONCEPTO</label>
+        <input id="ng-con" placeholder="Descripción del gasto" list="ng-con-list" oninput="gastoAutoCategoria()" autocomplete="off">
+        <datalist id="ng-con-list"></datalist>
+      </div>
       <div class="form-group"><label>FECHA</label><input id="ng-fecha" type="date"></div>
       <div class="form-group"><label>MONTO ($)</label><input id="ng-monto" type="number" placeholder="0"></div>
-      <div class="form-group"><label>ORIGEN / CUENTA</label><input id="ng-orig" placeholder="HB JULI, CAJA SOCIEDAD..."></div>
-      <div class="form-group"><label>CATEGORÍA</label><select id="ng-cat"><option>Administrativo</option><option>Operativo</option><option>Impuestos</option><option>Seguros</option><option>Mantenimiento</option><option>Patentes</option><option>Contador</option><option>Otro</option></select></div>
+      <div class="form-group">
+        <label>ORIGEN / CUENTA</label>
+        <input id="ng-orig" placeholder="HB GALICIA SOCIEDAD..." list="ng-orig-list" autocomplete="off">
+        <datalist id="ng-orig-list">
+          <option value="HB GALICIA SOCIEDAD">
+          <option value="HB BBVA SOCIEDAD">
+          <option value="CAJA SOCIEDAD">
+          <option value="HB DIEGO">
+          <option value="HB JULIO">
+          <option value="HB GASTON">
+          <option value="HB LEONEL">
+          <option value="TARJETA VISA GALICIA">
+          <option value="TARJETA VISA BBVA">
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label>CATEGORÍA</label>
+        <select id="ng-cat">
+          <option>Seguros</option>
+          <option>Impuestos</option>
+          <option>Contador</option>
+          <option>Operativo</option>
+          <option>Mantenimiento</option>
+          <option>Patentes</option>
+          <option>Administrativo</option>
+          <option>Otro</option>
+        </select>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="hideModal('modal-gasto')">CANCELAR</button>
       <button class="btn btn-primary" onclick="addGasto()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CARGA COSTOS MENSUALES -->
+<div class="modal-overlay" id="modal-costo-mes">
+  <div class="modal" style="max-width:680px">
+    <h2>📊 Cargar costos del mes</h2>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="cm-mes" style="padding:7px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:13px;background:var(--surface);">
+        <option>ENERO</option><option>FEBRERO</option><option>MARZO</option><option>ABRIL</option>
+        <option>MAYO</option><option>JUNIO</option><option>JULIO</option><option>AGOSTO</option>
+        <option>SEPTIEMBRE</option><option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
+      </select>
+      <select id="cm-anio" style="padding:7px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:13px;background:var(--surface);">
+        <option>2025</option><option>2026</option><option>2027</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="preLlenarCostoMes()"><i class="ti ti-copy"></i> Pre-llenar desde último mes</button>
+    </div>
+    <div id="cm-form-body" style="max-height:420px;overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-costo-mes')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCostoMes()"><i class="ti ti-device-floppy"></i> Guardar mes</button>
     </div>
   </div>
 </div>
@@ -2106,10 +2160,180 @@ function renderGastos(){
   },50);
 }
 
+function abrirModalGasto(){
+  $('ng-fecha').value=today();
+  // Autocompletado conceptos desde historial
+  var recent=[...new Set(gastos.map(function(g){return g.con;}).filter(Boolean).reverse())].slice(0,40);
+  var dl=$('ng-con-list');
+  if(dl) dl.innerHTML=recent.map(function(c){return '<option value="'+c.replace(/"/g,'&quot;')+'">';}).join('');
+  showModal('modal-gasto');
+}
+
+function gastoAutoCategoria(){
+  var con=($('ng-con').value||'').toUpperCase();
+  var cat=$('ng-cat');
+  if(!cat)return;
+  if(/SEGURO/.test(con)) cat.value='Seguros';
+  else if(/VEP|IVA|IIBB|BRUTOS|IMP\.|IMPUESTO|PERCEP/.test(con)) cat.value='Impuestos';
+  else if(/CONTADOR|AROCENA|HONORARIO/.test(con)) cat.value='Contador';
+  else if(/MICROTRACK|RSV|SERVICE|GNSS|GPS/.test(con)) cat.value='Operativo';
+  else if(/PATENTE|PATENTAMIENTO/.test(con)) cat.value='Patentes';
+  else if(/MANT|CUBIER|FRENO|ACEITE/.test(con)) cat.value='Mantenimiento';
+  else if(/INSCRIPCION|EDICTO|SELLADO|CERTIF|ADMIN/.test(con)) cat.value='Administrativo';
+}
+
 function addGasto(){
   const g={id:nextId(gastos),con:$('ng-con').value.trim().toUpperCase(),fecha:$('ng-fecha').value,monto:Number($('ng-monto').value)||0,orig:$('ng-orig').value.trim().toUpperCase(),cat:$('ng-cat').value};
   if(!g.con)return showToast('Ingresá el concepto',true);
   gastos.push(g);save('pkhv2_gas',gastos);hideModal('modal-gasto');renderGastos();showToast('✓ Gasto registrado');
+}
+
+// ============================================================
+// COSTOS MENSUALES — FORM DIRECTO
+// ============================================================
+function _cmKey(mes, anio){ return MESES_SHORT[MESES.indexOf(mes)]+'-'+anio; }
+
+function abrirCargarMes(){
+  var hoy=new Date();
+  $('cm-mes').value=MESES[hoy.getMonth()];
+  $('cm-anio').value=String(hoy.getFullYear());
+  renderFormCostos();
+  showModal('modal-costo-mes');
+}
+
+function renderFormCostos(data){
+  var mes=$('cm-mes').value, anio=$('cm-anio').value;
+  var key=_cmKey(mes,anio);
+  var existing=costosMes[key]||{vars:[],fijos:[],imp:[],ing:[]};
+  data=data||existing;
+
+  // Filas fijas de seguros y amortizaciones basadas en la flota actual
+  var propias=flota.filter(function(u){return u.tipo==='propia';});
+
+  function val(section, label){
+    var row=(data[section]||[]).find(function(r){return r[0]===label;});
+    return row?row[1]:0;
+  }
+
+  function row(id, label, v){
+    return '<tr><td style="padding:5px 8px;font-size:12px;">'+label+'</td>'
+      +'<td style="padding:4px 8px;"><input type="number" id="cm-'+id+'" value="'+(v||'')+'" placeholder="0" '
+      +'style="width:100%;padding:5px 8px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--fm);background:var(--surface);" '
+      +'oninput="this.style.borderColor=this.value?\'var(--accent)\':\' var(--border)\'"></td></tr>';
+  }
+
+  function section(titulo, color, rows){
+    return '<div style="margin-bottom:12px;">'
+      +'<div style="font-weight:700;font-size:11px;color:'+color+';letter-spacing:1px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:4px;">'+titulo+'</div>'
+      +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table></div>';
+  }
+
+  var varsRows=''
+    +row('v_autonomo','Vep Autónomo',val('vars','Vep Autónomo'))
+    +row('v_iibb','Vep IIBB',val('vars','Vep IIBB'))
+    +row('v_iva','VEP IVA',val('vars','VEP IVA'))
+    +propias.map(function(u){return row('v_srv_'+u.pat.replace(/-/g,'_'),'Services '+u.pat,val('vars','Services '+u.pat));}).join('')
+    +row('v_cubiertas','Cubiertas',val('vars','Cubiertas'));
+
+  var fijosRows=''
+    +flota.map(function(u){return row('f_seg_'+u.pat.replace(/-/g,'_'),'Seguro '+u.pat,val('fijos','Seguro '+u.pat));}).join('')
+    +row('f_microtrack','Microtrack x5',val('fijos','Microtrack x5'))
+    +row('f_rsv','RSV',val('fijos','RSV'))
+    +row('f_documental','Control Documental',val('fijos','Control Documental'))
+    +row('f_contador','Abono Contador',val('fijos','Abono Contador'))
+    +propias.map(function(u){return row('f_amort_'+u.pat.replace(/-/g,'_'),'Amort. '+u.pat,val('fijos','Amort. '+u.pat));}).join('')
+    +row('f_julidev','Devol. Juli García',val('fijos','Devol. Juli García'))
+    +row('f_comision','5% Comisión',val('fijos','5% Comisión'));
+
+  var impRows=''
+    +row('i_comgas','Comisiones / Gastos Op.',val('imp','Comisiones / Gastos Op.'))
+    +row('i_ivaperp','IVA y Percepciones',val('imp','IVA y Percepciones'))
+    +row('i_impcred','Imp. Crédito Ley 25.413',val('imp','Imp. Crédito Ley 25.413'))
+    +row('i_impdeb','Imp. Débito Ley 25.413',val('imp','Imp. Débito Ley 25.413'))
+    +row('i_iibb','Ing. Brutos s/ Créditos',val('imp','Ing. Brutos s/ Créditos'))
+    +row('i_visgal','Tarjeta Visa GALICIA',val('imp','Tarjeta Visa GALICIA'))
+    +row('i_visbbv','Tarjeta Visa BBVA',val('imp','Tarjeta Visa BBVA'));
+
+  // Ingresos: contratos activos + clientes existentes
+  var ingClients=[...new Set(contratos.filter(function(c){return c.est==='activo';}).map(function(c){return c.emp;}))];
+  // Agregar clientes del mes anterior si los hay
+  (data.ing||[]).forEach(function(r){if(ingClients.indexOf(r[0])<0)ingClients.push(r[0]);});
+  var ingRows=ingClients.map(function(emp){
+    var safe=emp.replace(/[^a-zA-Z0-9]/g,'_').substr(0,20);
+    return row('ing_'+safe, emp, val('ing',emp));
+  }).join('');
+
+  $('cm-form-body').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">'
+    +'<div>'+section('📈 COSTOS VARIABLES','var(--orange)',varsRows)
+    +section('🏛 COSTOS FIJOS','var(--accent)',fijosRows)+'</div>'
+    +'<div>'+section('🧾 IMPUESTOS / OTROS','var(--red)',impRows)
+    +section('💰 INGRESOS DEL MES','var(--green)',ingRows)+'</div>'
+    +'</div>';
+}
+
+function preLlenarCostoMes(){
+  var mes=$('cm-mes').value, anio=$('cm-anio').value;
+  // Buscar el mes más reciente disponible en costosMes
+  var keys=Object.keys(costosMes).sort();
+  var curKey=_cmKey(mes,anio);
+  var prev=keys.filter(function(k){return k<curKey;});
+  if(!prev.length){showToast('No hay datos del mes anterior para pre-llenar',true);return;}
+  var lastKey=prev[prev.length-1];
+  renderFormCostos(costosMes[lastKey]);
+  showToast('Pre-llenado desde '+lastKey);
+}
+
+function guardarCostoMes(){
+  var mes=$('cm-mes').value, anio=$('cm-anio').value;
+  var key=_cmKey(mes,anio);
+  var propias=flota.filter(function(u){return u.tipo==='propia';});
+
+  function getVal(id){ var el=document.getElementById('cm-'+id); return el&&el.value?Number(el.value):0; }
+  function rowIf(label,val){ return val?[[label,val]]:[] ; }
+
+  var vars=[].concat(
+    rowIf('Vep Autónomo',getVal('v_autonomo')),
+    rowIf('Vep IIBB',getVal('v_iibb')),
+    rowIf('VEP IVA',getVal('v_iva')),
+    propias.reduce(function(acc,u){var v=getVal('v_srv_'+u.pat.replace(/-/g,'_'));return v?acc.concat([['Services '+u.pat,v]]):acc;},[]),
+    rowIf('Cubiertas',getVal('v_cubiertas'))
+  );
+  var fijos=[].concat(
+    flota.reduce(function(acc,u){var v=getVal('f_seg_'+u.pat.replace(/-/g,'_'));return v?acc.concat([['Seguro '+u.pat,v]]):acc;},[]),
+    rowIf('Microtrack x5',getVal('f_microtrack')),
+    rowIf('RSV',getVal('f_rsv')),
+    rowIf('Control Documental',getVal('f_documental')),
+    rowIf('Abono Contador',getVal('f_contador')),
+    propias.reduce(function(acc,u){var v=getVal('f_amort_'+u.pat.replace(/-/g,'_'));return v?acc.concat([['Amort. '+u.pat,v]]):acc;},[]),
+    rowIf('Devol. Juli García',getVal('f_julidev')),
+    rowIf('5% Comisión',getVal('f_comision'))
+  );
+  var imp=[].concat(
+    rowIf('Comisiones / Gastos Op.',getVal('i_comgas')),
+    rowIf('IVA y Percepciones',getVal('i_ivaperp')),
+    rowIf('Imp. Crédito Ley 25.413',getVal('i_impcred')),
+    rowIf('Imp. Débito Ley 25.413',getVal('i_impdeb')),
+    rowIf('Ing. Brutos s/ Créditos',getVal('i_iibb')),
+    rowIf('Tarjeta Visa GALICIA',getVal('i_visgal')),
+    rowIf('Tarjeta Visa BBVA',getVal('i_visbbv'))
+  );
+  var ingClients=[...new Set(contratos.filter(function(c){return c.est==='activo';}).map(function(c){return c.emp;}))];
+  (costosMes[key]&&costosMes[key].ing||[]).forEach(function(r){if(ingClients.indexOf(r[0])<0)ingClients.push(r[0]);});
+  var ing=ingClients.reduce(function(acc,emp){
+    var safe=emp.replace(/[^a-zA-Z0-9]/g,'_').substr(0,20);
+    var v=getVal('ing_'+safe);
+    return v?acc.concat([[emp,v]]):acc;
+  },[]);
+
+  costosMes[key]={vars:vars,fijos:fijos,imp:imp,ing:ing};
+  save('pkhv2_costos',costosMes);
+  hideModal('modal-costo-mes');
+  // Actualizar selector y mostrar el mes guardado
+  renderCostos();
+  var sel=$('costos-mes');
+  if(sel){var opt=Array.from(sel.options).find(function(o){return o.value===key;});if(opt)sel.value=key;renderCostos();}
+  showToast('✓ Costos de '+mes+' '+anio+' guardados');
 }
 function deleteGasto(id){if(!confirm('¿Eliminar?'))return;gastos=gastos.filter(g=>g.id!==id);save('pkhv2_gas',gastos);renderGastos();showToast('Eliminado');}
 
