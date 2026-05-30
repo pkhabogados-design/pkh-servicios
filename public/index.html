@@ -323,6 +323,7 @@ input[type="date"]::placeholder{color:var(--muted);}
     <button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportarTodo()"><i class="ti ti-download"></i> Exportar datos</button>
     <button class="btn btn-secondary btn-sm" style="width:100%" onclick="showModal('modal-importar');importReset()"><i class="ti ti-upload"></i> Importar datos</button>
     <button class="btn btn-secondary btn-sm" style="width:100%;color:var(--orange);border-color:var(--orange);" onclick="abrirSnapshots()"><i class="ti ti-history"></i> Snapshots</button>
+    <button class="btn btn-secondary btn-sm" style="width:100%;color:var(--purple);border-color:var(--purple);" onclick="migrarAlBackend()" id="btn-migrar"><i class="ti ti-database-import"></i> Migrar a DB</button>
   </div>
 </nav>
 
@@ -1092,6 +1093,31 @@ async function syncToAPI() {
     if (nuevosKm.length) await apiCall('POST', '/api/km/bulk', { registros: nuevosKm.map(k => ({ patente:k.pat, mes:k.mes, anio:k.anio, km:k.km })) });
   }
   console.log('[API] Sync completado');
+}
+
+// Migración completa de localStorage → PostgreSQL
+async function migrarAlBackend() {
+  if (!_apiToken) { showToast('Iniciá sesión primero', true); return; }
+  if (!confirm('¿Migrar todos los datos locales a la base de datos?\nEsto puede tardar unos segundos.')) return;
+  const btn = $('btn-migrar');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader"></i> Migrando...'; }
+
+  // Recolectar todos los datos del localStorage
+  const payload = {};
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('pkhv2_'));
+  keys.forEach(k => {
+    try { payload[k] = JSON.parse(localStorage.getItem(k)); }
+    catch { payload[k] = localStorage.getItem(k); }
+  });
+
+  const res = await apiCall('POST', '/api/migracion/full', payload);
+  if (res) {
+    showToast('✓ ' + res.mensaje);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-database-check"></i> DB sincronizada'; }
+  } else {
+    showToast('Error en la migración', true);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-database-import"></i> Migrar a DB'; }
+  }
 }
 
 // Facturación masiva desde el backend
