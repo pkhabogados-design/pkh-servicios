@@ -322,6 +322,7 @@ input[type="date"]::placeholder{color:var(--muted);}
   <div style="padding:12px 16px;border-top:0.5px solid var(--border);display:flex;flex-direction:column;gap:6px;">
     <button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportarTodo()"><i class="ti ti-download"></i> Exportar datos</button>
     <button class="btn btn-secondary btn-sm" style="width:100%" onclick="showModal('modal-importar');importReset()"><i class="ti ti-upload"></i> Importar datos</button>
+    <button class="btn btn-secondary btn-sm" style="width:100%;color:var(--orange);border-color:var(--orange);" onclick="abrirSnapshots()"><i class="ti ti-history"></i> Snapshots</button>
   </div>
 </nav>
 
@@ -946,6 +947,19 @@ input[type="date"]::placeholder{color:var(--muted);}
     <div id="mis-preview" style="display:none;max-height:300px;overflow-y:auto;margin-bottom:14px;border:0.5px solid var(--border);border-radius:8px;"></div>
     <div class="modal-footer" id="mis-footer">
       <button class="btn btn-secondary" onclick="hideModal('modal-import-seccion')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= MODAL SNAPSHOTS ======= -->
+<div class="modal-overlay" id="modal-snapshots">
+  <div class="modal" style="max-width:520px">
+    <h2>🕐 Snapshots</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Puntos de restauración creados automáticamente antes de cada importación. Podés volver al estado anterior si algo salió mal.</p>
+    <div id="snapshots-lista" style="display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-snapshots')">Cerrar</button>
+      <button class="btn btn-secondary btn-sm" onclick="crearSnapshotManual()" style="margin-right:auto"><i class="ti ti-plus"></i> Crear snapshot ahora</button>
     </div>
   </div>
 </div>
@@ -3911,8 +3925,93 @@ function _procesarCSVFacturas(rows){
   return result;
 }
 
+// ============================================================
+// SNAPSHOTS — respaldo automático antes de importar
+// ============================================================
+var SNAP_PREFIX='pkhv2_snap_';
+var SNAP_MAX=5;
+var SNAP_KEYS=['pkhv2_flota','pkhv2_km','pkhv2_fac','pkhv2_gas','pkhv2_mant',
+  'pkhv2_docs','pkhv2_cheq','pkhv2_hb','pkhv2_contratos','pkhv2_socios',
+  'pkhv2_aport','pkhv2_costos'];
+
+function crearSnapshot(label){
+  var ts=Date.now();
+  var snap={ts:ts,label:label||'Snapshot manual',data:{}};
+  SNAP_KEYS.forEach(function(k){
+    var v=localStorage.getItem(k);
+    if(v) snap.data[k]=v; // guardar como string para eficiencia
+  });
+  localStorage.setItem(SNAP_PREFIX+ts,JSON.stringify(snap));
+  // Mantener solo los últimos SNAP_MAX
+  var keys=_listarSnapKeys();
+  if(keys.length>SNAP_MAX){
+    keys.slice(0,keys.length-SNAP_MAX).forEach(function(k){
+      localStorage.removeItem(k);
+    });
+  }
+  return ts;
+}
+
+function crearSnapshotManual(){
+  crearSnapshot('Snapshot manual — '+new Date().toLocaleString('es-AR'));
+  showToast('✓ Snapshot creado');
+  abrirSnapshots();
+}
+
+function _listarSnapKeys(){
+  var keys=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.startsWith(SNAP_PREFIX)) keys.push(k);
+  }
+  return keys.sort();
+}
+
+function abrirSnapshots(){
+  var keys=_listarSnapKeys().reverse(); // más reciente primero
+  var lista=$('snapshots-lista');
+  if(!lista)return;
+  if(keys.length===0){
+    lista.innerHTML='<div style="color:var(--muted);font-size:13px;padding:16px;text-align:center;">No hay snapshots disponibles. Se crean automáticamente antes de cada importación.</div>';
+  } else {
+    lista.innerHTML=keys.map(function(k){
+      var snap;
+      try{ snap=JSON.parse(localStorage.getItem(k)); }catch(e){ return ''; }
+      var fecha=new Date(snap.ts).toLocaleString('es-AR');
+      var nKeys=Object.keys(snap.data||{}).length;
+      return '<div style="display:flex;align-items:center;gap:12px;padding:12px;border:0.5px solid var(--border);border-radius:8px;background:var(--surface);">'
+        +'<div style="flex:1;">'
+        +'<div style="font-weight:600;font-size:13px;">'+snap.label+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+fecha+' · '+nKeys+' colecciones</div>'
+        +'</div>'
+        +'<button class="btn btn-danger" style="font-size:11px;padding:5px 12px;white-space:nowrap;" onclick="restaurarSnapshot(\''+k+'\')">'
+        +'<i class="ti ti-restore"></i> Restaurar</button>'
+        +'</div>';
+    }).join('');
+  }
+  showModal('modal-snapshots');
+}
+
+function restaurarSnapshot(snapKey){
+  var snap;
+  try{ snap=JSON.parse(localStorage.getItem(snapKey)); }catch(e){ showToast('Error al leer snapshot',true);return; }
+  if(!confirm('¿Restaurar al estado del '+new Date(snap.ts).toLocaleString('es-AR')+'?\nEsto sobreescribirá los datos actuales.'))return;
+  Object.keys(snap.data||{}).forEach(function(k){
+    localStorage.setItem(k,snap.data[k]);
+  });
+  reloadAllState();
+  updateAlertBadges();
+  populateSelects();
+  renderDashboard();
+  hideModal('modal-snapshots');
+  showToast('✓ Datos restaurados al '+new Date(snap.ts).toLocaleString('es-AR'));
+}
+
 function confirmarImportSeccion(){
   if(!_misData) return;
+  // Snapshot automático antes de importar
+  var label='Antes de importar '+{gastos:'gastos',facturas:'facturas',costos:'costos',hb:'extracto HB'}[_misSeccion];
+  crearSnapshot(label);
   if(_misSeccion==='gastos'){
     var added=0;
     _misData.forEach(function(g){
@@ -4050,6 +4149,7 @@ function _mergeKm(local, imported){
 
 function confirmarImportacion(){
   if(!_importData){showToast('Seleccioná un archivo primero',true);return;}
+  crearSnapshot('Antes de importar datos (global)');
   if(_importModo==='reemplazar'){
     if(!confirm('¿Reemplazar TODOS los datos actuales? Esta acción no se puede deshacer.'))return;
     Object.keys(_importData).forEach(function(k){
