@@ -238,6 +238,8 @@ input[type="date"]::placeholder{color:var(--muted);}
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -274,16 +276,34 @@ input[type="date"]::placeholder{color:var(--muted);}
 
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px">
-  <div style="text-align:center;margin-bottom:10px">
-    <div style="width:60px;height:60px;background:var(--accent);clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:900;font-size:22px;color:#0d0f14;margin:0 auto 12px">PKH</div>
-    <div style="font-family:var(--fh);font-size:28px;font-weight:700;letter-spacing:3px">PKH SERVICIOS S.A.S</div>
-    <div style="font-size:12px;color:var(--muted);letter-spacing:3px;font-family:var(--fm);margin-top:4px">SISTEMA DE GESTIÓN INTEGRAL</div>
+  <div style="text-align:center;margin-bottom:4px">
+    <div style="width:56px;height:56px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:18px;color:white;margin:0 auto 12px">PKH</div>
+    <div style="font-size:22px;font-weight:700;color:var(--text)">PKH Servicios</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px">Sistema de Gestión Integral</div>
   </div>
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:32px;width:320px;text-align:center">
-    <div style="font-family:var(--fh);font-size:15px;letter-spacing:2px;color:var(--muted);margin-bottom:16px">INGRESÁ EL PIN DE ACCESO</div>
-    <input id="pin-input" type="password" placeholder="••••••••" style="width:100%;text-align:center;font-size:22px;letter-spacing:8px;padding:12px;margin-bottom:14px;font-family:var(--fm)" onkeydown="if(event.key==='Enter')checkPin()">
-    <button class="btn btn-primary" style="width:100%;font-size:15px;padding:12px" onclick="checkPin()">INGRESAR</button>
-    <div id="pin-error" style="color:var(--red);font-size:12px;margin-top:10px;font-family:var(--fm);display:none">PIN INCORRECTO</div>
+  <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:32px 28px;width:340px;box-shadow:0 4px 20px rgba(0,0,0,0.08)">
+    <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:18px">Iniciá sesión</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="font-size:10px;color:var(--muted);letter-spacing:1.5px;font-weight:600;display:block;margin-bottom:5px">EMAIL</label>
+        <input id="login-email" type="email" placeholder="usuario@empresa.com" style="width:100%;" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+      </div>
+      <div>
+        <label style="font-size:10px;color:var(--muted);letter-spacing:1.5px;font-weight:600;display:block;margin-bottom:5px">CONTRASEÑA</label>
+        <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;" onkeydown="if(event.key==='Enter')signInEmail()">
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:11px;font-size:14px;margin-top:4px" onclick="signInEmail()">Ingresar</button>
+      <div style="display:flex;align-items:center;gap:8px;margin:2px 0">
+        <div style="flex:1;border-top:0.5px solid var(--border)"></div>
+        <span style="font-size:11px;color:var(--muted)">o</span>
+        <div style="flex:1;border-top:0.5px solid var(--border)"></div>
+      </div>
+      <button onclick="signInGoogle()" style="width:100%;padding:10px;border:0.5px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;" onmouseover="this.style.background='#f8f9fb'" onmouseout="this.style.background='white'">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+        Continuar con Google
+      </button>
+    </div>
+    <div id="login-error" style="color:var(--red);font-size:12px;margin-top:12px;display:none;text-align:center;"></div>
   </div>
   <div style="font-size:11px;color:var(--muted);font-family:var(--fm)" id="login-status">Conectando...</div>
 </div>
@@ -320,10 +340,13 @@ input[type="date"]::placeholder{color:var(--muted);}
   </div>
   <div style="flex:1;"></div>
   <div style="padding:12px 16px;border-top:0.5px solid var(--border);display:flex;flex-direction:column;gap:6px;">
-    <button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportarTodo()"><i class="ti ti-download"></i> Exportar datos</button>
-    <button class="btn btn-secondary btn-sm" style="width:100%" onclick="showModal('modal-importar');importReset()"><i class="ti ti-upload"></i> Importar datos</button>
-    <button class="btn btn-secondary btn-sm" style="width:100%;color:var(--orange);border-color:var(--orange);" onclick="abrirSnapshots()"><i class="ti ti-history"></i> Snapshots</button>
-    <button class="btn btn-secondary btn-sm" style="width:100%;color:var(--purple);border-color:var(--purple);" onclick="migrarAlBackend()" id="btn-migrar"><i class="ti ti-database-import"></i> Migrar a DB</button>
+    <div id="sidebar-footer-admin">
+      <button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:6px" onclick="exportarTodo()"><i class="ti ti-download"></i> Exportar datos</button>
+      <button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:6px" onclick="showModal('modal-importar');importReset()"><i class="ti ti-upload"></i> Importar datos</button>
+      <button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:6px;color:var(--orange);border-color:var(--orange);" onclick="abrirSnapshots()"><i class="ti ti-history"></i> Snapshots</button>
+      <button class="btn btn-secondary btn-sm" style="width:100%;color:var(--purple);border-color:var(--purple);" onclick="migrarAlBackend()" id="btn-migrar"><i class="ti ti-database-import"></i> Migrar a DB</button>
+    </div>
+    <button class="btn btn-secondary btn-sm" style="width:100%;margin-top:4px;color:var(--red);border-color:var(--red);" onclick="signOutUser()"><i class="ti ti-logout"></i> Cerrar sesión</button>
   </div>
 </nav>
 
@@ -662,6 +685,50 @@ input[type="date"]::placeholder{color:var(--muted);}
     </div>
   </div>
   <div class="card" id="checklist-content"></div>
+</div>
+
+<!-- ======= USUARIOS (solo superadmin) ======= -->
+<div class="panel" id="panel-usuarios">
+  <div class="section-hdr">
+    <div class="section-title">PANEL DE <span>USUARIOS</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-usuario');resetModalUsuario()">+ NUEVO USUARIO</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>NOMBRE</th><th>EMAIL</th><th>ROL</th><th>VEHÍCULOS / CLIENTE</th><th>ESTADO</th><th></th>
+      </tr></thead>
+      <tbody id="usuarios-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======= SOLICITAR FACTURA (solo cliente) ======= -->
+<div class="panel" id="panel-solicitar">
+  <div class="section-hdr">
+    <div class="section-title">SOLICITAR <span>FACTURA</span></div>
+  </div>
+  <div class="form-panel">
+    <h3>Nueva solicitud de factura</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>VEHÍCULO / PATENTE</label>
+        <select id="sol-vehiculo"></select>
+      </div>
+      <div class="form-group">
+        <label>PERÍODO</label>
+        <select id="sol-periodo"></select>
+      </div>
+      <div class="form-group full">
+        <label>OBSERVACIONES</label>
+        <textarea id="sol-obs" rows="2" placeholder="Detalles adicionales..."></textarea>
+      </div>
+    </div>
+    <div class="form-row">
+      <button class="btn btn-primary" onclick="enviarSolicitudFactura()"><i class="ti ti-send"></i> Enviar solicitud</button>
+    </div>
+  </div>
+  <div id="solicitudes-propias-list"></div>
 </div>
 
 </main>
@@ -1140,8 +1207,12 @@ async function generarFacturacionMasiva() {
 }
 
 let db = null;
+let auth = null;
 let firebaseReady = false;
-let syncStatus = 'offline'; // 'offline' | 'syncing' | 'online'
+let syncStatus = 'offline';
+let currentUser = null;
+let currentUserData = null;
+let currentUserRole = null; // 'superadmin' | 'socio' | 'cliente'
 
 function initFirebase() {
   try {
@@ -1150,8 +1221,9 @@ function initFirebase() {
       firebaseReady = false;
       return;
     }
-    firebase.initializeApp(FIREBASE_CONFIG);
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
+    auth = firebase.auth();
     firebaseReady = true;
     setSyncStatus('online');
     console.log("Firebase conectado OK");
@@ -1159,6 +1231,206 @@ function initFirebase() {
     console.error("Error Firebase:", e);
     firebaseReady = false;
   }
+}
+
+// ============================================================
+// AUTH — Firebase Email/Password + Google
+// ============================================================
+async function signInEmail() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent='Completá email y contraseña.'; errEl.style.display='block'; return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    // onAuthStateChanged se dispara y llama a afterLogin()
+  } catch(e) {
+    const msgs = { 'auth/user-not-found':'Usuario no encontrado.', 'auth/wrong-password':'Contraseña incorrecta.', 'auth/invalid-email':'Email inválido.', 'auth/user-disabled':'Usuario desactivado.' };
+    errEl.textContent = msgs[e.code] || 'Error al ingresar: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function signInGoogle() {
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  } catch(e) {
+    errEl.textContent = 'Error con Google: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+function signOutUser() {
+  if (!auth) return;
+  auth.signOut().then(() => {
+    currentUser = null; currentUserData = null; currentUserRole = null;
+    sessionStorage.removeItem('pkhUserRole');
+    sessionStorage.removeItem('pkhUserData');
+    document.getElementById('login-overlay').style.display = 'flex';
+    document.getElementById('login-email') && (document.getElementById('login-email').value = '');
+    document.getElementById('login-pass') && (document.getElementById('login-pass').value = '');
+  });
+}
+
+async function afterLogin(user) {
+  currentUser = user;
+  document.getElementById('login-status') && (document.getElementById('login-status').textContent = 'Cargando perfil...');
+  // Leer datos del usuario desde /pkh/usuarios/{uid}
+  try {
+    const snap = await db.ref('pkh/usuarios/' + user.uid).once('value');
+    let userData = snap.val();
+    if (!userData) {
+      // Si no existe en DB, crearlo como superadmin (primer usuario) o bloquear
+      const allSnap = await db.ref('pkh/usuarios').once('value');
+      const all = allSnap.val();
+      if (!all || Object.keys(all).length === 0) {
+        // Primer usuario: superadmin
+        userData = { nombre: user.displayName || user.email.split('@')[0], email: user.email, rol: 'superadmin', activo: true, creadoEn: Date.now() };
+        await db.ref('pkh/usuarios/' + user.uid).set(userData);
+      } else {
+        // Usuario no registrado en el sistema
+        document.getElementById('login-error') && (document.getElementById('login-error').textContent = 'Tu cuenta no está registrada en el sistema. Contactá al administrador.');
+        document.getElementById('login-error') && (document.getElementById('login-error').style.display = 'block');
+        auth.signOut();
+        return;
+      }
+    }
+    if (userData.activo === false) {
+      document.getElementById('login-error') && (document.getElementById('login-error').textContent = 'Tu cuenta está desactivada. Contactá al administrador.');
+      document.getElementById('login-error') && (document.getElementById('login-error').style.display = 'block');
+      auth.signOut();
+      return;
+    }
+    currentUserData = userData;
+    currentUserRole = userData.rol;
+    sessionStorage.setItem('pkhUserRole', currentUserRole);
+    sessionStorage.setItem('pkhUserData', JSON.stringify(userData));
+    // Actualizar UI
+    document.getElementById('login-overlay').style.display = 'none';
+    updateTopbarUser();
+    renderSidebarByRole();
+    applyRoleUI();
+    startApp();
+  } catch(e) {
+    console.error('Error cargando perfil:', e);
+    document.getElementById('login-error') && (document.getElementById('login-error').textContent = 'Error al cargar perfil: ' + e.message);
+    document.getElementById('login-error') && (document.getElementById('login-error').style.display = 'block');
+  }
+}
+
+function updateTopbarUser() {
+  if (!currentUserData) return;
+  const nombre = currentUserData.nombre || currentUser.email;
+  const iniciales = nombre.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const av = document.querySelector('.topbar-avatar');
+  if (av) { av.textContent = iniciales; av.title = nombre + ' (' + currentUserRole + ')'; }
+  // Mostrar campana de solicitudes pendientes para superadmin
+  if (currentUserRole === 'superadmin') watchSolicitudesPendientes();
+}
+
+function watchSolicitudesPendientes() {
+  if (!db) return;
+  db.ref('pkh/solicitudesFactura').on('value', snap => {
+    const data = snap.val() || {};
+    const pendientes = Object.values(data).filter(s => s.estado === 'pendiente').length;
+    const dot = document.getElementById('bell-dot');
+    if (dot) dot.style.display = pendientes > 0 ? 'block' : 'none';
+    // Badge en campana
+    const bell = document.querySelector('.topbar-bell');
+    if (bell) {
+      let badge = bell.querySelector('.bell-count');
+      if (pendientes > 0) {
+        if (!badge) { badge = document.createElement('span'); badge.className = 'bell-count'; badge.style.cssText='position:absolute;top:-2px;right:-2px;background:var(--red);color:white;border-radius:8px;font-size:9px;padding:1px 4px;font-weight:700;'; bell.appendChild(badge); }
+        badge.textContent = pendientes;
+      } else if (badge) badge.remove();
+    }
+    const nb = document.getElementById('nb-solicitudes');
+    if (nb) { nb.textContent = pendientes; nb.style.display = pendientes > 0 ? '' : 'none'; }
+  });
+}
+
+// ============================================================
+// SIDEBAR POR ROL
+// ============================================================
+function renderSidebarByRole() {
+  const role = currentUserRole || 'superadmin';
+  const sidebar = document.querySelector('nav.sidebar');
+  if (!sidebar) return;
+
+  // Limpiar secciones dinámicas (conservar el footer de botones)
+  const footer = sidebar.querySelector('div[style*="border-top"]');
+  sidebar.querySelectorAll('.sidebar-section').forEach(s => s.remove());
+
+  const sec = (label, items) => {
+    const d = document.createElement('div');
+    d.className = 'sidebar-section';
+    d.innerHTML = '<div class="sidebar-label">' + label + '</div>' +
+      items.map(([panel, icon, label, badge]) =>
+        `<div class="nav-item" data-panel="${panel}"><i class="ti ti-${icon}"></i>${label}${badge ? ` <span class="nav-badge" id="nb-${badge}" style="display:none">0</span>` : ''}</div>`
+      ).join('');
+    sidebar.insertBefore(d, footer);
+    return d;
+  };
+
+  if (role === 'superadmin') {
+    sec('Principal', [
+      ['dashboard','layout-dashboard','Dashboard'],
+      ['checklist','checklist','Checklist','checklist'],
+      ['alertas','bell','Alertas','alertas'],
+    ]);
+    sec('Operaciones', [
+      ['flota','truck','Flota'],
+      ['kilometros','map-pin','Kilómetros'],
+      ['mantenimiento','tool','Mantenimiento'],
+      ['documentos','file-description','Documentación'],
+    ]);
+    sec('Finanzas', [
+      ['facturacion','receipt','Facturación'],
+      ['clientes','building','Clientes'],
+      ['gastos','cash','Gastos'],
+      ['socios','users','Socios'],
+      ['cheques','writing','Cheques'],
+      ['contratos','file-text','Contratos'],
+      ['homebanking','building-bank','Home Banking'],
+      ['costos','chart-bar','Costos'],
+      ['subalquiler','arrows-exchange','Subalquiler'],
+      ['proyeccion','telescope','Proyección'],
+    ]);
+    sec('Admin', [
+      ['usuarios','user-cog','Usuarios'],
+    ]);
+  } else if (role === 'socio') {
+    sec('Principal', [
+      ['dashboard','layout-dashboard','Dashboard'],
+      ['alertas','bell','Alertas','alertas'],
+    ]);
+    sec('Mis operaciones', [
+      ['flota','truck','Mis vehículos'],
+      ['kilometros','map-pin','Kilómetros'],
+      ['mantenimiento','tool','Mantenimiento'],
+    ]);
+    sec('Mis finanzas', [
+      ['facturacion','receipt','Mis facturas'],
+      ['gastos','cash','Mis gastos'],
+    ]);
+  } else if (role === 'cliente') {
+    sec('Mi cuenta', [
+      ['flota','truck','Mis vehículos'],
+      ['facturacion','receipt','Mis facturas'],
+      ['solicitar','file-plus','Solicitar factura'],
+    ]);
+  }
+
+  // Re-adjuntar eventos de navegación
+  initNavItems();
+  // Activar dashboard por defecto
+  const first = sidebar.querySelector('.nav-item');
+  if (first) { first.classList.add('active'); const p = document.getElementById('panel-' + first.dataset.panel); if(p) p.classList.add('active'); }
+  updateChecklistBadge();
 }
 
 function setSyncStatus(status) {
@@ -1569,18 +1841,20 @@ function populateSelects(){
 // ============================================================
 // NAVIGATION
 // ============================================================
-document.querySelectorAll('.nav-item').forEach(n=>{
-  n.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
-    n.classList.add('active');
-    const panel=$('panel-'+n.dataset.panel);
-    if(panel)panel.classList.add('active');
-    renderPanel(n.dataset.panel);
-    // Cerrar sidebar en mobile al navegar
-    if(window.innerWidth<=900)closeSidebar();
+function initNavItems() {
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.addEventListener('click',()=>{
+      document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+      n.classList.add('active');
+      const panel=$('panel-'+n.dataset.panel);
+      if(panel)panel.classList.add('active');
+      renderPanel(n.dataset.panel);
+      if(window.innerWidth<=900)closeSidebar();
+    });
   });
-});
+}
+initNavItems();
 
 function toggleSidebar(){
   const sb=document.querySelector('.sidebar');
@@ -1617,6 +1891,8 @@ function renderPanel(name){
     case'subalquiler':renderSA();break;
     case'proyeccion':renderProyeccion();break;
     case'homebanking':renderHB();break;
+    case'usuarios':renderUsuarios();break;
+    case'solicitar':renderSolicitarFactura();break;
   }
 }
 
@@ -1689,9 +1965,47 @@ function navTo(panel){
 // DASHBOARD
 // ============================================================
 function renderDashboard(){
+  // Card de solicitudes pendientes para superadmin
+  const dashPanel = document.getElementById('panel-dashboard');
+  let solCard = document.getElementById('dash-solicitudes-card');
+  if (currentUserRole === 'superadmin' && db) {
+    if (!solCard) {
+      solCard = document.createElement('div');
+      solCard.id = 'dash-solicitudes-card';
+      solCard.style.cssText = 'display:none;margin-bottom:16px;';
+      dashPanel && dashPanel.insertBefore(solCard, dashPanel.firstChild);
+    }
+    db.ref('pkh/solicitudesFactura').orderByChild('estado').equalTo('pendiente').once('value').then(snap => {
+      const data = snap.val() || {};
+      const items = Object.entries(data);
+      if (items.length > 0) {
+        solCard.style.display = '';
+        solCard.innerHTML = `<div class="card" style="border-top-color:var(--red);border-top-width:3px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="background:var(--red);color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">${items.length}</span>
+            <span style="font-weight:700;font-size:14px;color:var(--red);">Solicitudes de factura pendientes</span>
+          </div>
+          ${items.slice(0,3).map(([id,s])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:0.5px solid var(--border);font-size:12px;">
+            <span><b>${s.clienteNombre||s.clienteId}</b> — ${s.vehiculo} — ${s.periodo}</span>
+            <button class="btn btn-secondary btn-sm" onclick="marcarSolicitudProcesada('${id}')">Procesar</button>
+          </div>`).join('')}
+          ${items.length>3?`<div style="font-size:11px;color:var(--muted);margin-top:8px;">${items.length-3} más...</div>`:''}
+        </div>`;
+      } else {
+        solCard.style.display = 'none';
+      }
+    });
+  }
+
+  // Filtrar por rol
+  const vehRol = (currentUserRole === 'socio' && currentUserData?.vehiculosAsignados) ? currentUserData.vehiculosAsignados : null;
+  const flotaFiltrada = vehRol ? flota.filter(v => vehRol.includes(v.pat)) : flota;
+  const facturasFiltradas = vehRol ? facturas.filter(f => vehRol.some(p => f.pat === p || (f.emp||'').includes(p))) : facturas;
+  const kmFiltrado = vehRol ? km.filter(k => vehRol.includes(k.pat)) : km;
+
   const hoy=new Date();
   const period=window.selectedPeriod||{type:'month',value:`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`};
-  const validas=facturas.filter(f=>f.est!=='NOTA');
+  const validas=facturasFiltradas.filter(f=>f.est!=='NOTA');
 
   // Filter by selected period
   let periodoFac;
@@ -1708,15 +2022,15 @@ function renderDashboard(){
   if(period.type==='month'){
     const[y,m]=period.value.split('-');
     const mesName=MESES[parseInt(m)-1];
-    kmPeriodo=km.filter(k=>k.mes===mesName&&String(k.anio)===y).reduce((a,b)=>a+(b.km||0),0);
+    kmPeriodo=kmFiltrado.filter(k=>k.mes===mesName&&String(k.anio)===y).reduce((a,b)=>a+(b.km||0),0);
   } else {
-    kmPeriodo=km.filter(k=>String(k.anio)===String(period.value)).reduce((a,b)=>a+(b.km||0),0);
+    kmPeriodo=kmFiltrado.filter(k=>String(k.anio)===String(period.value)).reduce((a,b)=>a+(b.km||0),0);
   }
 
   // 4 KPI cards
   $('dash-kpis').innerHTML=`
     <div class="kpi gold"><div class="kpi-val c-gold">${fmt(ingresos)}</div><div class="kpi-lbl">INGRESOS DEL PERÍODO</div></div>
-    <div class="kpi green"><div class="kpi-val" style="color:var(--green)">${flota.length}</div><div class="kpi-lbl">FLOTA ACTIVA</div><div class="kpi-delta">${flota.filter(f=>f.tipo==='propia').length} propias · ${flota.filter(f=>f.tipo==='subalquilada').length} subalq.</div></div>
+    <div class="kpi green"><div class="kpi-val" style="color:var(--green)">${flotaFiltrada.length}</div><div class="kpi-lbl">FLOTA ACTIVA</div><div class="kpi-delta">${flotaFiltrada.filter(f=>f.tipo==='propia').length} propias · ${flotaFiltrada.filter(f=>f.tipo==='subalquilada').length} subalq.</div></div>
     <div class="kpi red"><div class="kpi-val" style="color:var(--red)">${fmt(totalPend)}</div><div class="kpi-lbl">COBROS PENDIENTES</div><div class="kpi-delta down">${validas.filter(f=>f.est!=='PAGO').length} facturas</div></div>
     <div class="kpi blue"><div class="kpi-val" style="color:var(--accent2)">${kmPeriodo.toLocaleString('es-AR')}</div><div class="kpi-lbl">KM TOTALES</div></div>
   `;
@@ -3406,44 +3720,11 @@ function exportarTodo() {
   URL.revokeObjectURL(a.href);
 }
 
-async function checkPin() {
-  const pin = $('pin-input').value.trim();
-  if (pin !== ACCESS_PIN) {
-    $('pin-error').style.display = 'block';
-    $('pin-input').value = '';
-    $('pin-input').focus();
-    return;
-  }
-  // Login local OK → también autenticar con el backend
-  $('login-overlay').style.display = 'none';
-  try {
-    const res = await fetch(API_BASE + '/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      _apiToken = data.token;
-      sessionStorage.setItem('pkh_token', _apiToken);
-      console.log('[API] Token JWT obtenido');
-      // Sync en background después de cargar
-      setTimeout(() => syncToAPI(), 3000);
-    }
-  } catch (e) {
-    console.warn('[API] Backend no disponible, modo local activo');
-  }
-  startApp();
-}
-
 async function startApp() {
-  // Try to load from Firebase first
   if (firebaseReady) {
     $('login-status') && ($('login-status').textContent = 'Cargando datos de la nube...');
     const loaded = await loadFromFirebase();
-    if (loaded) {
-      reloadAllState();
-    }
+    if (loaded) reloadAllState();
     setupRealtimeSync();
   }
   checkDataVersion();
@@ -3479,31 +3760,20 @@ window.addEventListener('appinstalled', () => {
 });
 
 function init() {
-  // Check if already logged in this session
-  const loggedIn = sessionStorage.getItem('pkh_logged');
   initFirebase();
-
-  if (FIREBASE_CONFIG.apiKey === "REEMPLAZAR") {
+  if (!firebaseReady) {
     $('login-status') && ($('login-status').textContent = '⚠ Modo local — Firebase no configurado');
-  } else {
-    $('login-status') && ($('login-status').textContent = 'Conectando a Firebase...');
+    return;
   }
-
-  if (loggedIn === 'true') {
-    $('login-overlay').style.display = 'none';
-    startApp();
-  } else {
-    setTimeout(() => $('pin-input') && $('pin-input').focus(), 100);
-  }
-}
-
-// Save session on login
-const _origCheckPin = checkPin;
-window.checkPin = function() {
-  _origCheckPin();
-  if ($('login-overlay').style.display === 'none') {
-    sessionStorage.setItem('pkh_logged', 'true');
-  }
+  $('login-status') && ($('login-status').textContent = 'Conectando...');
+  auth.onAuthStateChanged(async user => {
+    if (user) {
+      await afterLogin(user);
+    } else {
+      $('login-overlay').style.display = 'flex';
+      $('login-status') && ($('login-status').textContent = '');
+    }
+  });
 }
 
 // ============================================================
@@ -4618,6 +4888,253 @@ function verificarNotificacionDia(){
   }
 }
 </script>
+
+<script>
+// ============================================================
+// PANEL USUARIOS — superadmin only
+// ============================================================
+async function renderUsuarios() {
+  const tbody = document.getElementById('usuarios-tbody');
+  if (!tbody) return;
+  if (currentUserRole !== 'superadmin') { tbody.innerHTML = '<tr><td colspan="6" class="empty">Acceso restringido</td></tr>'; return; }
+  tbody.innerHTML = '<tr><td colspan="6" class="empty">Cargando...</td></tr>';
+  try {
+    const snap = await db.ref('pkh/usuarios').once('value');
+    const usuarios = snap.val() || {};
+    const rolColors = { superadmin:'#1D3557', socio:'#7c3aed', cliente:'#065f46' };
+    const rolBg = { superadmin:'#EEF4FF', socio:'#ede9fe', cliente:'#d1fae5' };
+    tbody.innerHTML = Object.entries(usuarios).map(([uid, u]) => `
+      <tr>
+        <td><b>${u.nombre||'—'}</b></td>
+        <td class="mono" style="font-size:12px">${u.email||'—'}</td>
+        <td><span class="badge" style="background:${rolBg[u.rol]||'#f3f4f6'};color:${rolColors[u.rol]||'#374151'}">${(u.rol||'—').toUpperCase()}</span></td>
+        <td style="font-size:12px">${u.vehiculosAsignados ? u.vehiculosAsignados.join(', ') : u.clienteId || '—'}</td>
+        <td><span class="badge ${u.activo!==false?'badge-paid':'badge-pend'}">${u.activo!==false?'ACTIVO':'INACTIVO'}</span></td>
+        <td style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="editarUsuario('${uid}')">Editar</button>
+          <button class="btn btn-danger" onclick="toggleActivarUsuario('${uid}',${u.activo!==false})">${u.activo!==false?'Desactivar':'Activar'}</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="6" class="empty">Sin usuarios</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty" style="color:var(--red)">Error: ${e.message}</td></tr>`;
+  }
+}
+
+function resetModalUsuario() {
+  ['mu-nombre','mu-email','mu-pass','mu-vehiculos','mu-clienteid'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  const rs = document.getElementById('mu-rol'); if(rs) rs.value='socio';
+  document.getElementById('mu-uid') && (document.getElementById('mu-uid').value='');
+  document.getElementById('mu-modal-title') && (document.getElementById('mu-modal-title').textContent='Nuevo usuario');
+  toggleCamposRolUsuario();
+}
+
+function toggleCamposRolUsuario() {
+  const rol = document.getElementById('mu-rol')?.value;
+  const fVeh = document.getElementById('mu-campo-vehiculos');
+  const fCli = document.getElementById('mu-campo-cliente');
+  const fPass = document.getElementById('mu-campo-pass');
+  if (fVeh) fVeh.style.display = rol === 'socio' ? '' : 'none';
+  if (fCli) fCli.style.display = rol === 'cliente' ? '' : 'none';
+  if (fPass) fPass.style.display = document.getElementById('mu-uid')?.value ? 'none' : '';
+}
+
+async function guardarUsuario() {
+  const uid = document.getElementById('mu-uid')?.value;
+  const nombre = document.getElementById('mu-nombre')?.value.trim();
+  const email = document.getElementById('mu-email')?.value.trim();
+  const pass = document.getElementById('mu-pass')?.value;
+  const rol = document.getElementById('mu-rol')?.value;
+  const vehiculos = document.getElementById('mu-vehiculos')?.value.trim().split(',').map(s=>s.trim()).filter(Boolean);
+  const clienteId = document.getElementById('mu-clienteid')?.value.trim();
+  if (!nombre || !email) { showToast('Completá nombre y email', true); return; }
+  try {
+    if (uid) {
+      // Editar usuario existente
+      const upd = { nombre, email, rol, activo: true };
+      if (rol === 'socio' && vehiculos.length) upd.vehiculosAsignados = vehiculos;
+      if (rol === 'cliente' && clienteId) upd.clienteId = clienteId;
+      await db.ref('pkh/usuarios/' + uid).update(upd);
+      showToast('✓ Usuario actualizado');
+    } else {
+      // Crear nuevo usuario via Firebase Auth (requiere Admin SDK idealmente)
+      // En cliente, creamos con email/pass y luego guardamos en DB
+      if (!pass) { showToast('Ingresá una contraseña temporal', true); return; }
+      const cred = await auth.createUserWithEmailAndPassword(email, pass);
+      const newUid = cred.user.uid;
+      const userData = { nombre, email, rol, activo: true, creadoEn: Date.now() };
+      if (rol === 'socio' && vehiculos.length) userData.vehiculosAsignados = vehiculos;
+      if (rol === 'cliente' && clienteId) userData.clienteId = clienteId;
+      await db.ref('pkh/usuarios/' + newUid).set(userData);
+      // Volver a iniciar sesión como superadmin (el create nos loguea como el nuevo user)
+      showToast('✓ Usuario creado. Re-autenticando...');
+      // No signOut — el onAuthStateChanged se disparará con el nuevo usuario
+      // Necesitamos re-loguear al superadmin
+      showToast('⚠ Recordá volver a iniciar sesión como superadmin', false);
+    }
+    hideModal('modal-usuario');
+    setTimeout(() => renderUsuarios(), 500);
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
+
+async function editarUsuario(uid) {
+  const snap = await db.ref('pkh/usuarios/' + uid).once('value');
+  const u = snap.val();
+  if (!u) return;
+  document.getElementById('mu-uid').value = uid;
+  document.getElementById('mu-nombre').value = u.nombre || '';
+  document.getElementById('mu-email').value = u.email || '';
+  document.getElementById('mu-rol').value = u.rol || 'socio';
+  document.getElementById('mu-vehiculos').value = u.vehiculosAsignados ? u.vehiculosAsignados.join(', ') : '';
+  document.getElementById('mu-clienteid').value = u.clienteId || '';
+  document.getElementById('mu-modal-title').textContent = 'Editar usuario';
+  toggleCamposRolUsuario();
+  showModal('modal-usuario');
+}
+
+async function toggleActivarUsuario(uid, activo) {
+  const accion = activo ? 'desactivar' : 'activar';
+  if (!confirm(`¿${accion.charAt(0).toUpperCase()+accion.slice(1)} este usuario?`)) return;
+  await db.ref('pkh/usuarios/' + uid).update({ activo: !activo });
+  showToast(`✓ Usuario ${accion}do`);
+  renderUsuarios();
+}
+
+// ============================================================
+// SOLICITUDES DE FACTURA — cliente
+// ============================================================
+async function renderSolicitarFactura() {
+  if (!currentUserData) return;
+  // Poblar selector de vehículos del cliente
+  const sel = document.getElementById('sol-vehiculo');
+  if (sel) {
+    const miFlota = flota.filter(v => v.clienteId === currentUserData.clienteId || (currentUserData.vehiculosAsignados && currentUserData.vehiculosAsignados.includes(v.pat)));
+    sel.innerHTML = miFlota.length
+      ? miFlota.map(v => `<option value="${v.pat}">${v.pat} — ${v.tipo||''}</option>`).join('')
+      : '<option value="">Sin vehículos asignados</option>';
+  }
+  // Poblar selector de períodos
+  const selP = document.getElementById('sol-periodo');
+  if (selP) {
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const anio = new Date().getFullYear();
+    selP.innerHTML = meses.map((m,i) => `<option value="${m}-${anio}">${m} ${anio}</option>`).join('');
+  }
+  // Mostrar solicitudes propias
+  const lista = document.getElementById('solicitudes-propias-list');
+  if (lista && db) {
+    const snap = await db.ref('pkh/solicitudesFactura').orderByChild('clienteId').equalTo(currentUserData.clienteId || currentUser.uid).once('value');
+    const data = snap.val() || {};
+    const items = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
+    lista.innerHTML = items.length ? `
+      <div style="margin-top:20px;font-weight:700;font-size:13px;color:var(--muted);letter-spacing:1.5px;margin-bottom:12px">MIS SOLICITUDES</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>PERÍODO</th><th>VEHÍCULO</th><th>ESTADO</th><th>FECHA</th></tr></thead>
+        <tbody>${items.map(s=>`<tr>
+          <td>${s.periodo||'—'}</td>
+          <td class="mono">${s.vehiculo||'—'}</td>
+          <td><span class="badge ${s.estado==='pendiente'?'badge-pend':'badge-paid'}">${(s.estado||'').toUpperCase()}</span></td>
+          <td>${s.timestamp ? new Date(s.timestamp).toLocaleDateString('es-AR') : '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>` : '<div class="empty">No tenés solicitudes anteriores</div>';
+  }
+}
+
+async function enviarSolicitudFactura() {
+  if (!currentUserData || !db) return;
+  const vehiculo = document.getElementById('sol-vehiculo')?.value;
+  const periodo = document.getElementById('sol-periodo')?.value;
+  const obs = document.getElementById('sol-obs')?.value.trim();
+  if (!vehiculo || !periodo) { showToast('Seleccioná vehículo y período', true); return; }
+  const solicitud = {
+    clienteId: currentUserData.clienteId || currentUser.uid,
+    clienteNombre: currentUserData.nombre || currentUser.email,
+    vehiculo, periodo, obs: obs||'', timestamp: Date.now(), estado: 'pendiente'
+  };
+  try {
+    await db.ref('pkh/solicitudesFactura').push(solicitud);
+    showToast('✓ Solicitud enviada. El equipo PKH la procesará pronto.');
+    document.getElementById('sol-obs') && (document.getElementById('sol-obs').value = '');
+    renderSolicitarFactura();
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
+
+async function marcarSolicitudProcesada(id) {
+  if (!db) return;
+  await db.ref('pkh/solicitudesFactura/' + id).update({ estado: 'procesada' });
+  showToast('✓ Solicitud marcada como procesada');
+  renderDashboard();
+}
+
+// ============================================================
+// EXPORTAR POR ROL
+// ============================================================
+function exportarTodo() {
+  const role = currentUserRole || 'superadmin';
+  let data = {};
+  let filename = 'pkh-backup-' + role + '-' + new Date().toISOString().split('T')[0] + '.json';
+
+  if (role === 'cliente') { showToast('No tenés permiso para exportar datos', true); return; }
+
+  if (role === 'superadmin') {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('pkh'));
+    keys.forEach(k => { try { data[k] = JSON.parse(localStorage.getItem(k)); } catch(e) { data[k] = localStorage.getItem(k); } });
+    if (Object.keys(data).length === 0) { alert('No hay datos para exportar.'); return; }
+  } else if (role === 'socio') {
+    const veh = currentUserData?.vehiculosAsignados || [];
+    data['pkhv2_flota'] = flota.filter(v => veh.includes(v.pat));
+    data['pkhv2_km'] = km.filter(k => veh.includes(k.pat));
+    data['pkhv2_fac'] = facturas.filter(f => veh.some(p => f.pat === p || (f.emp||'').toLowerCase().includes(p.toLowerCase())));
+    data['pkhv2_mant'] = mantenimiento.filter(m => veh.includes(m.pat));
+    data['pkhv2_gas'] = gastos.filter(g => veh.some(p => (g.concepto||'').includes(p)));
+  }
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  showToast('✓ Exportación descargada');
+}
+
+// Ocultar botones admin para roles no-superadmin
+function applyRoleUI() {
+  const role = currentUserRole;
+  const adminFooter = document.getElementById('sidebar-footer-admin');
+  if (adminFooter) adminFooter.style.display = role === 'superadmin' ? '' : 'none';
+}
+</script>
+
+<!-- MODAL NUEVO/EDITAR USUARIO -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal">
+    <h2 id="mu-modal-title">Nuevo usuario</h2>
+    <input type="hidden" id="mu-uid">
+    <div class="form-grid">
+      <div class="form-group"><label>NOMBRE COMPLETO</label><input id="mu-nombre" type="text" placeholder="Juan Pérez"></div>
+      <div class="form-group"><label>EMAIL</label><input id="mu-email" type="email" placeholder="juan@empresa.com"></div>
+      <div class="form-group" id="mu-campo-pass"><label>CONTRASEÑA TEMPORAL</label><input id="mu-pass" type="password" placeholder="Mínimo 6 caracteres"></div>
+      <div class="form-group"><label>ROL</label>
+        <select id="mu-rol" onchange="toggleCamposRolUsuario()">
+          <option value="superadmin">Superadmin</option>
+          <option value="socio" selected>Socio</option>
+          <option value="cliente">Cliente</option>
+        </select>
+      </div>
+      <div class="form-group full" id="mu-campo-vehiculos"><label>VEHÍCULOS ASIGNADOS (patentes separadas por coma)</label><input id="mu-vehiculos" type="text" placeholder="AG-870-VZ, AG-832-SV"></div>
+      <div class="form-group full" id="mu-campo-cliente" style="display:none"><label>ID DE CLIENTE</label><input id="mu-clienteid" type="text" placeholder="sam-energy"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('modal-usuario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarUsuario()">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 if ('serviceWorker' in navigator) {

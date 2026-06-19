@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "pkh": {
+      "usuarios": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('pkh/usuarios').child(auth.uid).child('rol').val() === 'superadmin')"
+        }
+      },
+      "solicitudesFactura": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "checklist": {
+        ".read": "auth != null && root.child('pkh/usuarios').child(auth.uid).child('rol').val() === 'superadmin'",
+        ".write": "auth != null && root.child('pkh/usuarios').child(auth.uid).child('rol').val() === 'superadmin'"
+      },
+      "$other": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}
