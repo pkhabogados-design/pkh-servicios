@@ -249,7 +249,7 @@ input[type="date"]::placeholder{color:var(--muted);}
     <div class="topbar-logo">PKH</div>
     <span class="topbar-name">PKH Servicios</span>
   </div>
-  <div class="period-selector" id="period-selector"></div>
+  <div></div>
   <div class="topbar-actions">
     <div id="sync-status">
       <span style="color:var(--muted);font-size:11px;font-family:var(--fm)">🔴 LOCAL</span>
@@ -356,22 +356,17 @@ input[type="date"]::placeholder{color:var(--muted);}
 <!-- ======= DASHBOARD ======= -->
 <div class="panel active" id="panel-dashboard">
   <div id="dash-resumen-financiero" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;">
-    <div style="background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:20px;text-align:center;">
-      <div style="font-size:11px;color:#6b7280;letter-spacing:1.5px;font-weight:600;margin-bottom:8px">TOTAL COBRADO</div>
-      <div id="dash-res-cobrado" style="font-size:28px;font-weight:700;color:#1D3557">$0</div>
-    </div>
-    <div style="background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:20px;text-align:center;">
-      <div style="font-size:11px;color:#6b7280;letter-spacing:1.5px;font-weight:600;margin-bottom:8px">PAGOS PENDIENTES</div>
-      <div id="dash-res-pendientes" style="font-size:28px;font-weight:700;color:#E24B4A">$0</div>
-    </div>
-    <div style="background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:20px;text-align:center;">
-      <div style="font-size:11px;color:#6b7280;letter-spacing:1.5px;font-weight:600;margin-bottom:8px">TOTAL GASTOS</div>
-      <div id="dash-res-gastos" style="font-size:28px;font-weight:700;color:#BA7517">$0</div>
-    </div>
+    <div class="kpi gold"><div id="dash-res-cobrado" class="kpi-val c-gold">$0</div><div class="kpi-lbl">TOTAL COBRADO</div></div>
+    <div class="kpi red"><div id="dash-res-pendientes" class="kpi-val c-red">$0</div><div class="kpi-lbl">PAGOS PENDIENTES</div></div>
+    <div class="kpi orange"><div id="dash-res-gastos" class="kpi-val c-orange">$0</div><div class="kpi-lbl">TOTAL GASTOS</div></div>
   </div>
   <div class="card" style="margin-bottom:22px;">
     <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--text)">Facturación vs Gastos — últimos 6 meses</div>
-    <canvas id="chart-dashboard-barras" height="120"></canvas>
+    <div style="height:220px;position:relative"><canvas id="chart-dashboard-barras"></canvas></div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+    <div style="font-size:11px;color:var(--muted);letter-spacing:1.5px;font-weight:600">MÉTRICAS DEL PERÍODO</div>
+    <div id="dash-period-selector" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
   </div>
   <div class="kpi-grid dash-4kpi" id="dash-kpis" style="grid-template-columns:repeat(4,1fr);"></div>
   <div class="dash-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
@@ -404,7 +399,10 @@ input[type="date"]::placeholder{color:var(--muted);}
 <div class="panel" id="panel-flota">
   <div class="section-hdr">
     <div class="section-title">GESTIÓN DE <span>FLOTA</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-unidad')">+ NUEVA UNIDAD</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVFlota()"><i class="ti ti-upload"></i> Importar CSV</button>
+      <button class="btn btn-primary btn-sm" onclick="showModal('modal-unidad')">+ NUEVA UNIDAD</button>
+    </div>
   </div>
   <div class="kpi-grid" id="flota-kpis"></div>
   <div class="cards" id="flotaCards"></div>
@@ -418,6 +416,7 @@ input[type="date"]::placeholder{color:var(--muted);}
       <select id="km-filtro" onchange="renderKm()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
         <option value="">Todos los vehículos</option>
       </select>
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVKm()"><i class="ti ti-upload"></i> Importar CSV</button>
       <button class="btn btn-secondary btn-sm" onclick="toggleKmRapido()"><i class="ti ti-table"></i> Carga mensual</button>
       <button class="btn btn-primary btn-sm" onclick="showModal('modal-km')"><i class="ti ti-plus"></i> Registrar KM</button>
     </div>
@@ -455,7 +454,10 @@ input[type="date"]::placeholder{color:var(--muted);}
 <div class="panel" id="panel-mantenimiento">
   <div class="section-hdr">
     <div class="section-title">MANTENIMIENTO Y <span>SERVICIOS</span></div>
-    <button class="btn btn-primary btn-sm" onclick="showModal('modal-mant')">+ REGISTRAR SERVICE</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVMantenimiento()"><i class="ti ti-upload"></i> Importar CSV</button>
+      <button class="btn btn-primary btn-sm" onclick="showModal('modal-mant')">+ REGISTRAR SERVICE</button>
+    </div>
   </div>
   <div class="kpi-grid" id="mant-kpis"></div>
   <div class="tbl-wrap"><table>
@@ -479,6 +481,7 @@ input[type="date"]::placeholder{color:var(--muted);}
       <select id="docs-filtro" onchange="renderDocumentos()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
         <option value="">Todos</option>
       </select>
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVDocumentos()"><i class="ti ti-upload"></i> Importar CSV</button>
       <button class="btn btn-primary btn-sm" onclick="showModal('modal-doc')">+ AGREGAR DOCUMENTO</button>
     </div>
   </div>
@@ -490,7 +493,7 @@ input[type="date"]::placeholder{color:var(--muted);}
   <div class="section-hdr">
     <div class="section-title">FACTURACIÓN <span>PKH</span></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-secondary btn-sm" onclick="importarSeccion('facturas')"><i class="ti ti-upload"></i> Importar</button>
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVFacturacion()"><i class="ti ti-upload"></i> Importar CSV</button>
       <button class="btn btn-secondary btn-sm" onclick="showModalFacturaContrato()"><i class="ti ti-file-text"></i> Desde contrato</button>
       <button class="btn btn-secondary btn-sm" style="color:var(--green);border-color:var(--green)" onclick="generarFacturacionMasiva()"><i class="ti ti-bolt"></i> Facturar mes</button>
       <!-- TODO: Integración ARCA — requiere middleware backend con certificado .p12 -->
@@ -547,6 +550,7 @@ input[type="date"]::placeholder{color:var(--muted);}
       <select id="cont-filtro" onchange="renderContratos()" style="padding:6px 12px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);">
         <option value="">Todos</option>
       </select>
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVContratos()"><i class="ti ti-upload"></i> Importar CSV</button>
       <button class="btn btn-primary btn-sm" onclick="abrirNuevoContrato()"><i class="ti ti-plus"></i> Nuevo contrato</button>
     </div>
   </div>
@@ -562,7 +566,10 @@ input[type="date"]::placeholder{color:var(--muted);}
 <div class="panel" id="panel-cheques">
   <div class="section-hdr">
     <div class="section-title">CHEQUES <span>DIFERIDOS</span></div>
-    <button class="btn btn-primary btn-sm" onclick="abrirModalCheque()"><i class="ti ti-plus"></i> Agregar cheque</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVCheques()"><i class="ti ti-upload"></i> Importar CSV</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirModalCheque()"><i class="ti ti-plus"></i> Agregar cheque</button>
+    </div>
   </div>
   <div class="kpi-grid" id="cheq-kpis"></div>
   <div class="inline-tabs">
@@ -588,7 +595,7 @@ input[type="date"]::placeholder{color:var(--muted);}
   <div class="section-hdr">
     <div class="section-title">GASTOS <span>SOCIEDAD</span></div>
     <div style="display:flex;gap:8px;">
-      <button class="btn btn-secondary btn-sm" onclick="importarSeccion('gastos')"><i class="ti ti-upload"></i> Importar</button>
+      <button class="btn btn-secondary btn-sm" onclick="importarCSVGastos()"><i class="ti ti-upload"></i> Importar CSV</button>
       <button class="btn btn-primary btn-sm" onclick="abrirModalGasto()"><i class="ti ti-plus"></i> Nuevo gasto</button>
     </div>
   </div>
@@ -1950,7 +1957,7 @@ function closeSidebar(){
 
 function renderPanel(name){
   switch(name){
-    case'dashboard':renderDashboard();break;
+    case'dashboard':window._dashChartInitialized=false;renderDashboard();break;
     case'checklist':renderChecklist();break;
     case'alertas':renderAlertas();break;
     case'flota':renderFlota();break;
@@ -2046,41 +2053,23 @@ function navTo(panel){
 // DASHBOARD — RESUMEN FINANCIERO Y GRÁFICO BARRAS
 // ============================================================
 function renderDashResumenFinanciero() {
-  const period = window.selectedPeriod || {type:'month', value:`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`};
-  let mes, ano;
-  if (period.type === 'month') {
-    const [y, m] = period.value.split('-');
-    mes = parseInt(m); ano = parseInt(y);
-  } else {
-    mes = new Date().getMonth() + 1; ano = parseInt(period.value);
-  }
-  const fmtMes = (f) => {
-    const d = new Date((f.fecha||'').length === 7 ? f.fecha+'-01' : (f.fecha||0));
-    return d.getMonth()+1 === mes && d.getFullYear() === ano;
-  };
-  const cobrado = facturas.filter(f => f.est === 'PAGO' && fmtMes(f)).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
-  const pendientes = facturas.filter(f => !['PAGO','NOTA','ANULADA'].includes((f.est||'').toUpperCase()) && fmtMes(f)).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
-  const gastosMes = gastos.filter(g => { const d = new Date(g.fecha||0); return d.getMonth()+1 === mes && d.getFullYear() === ano; }).reduce((a,g) => a + (parseFloat(g.monto)||0), 0);
+  const cobrado = facturas.filter(f => f.est === 'PAGO').reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
+  const pendientes = facturas.filter(f => !['PAGO','NOTA','ANULADA'].includes((f.est||'').toUpperCase())).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
+  const gastosTotal = gastos.reduce((a,g) => a + (parseFloat(g.monto)||0), 0);
   const fmtV = v => '$' + v.toLocaleString('es-AR');
   const el1 = document.getElementById('dash-res-cobrado'); if(el1) el1.textContent = fmtV(cobrado);
   const el2 = document.getElementById('dash-res-pendientes'); if(el2) el2.textContent = fmtV(pendientes);
-  const el3 = document.getElementById('dash-res-gastos'); if(el3) el3.textContent = fmtV(gastosMes);
+  const el3 = document.getElementById('dash-res-gastos'); if(el3) el3.textContent = fmtV(gastosTotal);
 }
 
 let _dashChart = null;
 function renderDashboardChart() {
   const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const now = new Date();
-  const period = window.selectedPeriod || {type:'month', value:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`};
-  let baseM, baseA;
-  if (period.type === 'month') {
-    const [y, m] = period.value.split('-');
-    baseM = parseInt(m) - 1; baseA = parseInt(y);
-  } else {
-    baseM = now.getMonth(); baseA = parseInt(period.value);
-  }
+  const baseM = now.getMonth();
+  const baseA = now.getFullYear();
   const labels = [], facMonths = [], gasMonths = [];
-  for (let i = 5; i >= 0; i--) {
+  for (let i = 11; i >= 0; i--) {
     let m = baseM - i; let a = baseA;
     while (m < 0) { m += 12; a--; }
     labels.push(meses[m]);
@@ -2105,7 +2094,7 @@ function renderDashboardChart() {
       { label: 'Facturación', data: facValues, backgroundColor: '#1D3557' },
       { label: 'Gastos', data: gasValues, backgroundColor: '#E24B4A' }
     ]},
-    options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
   });
 }
 
@@ -2153,18 +2142,24 @@ function renderDashboard(){
   const validas=facturasFiltradas.filter(f=>f.est!=='NOTA');
 
   // Filter by selected period
+  const isAll = period.type==='all';
+  const pagadas = validas.filter(f=>f.est==='PAGO');
   let periodoFac;
-  if(period.type==='month'){
-    periodoFac=validas.filter(f=>f.fecha&&f.fecha.startsWith(period.value));
+  if(isAll){
+    periodoFac=pagadas;
+  } else if(period.type==='month'){
+    periodoFac=pagadas.filter(f=>f.fecha&&f.fecha.startsWith(period.value));
   } else {
-    periodoFac=validas.filter(f=>f.fecha&&f.fecha.startsWith(String(period.value)));
+    periodoFac=pagadas.filter(f=>f.fecha&&f.fecha.startsWith(String(period.value)));
   }
-  const ingresos=periodoFac.reduce((a,b)=>a+(b.monto||0),0);
+  const ingresos=periodoFac.reduce((a,b)=>a+(b.total||b.monto||0),0);
   const totalPend=validas.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
 
   // KM del período
   let kmPeriodo=0;
-  if(period.type==='month'){
+  if(isAll){
+    kmPeriodo=kmFiltrado.reduce((a,b)=>a+(b.km||0),0);
+  } else if(period.type==='month'){
     const[y,m]=period.value.split('-');
     const mesName=MESES[parseInt(m)-1];
     kmPeriodo=kmFiltrado.filter(k=>k.mes===mesName&&String(k.anio)===y).reduce((a,b)=>a+(b.km||0),0);
@@ -2172,12 +2167,15 @@ function renderDashboard(){
     kmPeriodo=kmFiltrado.filter(k=>String(k.anio)===String(period.value)).reduce((a,b)=>a+(b.km||0),0);
   }
 
+  const kpiLabel = isAll ? 'INGRESOS TOTALES' : 'INGRESOS DEL PERÍODO';
+  const kmLabel = isAll ? 'KM TOTALES' : 'KM DEL PERÍODO';
+
   // 4 KPI cards
   $('dash-kpis').innerHTML=`
-    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(ingresos)}</div><div class="kpi-lbl">INGRESOS DEL PERÍODO</div></div>
+    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(ingresos)}</div><div class="kpi-lbl">${kpiLabel}</div></div>
     <div class="kpi green"><div class="kpi-val" style="color:var(--green)">${flotaFiltrada.length}</div><div class="kpi-lbl">FLOTA ACTIVA</div><div class="kpi-delta">${flotaFiltrada.filter(f=>f.tipo==='propia').length} propias · ${flotaFiltrada.filter(f=>f.tipo==='subalquilada').length} subalq.</div></div>
     <div class="kpi red"><div class="kpi-val" style="color:var(--red)">${fmt(totalPend)}</div><div class="kpi-lbl">COBROS PENDIENTES</div><div class="kpi-delta down">${validas.filter(f=>f.est!=='PAGO').length} facturas</div></div>
-    <div class="kpi blue"><div class="kpi-val" style="color:var(--accent2)">${kmPeriodo.toLocaleString('es-AR')}</div><div class="kpi-lbl">KM TOTALES</div></div>
+    <div class="kpi blue"><div class="kpi-val" style="color:var(--accent2)">${kmPeriodo.toLocaleString('es-AR')}</div><div class="kpi-lbl">${kmLabel}</div></div>
   `;
 
   // Alertas
@@ -2238,8 +2236,12 @@ function renderDashboard(){
   </table>`;
 
   // Resumen financiero y gráfico
+  initDashPeriodSelector();
   renderDashResumenFinanciero();
-  setTimeout(renderDashboardChart, 100);
+  if (!window._dashChartInitialized) {
+    setTimeout(renderDashboardChart, 100);
+    window._dashChartInitialized = true;
+  }
 }
 
 // ============================================================
@@ -4510,6 +4512,228 @@ function _splitCSVLine(line,sep){
   return vals;
 }
 
+// ── CSV Import utilities ──────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/^"|"$/g, ''));
+    return obj;
+  });
+}
+
+function triggerCSVImport(sectionKey, mapFn, storageKey, onSuccess) {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.csv';
+  input.onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const rows = parseCSV(ev.target.result);
+        if (!rows.length) { showToast('CSV vacío o sin datos', true); return; }
+        const preview = rows.slice(0, 5);
+        const headers = Object.keys(rows[0]);
+        const tableHTML = `
+          <div style="overflow-x:auto;max-height:260px;overflow-y:auto">
+            <table style="width:100%;font-size:11px">
+              <thead><tr>${headers.map(h=>`<th style="padding:4px 8px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap">${h}</th>`).join('')}</tr></thead>
+              <tbody>${preview.map(r=>`<tr>${headers.map(h=>`<td style="padding:4px 8px;border-bottom:0.5px solid var(--border)">${r[h]||'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+            </table>
+          </div>
+          ${rows.length > 5 ? `<p style="font-size:11px;color:var(--muted);margin-top:8px">... y ${rows.length-5} registros más</p>` : ''}
+          <p style="font-size:12px;margin-top:12px">Total a importar: <b>${rows.length} registros</b></p>`;
+        let modal = document.getElementById('modal-csv-preview');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'modal-csv-preview';
+          modal.className = 'modal-overlay';
+          modal.innerHTML = `<div class="modal" style="max-width:640px">
+            <div class="modal-header"><span class="modal-title">Vista previa — Importar CSV</span><button class="modal-close" onclick="hideModal('modal-csv-preview')">&times;</button></div>
+            <div class="modal-body" id="csv-preview-body"></div>
+            <div class="modal-footer">
+              <button class="btn btn-primary" id="csv-confirm-btn">Confirmar importación</button>
+              <button class="btn btn-secondary" onclick="hideModal('modal-csv-preview')">Cancelar</button>
+            </div>
+          </div>`;
+          document.body.appendChild(modal);
+        }
+        document.getElementById('csv-preview-body').innerHTML = tableHTML;
+        document.getElementById('csv-confirm-btn').onclick = () => {
+          try {
+            const mapped = rows.map(mapFn).filter(Boolean);
+            const existing = load(storageKey, []);
+            const merged = [...existing, ...mapped];
+            save(storageKey, merged);
+            hideModal('modal-csv-preview');
+            showToast(`✓ ${mapped.length} registros importados`);
+            if (typeof onSuccess === 'function') onSuccess(merged);
+          } catch(err) {
+            showToast('Error al importar: ' + err.message, true);
+          }
+        };
+        showModal('modal-csv-preview');
+      } catch(err) {
+        showToast('Error al leer CSV: ' + err.message, true);
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  };
+  input.click();
+}
+
+function importarCSVFacturacion() {
+  let counter = facturas.length ? Math.max(...facturas.map(f=>parseInt(f.id)||0)) + 1 : 1;
+  triggerCSVImport('facturacion', row => {
+    if (!row.fecha && !row.emp) return null;
+    const monto = parseFloat(row.monto)||0;
+    const iva = parseFloat(row.iva)||(monto*0.21);
+    return {
+      id: counter++,
+      num: parseInt(row.num)||counter,
+      fecha: row.fecha||'',
+      emp: row.emp||row.cliente||'',
+      cuit: row.cuit||'',
+      monto,
+      iva,
+      total: parseFloat(row.total)||(monto+iva),
+      venc: row.venc||row.vencimiento||'',
+      est: (row.est||row.estado||'').toUpperCase()==='PAGO'?'PAGO':'',
+      fpago: row.fpago||row.fechaCobro||'',
+      forma: row.forma||row.formaPago||'',
+      obs: row.obs||row.observaciones||''
+    };
+  }, 'pkhv2_fac', merged => { facturas = merged; renderFacturacion(); });
+}
+
+function importarCSVGastos() {
+  let counter = gastos.length ? Math.max(...gastos.map(g=>parseInt(g.id)||0)) + 1 : 1;
+  triggerCSVImport('gastos', row => {
+    if (!row.fecha && !row.concepto && !row.monto) return null;
+    return {
+      id: counter++,
+      fecha: row.fecha||'',
+      con: row.concepto||row.con||'',
+      monto: parseFloat(row.monto)||0,
+      cat: row.categoria||row.cat||'Otro',
+      orig: row.origen||row.orig||''
+    };
+  }, 'pkhv2_gas', merged => { gastos = merged; renderGastos && renderGastos(); });
+}
+
+function importarCSVKm() {
+  triggerCSVImport('km', row => {
+    if (!row.patente && !row.pat) return null;
+    return {
+      pat: row.patente||row.pat||'',
+      mes: (row.mes||'').toUpperCase(),
+      anio: row.anio||row.año||String(new Date().getFullYear()),
+      km: parseFloat(row.km)||0
+    };
+  }, 'pkhv2_km', merged => { km = merged; renderKm && renderKm(); });
+}
+
+function importarCSVFlota() {
+  triggerCSVImport('flota', row => {
+    const pat = row.patente||row.pat||'';
+    if (!pat) return null;
+    return {
+      id: pat,
+      pat,
+      tipo: row.tipo||'propia',
+      cli: row.cliente||row.cli||'',
+      fecha: row.fechaAlta||row.fecha||'',
+      kmEnt: parseFloat(row.kmEntrada||row.kmEnt)||0,
+      modelo: row.modelo||'',
+      anio: row.anio||row.año||'',
+      valor: parseFloat(row.valor)||0,
+      notas: row.notas||''
+    };
+  }, 'pkhv2_flota', merged => { flota = merged; renderFlota && renderFlota(); });
+}
+
+function importarCSVContratos() {
+  let counter = contratos.length ? Math.max(...contratos.map(c=>parseInt(c.id)||0)) + 1 : 1;
+  triggerCSVImport('contratos', row => {
+    if (!row.cliente && !row.emp) return null;
+    return {
+      id: counter++,
+      emp: row.cliente||row.emp||'',
+      pat: row.patente||row.pat||'',
+      precio: parseFloat(row.precioNeto||row.precio)||0,
+      iva: parseFloat(row.iva)||0.21,
+      inicio: row.fechaInicio||row.inicio||'',
+      fin: row.fechaFin||row.fin||'',
+      dia: parseInt(row.diaPago||row.dia)||1,
+      est: row.estado||row.est||'activo',
+      obs: row.observaciones||row.obs||''
+    };
+  }, 'pkhv2_contratos', merged => { contratos = merged; renderContratos && renderContratos(); });
+}
+
+function importarCSVMantenimiento() {
+  let counter = mantenimiento.length ? Math.max(...mantenimiento.map(m=>parseInt(m.id)||0)) + 1 : 1;
+  triggerCSVImport('mantenimiento', row => {
+    if (!row.patente && !row.pat) return null;
+    return {
+      id: counter++,
+      pat: row.patente||row.pat||'',
+      fecha: row.fecha||'',
+      tipo: row.tipo||'service',
+      desc: row.descripcion||row.desc||'',
+      costo: parseFloat(row.costo)||0,
+      prov: row.proveedor||row.prov||'',
+      kmAlService: parseFloat(row.kmAlService)||0,
+      proxkm: parseFloat(row.proximoKm||row.proxkm)||0,
+      obs: row.observaciones||row.obs||''
+    };
+  }, 'pkhv2_mant', merged => { mantenimiento = merged; renderMantenimiento && renderMantenimiento(); });
+}
+
+function importarCSVCheques() {
+  let counter = (cheques && cheques.length) ? Math.max(...cheques.map(c=>parseInt(c.id)||0)) + 1 : 1;
+  triggerCSVImport('cheques', row => {
+    if (!row.numero && !row.num) return null;
+    return {
+      id: counter++,
+      num: row.numero||row.num||'',
+      banco: row.banco||'',
+      emp: row.cliente||row.emp||'',
+      monto: parseFloat(row.monto)||0,
+      fecha: row.fechaVencimiento||row.fecha||'',
+      factura: row.factura||'',
+      est: row.estado||row.est||'pendiente',
+      obs: row.observaciones||row.obs||''
+    };
+  }, 'pkhv2_cheques', merged => { cheques = merged; renderCheques && renderCheques(); });
+}
+
+function importarCSVDocumentos() {
+  let counter = documentos.length ? Math.max(...documentos.map(d=>parseInt(d.id)||0)) + 1 : 1;
+  triggerCSVImport('documentos', row => {
+    if (!row.patente && !row.pat) return null;
+    return {
+      id: counter++,
+      pat: row.patente||row.pat||'',
+      tipo: row.tipo||'',
+      venc: row.vencimiento||row.venc||'',
+      prov: row.proveedor||row.prov||'',
+      costo: parseFloat(row.costo)||0,
+      notas: row.notas||''
+    };
+  }, 'pkhv2_docs', merged => { documentos = merged; renderDocumentos && renderDocumentos(); });
+}
+// ── End CSV Import utilities ──────────────────────────────────────────────────
+
 function parsearArchivoSeccion(){
   var file=$('mis-file').files[0]; if(!file)return;
   $('mis-filename').textContent=file.name;
@@ -5018,33 +5242,55 @@ function confirmarImportacion(){
 init();
 
 // ============================================================
-// PERIOD SELECTOR
+// PERIOD SELECTOR — local por componente
 // ============================================================
 window.selectedPeriod=(function(){
   const h=new Date();
   return{type:'month',value:`${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}`};
 })();
 
-function initPeriodSelector(){
-  const container=$('period-selector');
+function initPeriodSelector(){ /* topbar global eliminado — usar initDashPeriodSelector */ }
+
+function initDashPeriodSelector(){
+  const container=$('dash-period-selector');
   if(!container)return;
   const hoy=new Date();
-  const mShort=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const curM=hoy.getMonth();
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const curY=hoy.getFullYear();
-  let html=mShort.map((m,i)=>{
-    const val=`${curY}-${String(i+1).padStart(2,'0')}`;
-    return `<button class="period-btn${i===curM?' active':''}" onclick="setPeriod('month','${val}',this)">${m}</button>`;
-  }).join('');
-  html+=`<button class="period-btn" onclick="setPeriod('year','${curY}',this)">Año</button>`;
-  container.innerHTML=html;
+  const active=window.selectedPeriod;
+
+  const selStyle='padding:5px 10px;border:0.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--surface);color:var(--text);cursor:pointer;outline:none;';
+
+  // Selector de mes
+  let mesVal = active.type==='month' ? parseInt(active.value.split('-')[1]) : (active.type==='all' ? 0 : -1);
+  let mesHtml=`<select id="dash-sel-mes" style="${selStyle}" onchange="onDashSelChange()">
+    <option value="0"${mesVal===0?' selected':''}>Todo el año</option>
+    <option value="-1"${mesVal===-1?' selected':''}>Total histórico</option>
+    <option disabled>──────</option>
+    ${meses.map((m,i)=>`<option value="${i+1}"${mesVal===i+1?' selected':''}>${m}</option>`).join('')}
+  </select>`;
+
+  // Selector de año (últimos 5 años)
+  let anoVal = active.type==='month' ? parseInt(active.value.split('-')[0]) : (active.type==='year' ? parseInt(active.value) : curY);
+  let anoHtml=`<select id="dash-sel-ano" style="${selStyle}" onchange="onDashSelChange()">
+    ${[0,1,2,3,4].map(d=>`<option value="${curY-d}"${anoVal===curY-d?' selected':''}>${curY-d}</option>`).join('')}
+  </select>`;
+
+  container.innerHTML = mesHtml + anoHtml;
 }
 
-function setPeriod(type,value,btn){
-  window.selectedPeriod={type,value};
-  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if($('panel-dashboard')&&$('panel-dashboard').classList.contains('active'))renderDashboard();
+function onDashSelChange(){
+  const mes = parseInt(document.getElementById('dash-sel-mes')?.value);
+  const ano = parseInt(document.getElementById('dash-sel-ano')?.value) || new Date().getFullYear();
+  if(mes === -1){
+    window.selectedPeriod={type:'all',value:'all'};
+  } else if(mes === 0){
+    window.selectedPeriod={type:'year',value:String(ano)};
+  } else {
+    window.selectedPeriod={type:'month',value:`${ano}-${String(mes).padStart(2,'0')}`};
+  }
+  window._dashChartInitialized=true;
+  renderDashboard();
 }
 
 // ============================================================
