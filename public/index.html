@@ -334,7 +334,7 @@ input[type="date"]::placeholder{color:var(--muted);}
     <div class="nav-item" data-panel="cheques"><i class="ti ti-writing"></i>Cheques</div>
     <div class="nav-item" data-panel="contratos"><i class="ti ti-file-text"></i>Contratos</div>
     <div class="nav-item" data-panel="homebanking"><i class="ti ti-building-bank"></i>Home Banking</div>
-    <div class="nav-item" data-panel="costos"><i class="ti ti-chart-bar"></i>Costos</div>
+    <div class="nav-item" data-panel="costos"><i class="ti ti-chart-bar"></i>Caja Mensual</div>
     <div class="nav-item" data-panel="subalquiler"><i class="ti ti-arrows-exchange"></i>Subalquiler</div>
     <div class="nav-item" data-panel="proyeccion"><i class="ti ti-telescope"></i>Proyección</div>
   </div>
@@ -355,25 +355,39 @@ input[type="date"]::placeholder{color:var(--muted);}
 
 <!-- ======= DASHBOARD ======= -->
 <div class="panel active" id="panel-dashboard">
+  <div id="dash-resumen-financiero" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;">
+    <div style="background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:20px;text-align:center;">
+      <div style="font-size:11px;color:#6b7280;letter-spacing:1.5px;font-weight:600;margin-bottom:8px">TOTAL COBRADO</div>
+      <div id="dash-res-cobrado" style="font-size:28px;font-weight:700;color:#1D3557">$0</div>
+    </div>
+    <div style="background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:20px;text-align:center;">
+      <div style="font-size:11px;color:#6b7280;letter-spacing:1.5px;font-weight:600;margin-bottom:8px">PAGOS PENDIENTES</div>
+      <div id="dash-res-pendientes" style="font-size:28px;font-weight:700;color:#E24B4A">$0</div>
+    </div>
+    <div style="background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:20px;text-align:center;">
+      <div style="font-size:11px;color:#6b7280;letter-spacing:1.5px;font-weight:600;margin-bottom:8px">TOTAL GASTOS</div>
+      <div id="dash-res-gastos" style="font-size:28px;font-weight:700;color:#BA7517">$0</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:22px;">
+    <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--text)">Facturación vs Gastos — últimos 6 meses</div>
+    <canvas id="chart-dashboard-barras" height="120"></canvas>
+  </div>
   <div class="kpi-grid dash-4kpi" id="dash-kpis" style="grid-template-columns:repeat(4,1fr);"></div>
   <div class="dash-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
     <div class="card" style="border-top-color:var(--red);">
       <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--red);display:flex;align-items:center;gap:6px;"><i class="ti ti-alert-triangle"></i>Alertas activas</div>
       <div class="dash-alert-list" id="dash-alerts-list"></div>
     </div>
-    <div class="card" style="border-top-color:var(--accent);">
-      <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--accent);display:flex;align-items:center;gap:6px;"><i class="ti ti-checklist"></i>Checklist del mes</div>
-      <div id="dash-checklist-preview"></div>
+    <div class="card" style="border-top-color:var(--green);">
+      <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--green);display:flex;align-items:center;gap:6px;"><i class="ti ti-chart-bar"></i>Cobros pendientes por cliente</div>
+      <div id="dash-cobros"></div>
     </div>
   </div>
   <div class="dash-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
     <div class="card" style="border-top-color:var(--accent2);">
       <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--accent2);display:flex;align-items:center;gap:6px;"><i class="ti ti-truck"></i>Estado de flota</div>
       <div id="dash-flota-table"></div>
-    </div>
-    <div class="card" style="border-top-color:var(--green);">
-      <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--green);display:flex;align-items:center;gap:6px;"><i class="ti ti-chart-bar"></i>Cobros pendientes por cliente</div>
-      <div id="dash-cobros"></div>
     </div>
   </div>
 </div>
@@ -479,6 +493,10 @@ input[type="date"]::placeholder{color:var(--muted);}
       <button class="btn btn-secondary btn-sm" onclick="importarSeccion('facturas')"><i class="ti ti-upload"></i> Importar</button>
       <button class="btn btn-secondary btn-sm" onclick="showModalFacturaContrato()"><i class="ti ti-file-text"></i> Desde contrato</button>
       <button class="btn btn-secondary btn-sm" style="color:var(--green);border-color:var(--green)" onclick="generarFacturacionMasiva()"><i class="ti ti-bolt"></i> Facturar mes</button>
+      <!-- TODO: Integración ARCA — requiere middleware backend con certificado .p12 -->
+      <!-- Endpoint futuro: POST /api/arca/emitir-factura -->
+      <!-- Ver documentación: https://serviciosjava.afip.gob.ar/fesv/wsFEV1 -->
+      <button disabled title="Integración ARCA en desarrollo" style="cursor:not-allowed;opacity:0.5;" class="btn btn-secondary btn-sm"><i class="ti ti-file-invoice"></i> Emitir con ARCA</button>
       <button class="btn btn-primary btn-sm" onclick="abrirNuevaFactura()"><i class="ti ti-plus"></i> Nueva factura</button>
     </div>
   </div>
@@ -533,6 +551,11 @@ input[type="date"]::placeholder{color:var(--muted);}
     </div>
   </div>
   <div class="kpi-grid" id="cont-kpis"></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px" id="contratos-filter-tabs">
+    <button class="btn btn-secondary btn-sm active" onclick="filtrarContratos('activos')" id="cf-activos">Activos</button>
+    <button class="btn btn-secondary btn-sm" onclick="filtrarContratos('finalizados')" id="cf-finalizados">Finalizados</button>
+    <button class="btn btn-secondary btn-sm" onclick="filtrarContratos('todos')" id="cf-todos">Todos</button>
+  </div>
   <div id="cont-cards"></div>
 </div>
 
@@ -590,18 +613,33 @@ input[type="date"]::placeholder{color:var(--muted);}
   </table></div>
 </div>
 
-<!-- ======= COSTOS MENSUALES ======= -->
+<!-- ======= CAJA MENSUAL ======= -->
 <div class="panel" id="panel-costos">
   <div class="section-hdr">
-    <div class="section-title">COSTOS <span>MENSUALES</span></div>
+    <div class="section-title">CAJA <span>MENSUAL</span></div>
     <div style="display:flex;gap:8px;align-items:center;">
       <select id="costos-mes" onchange="renderCostos()" style="width:auto;background:var(--surface);border:0.5px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;"></select>
       <button class="btn btn-secondary btn-sm" onclick="importarSeccion('costos')"><i class="ti ti-upload"></i> Importar</button>
       <button class="btn btn-primary btn-sm" onclick="abrirCargarMes()"><i class="ti ti-plus"></i> Cargar mes</button>
     </div>
   </div>
-  <div class="chart-grid"><div class="chart-box" style="grid-column:1/-1"><h4>EVOLUCIÓN INGRESOS VS EGRESOS</h4><div class="chart-wrap" style="height:260px"><canvas id="costosChart"></canvas></div></div></div>
+  <div class="chart-grid"><div class="chart-box" style="grid-column:1/-1">
+    <h4>EVOLUCIÓN INGRESOS VS EGRESOS</h4>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <button class="btn btn-secondary btn-sm" onclick="cambiarAnoCaja(-1)">← Año anterior</button>
+      <span id="caja-ano-label" style="font-weight:700;font-size:15px"></span>
+      <button class="btn btn-secondary btn-sm" id="caja-ano-next" onclick="cambiarAnoCaja(1)">Año siguiente →</button>
+    </div>
+    <div class="chart-wrap" style="height:260px"><canvas id="costosChart"></canvas></div>
+  </div></div>
   <div id="costos-display"></div>
+  <div class="card" style="margin-top:22px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px">Subalquiler del mes</div>
+      <button class="btn btn-primary btn-sm" onclick="showModal('modal-subalquiler-caja')">+ Agregar</button>
+    </div>
+    <div id="caja-subalquiler-tabla"></div>
+  </div>
 </div>
 
 <!-- ======= SOCIOS ======= -->
@@ -614,7 +652,44 @@ input[type="date"]::placeholder{color:var(--muted);}
   <div id="socios-content"></div>
 </div>
 
-<!-- ======= SUBALQUILER ======= -->
+<!-- ======= SUBALQUILER GESTIÓN ======= -->
+<div class="panel" id="panel-subalquiler-gestion">
+  <div class="section-hdr">
+    <div class="section-title">GESTIÓN DE <span>SUBALQUILER</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-subalquiler-vehiculo');resetSubalquilerModal()">+ Agregar vehículo</button>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr>
+        <th>PATENTE</th><th>MODELO</th><th>PROPIETARIO</th><th>TEL.</th>
+        <th>COSTO MES</th><th>PRECIO CLIENTE</th><th>CLIENTE</th><th>ESTADO</th>
+        <th>SEGURO</th><th>RTO</th><th>TRACKING</th><th>SERVICE</th><th>CUBIERTAS</th>
+      </tr></thead>
+      <tbody id="subalquiler-panel-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======= INVERSIÓN ======= -->
+<div class="panel" id="panel-inversion">
+  <div class="section-hdr">
+    <div class="section-title">GESTIÓN DE <span>INVERSIÓN</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showModal('modal-aporte-inversion');resetAporteModal()">+ Registrar aporte</button>
+  </div>
+  <div class="kpi-grid" id="inversion-kpis"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px">
+    <div class="card"><canvas id="chart-inversion-pie" height="200"></canvas></div>
+    <div class="card" id="inversion-por-socio"></div>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>SOCIO</th><th>MONTO</th><th>FECHA</th><th>CONCEPTO</th><th>VEHÍCULO</th></tr></thead>
+      <tbody id="inversion-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======= SUBALQUILER (calculadora legacy) ======= -->
 <div class="panel" id="panel-subalquiler">
   <div class="section-hdr"><div class="section-title">GESTIÓN DE <span>SUBALQUILER</span></div></div>
   <div class="kpi-grid" id="sa-kpis"></div>
@@ -1387,6 +1462,7 @@ function renderSidebarByRole() {
       ['kilometros','map-pin','Kilómetros'],
       ['mantenimiento','tool','Mantenimiento'],
       ['documentos','file-description','Documentación'],
+      ['subalquiler-gestion','car-garage','Subalquiler'],
     ]);
     sec('Finanzas', [
       ['facturacion','receipt','Facturación'],
@@ -1396,9 +1472,9 @@ function renderSidebarByRole() {
       ['cheques','writing','Cheques'],
       ['contratos','file-text','Contratos'],
       ['homebanking','building-bank','Home Banking'],
-      ['costos','chart-bar','Costos'],
-      ['subalquiler','arrows-exchange','Subalquiler'],
+      ['costos','chart-bar','Caja Mensual'],
       ['proyeccion','telescope','Proyección'],
+      ['inversion','trending-up','Inversión'],
     ]);
     sec('Admin', [
       ['usuarios','user-cog','Usuarios'],
@@ -1889,6 +1965,8 @@ function renderPanel(name){
     case'costos':renderCostos();break;
     case'socios':renderSocios();break;
     case'subalquiler':renderSA();break;
+    case'subalquiler-gestion':renderSubalquilerPanel();break;
+    case'inversion':renderInversion();break;
     case'proyeccion':renderProyeccion();break;
     case'homebanking':renderHB();break;
     case'usuarios':renderUsuarios();break;
@@ -1964,6 +2042,73 @@ function navTo(panel){
 // ============================================================
 // DASHBOARD
 // ============================================================
+// ============================================================
+// DASHBOARD — RESUMEN FINANCIERO Y GRÁFICO BARRAS
+// ============================================================
+function renderDashResumenFinanciero() {
+  const period = window.selectedPeriod || {type:'month', value:`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`};
+  let mes, ano;
+  if (period.type === 'month') {
+    const [y, m] = period.value.split('-');
+    mes = parseInt(m); ano = parseInt(y);
+  } else {
+    mes = new Date().getMonth() + 1; ano = parseInt(period.value);
+  }
+  const fmtMes = (f) => {
+    const d = new Date((f.fecha||'').length === 7 ? f.fecha+'-01' : (f.fecha||0));
+    return d.getMonth()+1 === mes && d.getFullYear() === ano;
+  };
+  const cobrado = facturas.filter(f => f.est === 'PAGO' && fmtMes(f)).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
+  const pendientes = facturas.filter(f => ['PENDIENTE','VENCIDO'].includes((f.est||'').toUpperCase()) && fmtMes(f)).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
+  const gastosMes = gastos.filter(g => { const d = new Date((g.fecha||'0').length <= 7 ? (g.fecha||'0')+'-01' : (g.fecha||0)); return d.getMonth()+1 === mes && d.getFullYear() === ano; }).reduce((a,g) => a + (parseFloat(g.monto)||0), 0);
+  const fmtV = v => '$' + v.toLocaleString('es-AR');
+  const el1 = document.getElementById('dash-res-cobrado'); if(el1) el1.textContent = fmtV(cobrado);
+  const el2 = document.getElementById('dash-res-pendientes'); if(el2) el2.textContent = fmtV(pendientes);
+  const el3 = document.getElementById('dash-res-gastos'); if(el3) el3.textContent = fmtV(gastosMes);
+}
+
+let _dashChart = null;
+function renderDashboardChart() {
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const now = new Date();
+  const period = window.selectedPeriod || {type:'month', value:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`};
+  let baseM, baseA;
+  if (period.type === 'month') {
+    const [y, m] = period.value.split('-');
+    baseM = parseInt(m) - 1; baseA = parseInt(y);
+  } else {
+    baseM = now.getMonth(); baseA = parseInt(period.value);
+  }
+  const labels = [], facMonths = [], gasMonths = [];
+  for (let i = 5; i >= 0; i--) {
+    let m = baseM - i; let a = baseA;
+    while (m < 0) { m += 12; a--; }
+    labels.push(meses[m]);
+    facMonths.push({ m: m+1, a });
+    gasMonths.push({ m: m+1, a });
+  }
+  const yStr = (f) => (f.fecha||'').substring(0,7);
+  const facValues = facMonths.map(({m,a}) => {
+    const key = a+'-'+String(m).padStart(2,'0');
+    return facturas.filter(f => f.est==='PAGO' && yStr(f)===key).reduce((s,f)=>s+(parseFloat(f.total||f.monto)||0),0);
+  });
+  const gasValues = gasMonths.map(({m,a}) => {
+    const key = a+'-'+String(m).padStart(2,'0');
+    return gastos.filter(g => (g.fecha||'').startsWith(key)).reduce((s,g)=>s+(parseFloat(g.monto)||0),0);
+  });
+  const canvas = document.getElementById('chart-dashboard-barras');
+  if (!canvas) return;
+  if (_dashChart) { _dashChart.destroy(); _dashChart = null; }
+  _dashChart = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Facturación', data: facValues, backgroundColor: '#1D3557' },
+      { label: 'Gastos', data: gasValues, backgroundColor: '#E24B4A' }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
 function renderDashboard(){
   // Card de solicitudes pendientes para superadmin
   const dashPanel = document.getElementById('panel-dashboard');
@@ -2045,37 +2190,6 @@ function renderDashboard(){
     </div>
   `).join('')||'<div style="color:var(--muted);font-size:12px;padding:8px">✅ Sin alertas activas</div>';
 
-  // Checklist preview
-  const tasks=getChecklist();
-  const done=tasks.filter(t=>t.done).length;
-  $('dash-checklist-preview').innerHTML=`
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="background:var(--accent);color:white;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;">${done}/${tasks.length}</div>
-      <span style="font-size:12px;color:var(--muted);">completadas este mes</span>
-    </div>
-    ${tasks.map(t=>`
-      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);">
-        <span style="color:${t.done?'var(--green)':'#d1d5db'};font-size:14px;">${t.done?'✅':'⬜'}</span>
-        <span style="font-size:12px;${t.done?'text-decoration:line-through;color:var(--muted);':''};">${t.desc}</span>
-        <span style="margin-left:auto;font-size:10px;color:var(--muted);background:var(--surface2);padding:1px 7px;border-radius:20px;">${t.resp}</span>
-      </div>
-    `).join('')}
-    <div style="margin-top:10px;"><button class="btn btn-secondary btn-sm" onclick="navTo('checklist')">Ver completo →</button></div>
-  `;
-
-  // Estado de flota
-  $('dash-flota-table').innerHTML=`<table style="width:100%;border-collapse:collapse;">
-    <thead><tr style="background:var(--surface2)">
-      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">PATENTE</th>
-      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">CLIENTE</th>
-      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">TIPO</th>
-    </tr></thead>
-    <tbody>${flota.map(u=>`<tr style="border-bottom:0.5px solid var(--border);">
-      <td style="padding:7px 10px;font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600;">${u.pat}</td>
-      <td style="padding:7px 10px;font-size:12px;">${u.cli.split(' ').slice(0,2).join(' ')}</td>
-      <td style="padding:7px 10px;"><span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${u.tipo==='propia'?'#EEF4FF':'var(--surface2)'};color:${u.tipo==='propia'?'var(--accent)':'var(--muted)'};">${u.tipo}</span></td>
-    </tr>`).join('')}</tbody>
-  </table>`;
 
   // Cobros pendientes por cliente (barras horizontales)
   const empTot={};
@@ -2093,6 +2207,39 @@ function renderDashboard(){
       </div>
     </div>
   `).join(''):'<div style="color:var(--muted);font-size:12px;padding:4px;">✅ Sin cobros pendientes</div>';
+
+  // Estado de flota con KM ACUM. y ANTIGÜEDAD
+  const hoyFlota = new Date();
+  $('dash-flota-table').innerHTML=`<table style="width:100%;border-collapse:collapse;">
+    <thead><tr style="background:var(--surface2)">
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">PATENTE</th>
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">CLIENTE</th>
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">TIPO</th>
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">KM ACUM.</th>
+      <th style="padding:7px 10px;font-size:10px;color:var(--muted);letter-spacing:1px;text-align:left;border-bottom:0.5px solid var(--border)">ANTIGÜEDAD</th>
+    </tr></thead>
+    <tbody>${flota.map(u=>{
+      const kmAcum = km.filter(k=>k.pat===u.pat).reduce((a,b)=>a+(b.km||0),0);
+      let antStr = '—';
+      if (u.fecha) {
+        const diffMs = hoyFlota - new Date(u.fecha);
+        const anos = Math.floor(diffMs / (1000*60*60*24*365));
+        const mesesR = Math.floor((diffMs % (1000*60*60*24*365)) / (1000*60*60*24*30));
+        antStr = anos > 0 ? `${anos} años ${mesesR} meses` : `${mesesR} meses`;
+      }
+      return `<tr style="border-bottom:0.5px solid var(--border);">
+        <td style="padding:7px 10px;font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600;">${u.pat}</td>
+        <td style="padding:7px 10px;font-size:12px;">${u.cli.split(' ').slice(0,2).join(' ')}</td>
+        <td style="padding:7px 10px;"><span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${u.tipo==='propia'?'#EEF4FF':'var(--surface2)'};color:${u.tipo==='propia'?'var(--accent)':'var(--muted)'};">${u.tipo}</span></td>
+        <td style="padding:7px 10px;font-family:var(--fm);font-size:12px;">${kmAcum.toLocaleString('es-AR')}</td>
+        <td style="padding:7px 10px;font-size:12px;color:var(--muted);">${antStr}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+
+  // Resumen financiero y gráfico
+  renderDashResumenFinanciero();
+  setTimeout(renderDashboardChart, 100);
 }
 
 // ============================================================
@@ -2166,10 +2313,48 @@ function renderFlota(){
       <div style="margin-top:10px;display:flex;gap:6px">
         <button class="btn btn-ghost btn-sm" onclick="navTo('kilometros')">📍 KM</button>
         <button class="btn btn-ghost btn-sm" onclick="navTo('mantenimiento')">🔧 SERVICE</button>
+        <button class="btn btn-secondary btn-sm" onclick="editarVehiculo('${u.id}')"><i class="ti ti-pencil"></i></button>
         <button class="btn btn-danger" onclick="deleteUnidad('${u.id}')">✕</button>
       </div>
     </div>`;
   }).join('');
+}
+
+async function editarVehiculo(id) {
+  const u = flota.find(x => x.id === id); if (!u) return;
+  document.getElementById('ev-id').value = id;
+  document.getElementById('ev-patente').value = u.pat || '';
+  document.getElementById('ev-marca').value = u.marca || '';
+  document.getElementById('ev-modelo').value = u.modelo || '';
+  document.getElementById('ev-ano').value = u.anio || '';
+  document.getElementById('ev-color').value = u.color || '';
+  document.getElementById('ev-fechaAlta').value = u.fecha || '';
+  document.getElementById('ev-estado').value = u.estado || 'activo';
+  document.getElementById('ev-propietario').value = u.tipo === 'subalquilada' ? 'subalquiler' : 'propio';
+  const sel = document.getElementById('ev-cliente');
+  const clisUniq = [...new Set(flota.map(v => v.cli).filter(Boolean))];
+  sel.innerHTML = '<option value="">— Sin cliente —</option>' + clisUniq.map(c => `<option value="${c}" ${u.cli===c?'selected':''}>${c}</option>`).join('');
+  showModal('modal-editar-vehiculo');
+}
+
+async function guardarVehiculo() {
+  const id = document.getElementById('ev-id').value;
+  const idx = flota.findIndex(x => x.id === id); if (idx < 0) return;
+  flota[idx] = Object.assign({}, flota[idx], {
+    pat: document.getElementById('ev-patente').value,
+    marca: document.getElementById('ev-marca').value,
+    modelo: document.getElementById('ev-modelo').value,
+    anio: document.getElementById('ev-ano').value,
+    color: document.getElementById('ev-color').value,
+    cli: document.getElementById('ev-cliente').value,
+    fecha: document.getElementById('ev-fechaAlta').value,
+    estado: document.getElementById('ev-estado').value,
+    tipo: document.getElementById('ev-propietario').value === 'subalquiler' ? 'subalquilada' : 'propia',
+  });
+  save('pkhv2_flota', flota);
+  hideModal('modal-editar-vehiculo');
+  showToast('✓ Vehículo actualizado');
+  renderFlota();
 }
 
 function addUnidad(){
@@ -2200,6 +2385,7 @@ function renderKm(){
   $('km-charts').innerHTML=`<div class="chart-box" style="grid-column:1/-1"><h4>KILÓMETROS POR UNIDAD (ÚLTIMOS MESES)</h4><div class="chart-wrap" style="height:250px"><canvas id="kmChart"></canvas></div></div>`;
   setTimeout(()=>{
     const datasets=flotaFiltrada.map((u,i)=>({label:u.pat,data:mesKeys.map(mk=>{const[y,m]=mk.split('-');const mes=MESES[Number(m)-1];const r=km.find(k=>k.pat===u.pat&&k.mes===mes&&k.anio===y);return r?r.km:null;}),borderColor:COLORES[i%COLORES.length],backgroundColor:COLORES[i%COLORES.length]+'33',tension:.3,fill:false,pointRadius:4,spanGaps:true}));
+    datasets.push({label:'Umbral de alerta (5.000 km)',data:Array(labels.length).fill(5000),type:'line',borderColor:'#BA7517',borderDash:[5,5],borderWidth:2,pointRadius:0,fill:false});
     const c=document.getElementById('kmChart');
     if(c)new Chart(c,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',font:{size:10}}}},scales:{x:{ticks:{color:'#6b7280'},grid:{color:'#e5e5e5'}},y:{ticks:{color:'#6b7280',callback:v=>v.toLocaleString('es-AR')},grid:{color:'#e5e5e5'}}}}});
   },50);
@@ -2506,6 +2692,7 @@ function renderFacturacion(){
       <td style="font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.forma||''}">${f.forma||'—'}</td>
       <td style="display:flex;gap:4px">
         ${!esPago&&!esNota?`<button class="btn btn-sm" style="background:#3ecf8e22;color:var(--green);border:1px solid var(--green);font-size:10px;padding:3px 8px" onclick="marcarPago(${JSON.stringify(f.id)})">✓ PAGO</button>`:''}
+        <button class="btn btn-secondary btn-sm" onclick="editarFactura(${JSON.stringify(f.id)})"><i class="ti ti-pencil"></i></button>
         <button class="btn btn-danger" onclick="deleteFac(${JSON.stringify(f.id)})">✕</button>
       </td>
     </tr>`;
@@ -3116,6 +3303,10 @@ function renderCostos(){
         <div style="display:flex;justify-content:space-between;padding-top:10px;font-family:var(--fm);font-size:13px;border-top:1px solid var(--border);margin-top:6px"><span>TOTAL</span><span class="c-green">${fmt(ting)}</span></div>
       </div>
     </div>`;
+  // Init año label
+  const anoLbl = document.getElementById('caja-ano-label'); if(anoLbl && !anoLbl.textContent) anoLbl.textContent = cajaMensualAno;
+  // Subalquiler del mes
+  renderCajaSubalquiler();
 }
 
 // ============================================================
@@ -3566,6 +3757,7 @@ function renderContratos(){
   }
   const filtro=filtroEl?filtroEl.value:'';
   const contratosFiltrados=filtro?contratos.filter(c=>c.emp===filtro):contratos;
+  _contratosCache = contratosFiltrados;
   const activos=contratosFiltrados.filter(c=>c.est==='activo');
   const totalNetoMes=activos.reduce((a,b)=>a+(b.precio||0),0);
   const totalConIvaMes=activos.reduce((a,b)=>a+(b.precio||0)*(1+(b.iva||0)),0);
@@ -3575,63 +3767,7 @@ function renderContratos(){
     <div class="kpi blue"><div class="kpi-val c-blue">${fmt(totalNetoMes)}</div><div class="kpi-lbl">INGRESO NETO MENSUAL</div></div>
     <div class="kpi purple"><div class="kpi-val c-purple">${fmt(Math.round(totalConIvaMes))}</div><div class="kpi-lbl">INGRESO C/IVA MENSUAL</div></div>
   `;
-  const cards=contratosFiltrados.map(c=>{
-    const total=Math.round(c.precio*(1+(c.iva||0)));
-    const ivaM=Math.round(c.precio*(c.iva||0));
-    const facEmp=facturas.filter(f=>f.est!=='NOTA'&&f.emp===c.emp);
-    const totalFac=facEmp.reduce((a,b)=>a+(b.monto||0),0);
-    const totalCob=facEmp.filter(f=>f.est==='PAGO').reduce((a,b)=>a+(b.monto||0),0);
-    const totalPend=facEmp.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
-    const ratio=totalFac>0?Math.round(totalCob/totalFac*100):0;
-    const ratioColor=ratio>=90?'var(--green)':ratio>=60?'var(--orange)':'var(--red)';
-    const hoy=new Date();
-    const inicio=c.inicio?new Date(c.inicio):null;
-    const mesesActivo=inicio?Math.round((hoy-inicio)/(1000*60*60*24*30)):0;
-    const estCls=c.est==='activo'?'badge-paid':c.est==='suspendido'?'badge-warn':'badge-pend';
-    const estTxt=c.est==='activo'?'ACTIVO':c.est==='suspendido'?'SUSPENDIDO':'FINALIZADO';
-    return `<div class="card ${c.est!=='activo'?'red-top':''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:6px">
-        <div><div style="font-weight:700;font-size:15px;margin-bottom:2px">${c.emp}</div><div class="plate" style="font-size:13px">${c.pat}</div></div>
-        <span class="badge ${estCls}">${estTxt}</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
-          <div class="mono c-gold" style="font-size:13px">${fmt(c.precio)}</div><div style="font-size:9px;color:var(--muted)">NETO/MES</div>
-        </div>
-        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
-          <div class="mono c-muted" style="font-size:13px">${fmt(ivaM)}</div><div style="font-size:9px;color:var(--muted)">IVA (${Math.round((c.iva||0)*100)}%)</div>
-        </div>
-        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center">
-          <div class="mono c-blue" style="font-size:13px">${fmt(total)}</div><div style="font-size:9px;color:var(--muted)">TOTAL/MES</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap">
-        <span>📅 Inicio: ${fmtD(c.inicio)}</span>
-        ${c.fin?`<span>🔚 Fin: ${fmtD(c.fin)}</span>`:''}
-        <span>📆 Día: ${c.dia||'—'}</span>
-        <span>⏱ ${mesesActivo} meses activo</span>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:10px;margin-bottom:10px">
-        <div style="font-family:var(--fh);font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">ESTADO DE CUENTA</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
-          <div style="text-align:center"><div class="mono c-gold" style="font-size:13px">${fmt(totalFac)}</div><div style="font-size:9px;color:var(--muted)">FACTURADO</div></div>
-          <div style="text-align:center"><div class="mono c-green" style="font-size:13px">${fmt(totalCob)}</div><div style="font-size:9px;color:var(--muted)">COBRADO</div></div>
-          <div style="text-align:center"><div class="mono" style="font-size:13px;color:${totalPend>0?'var(--red)':'var(--muted)'}">${totalPend>0?fmt(totalPend):'$0'}</div><div style="font-size:9px;color:var(--muted)">PENDIENTE</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="progress-wrap" style="flex:1"><div class="progress-bar" style="width:${ratio}%;background:${ratioColor}"></div></div>
-          <span class="mono" style="font-size:11px;color:${ratioColor}">${ratio}% cobrado</span>
-        </div>
-      </div>
-      ${c.obs?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${c.obs}</div>`:''}
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="editContratoModal(${c.id})"><i class="ti ti-edit"></i> Editar</button>
-        <button class="btn btn-ghost btn-sm" style="color:var(--orange)" onclick="actualizarVencimientoContrato(${c.id})"><i class="ti ti-calendar-event"></i> Vencimiento</button>
-        <button class="btn btn-danger" onclick="deleteContrato(${c.id})">✕</button>
-      </div>
-    </div>`;
-  }).join('');
-  $('cont-cards').innerHTML='<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))">'+cards+'</div>';
+  filtrarContratos(_contratosFiltro);
 }
 function addContrato(){
   const c={id:nextId(contratos),emp:$('nc2-emp').value.trim().toUpperCase(),pat:$('nc2-pat').value,precio:Number($('nc2-precio').value)||0,iva:Number($('nc2-iva').value)||0.21,inicio:$('nc2-inicio').value,fin:$('nc2-fin').value,dia:Number($('nc2-dia').value)||1,est:$('nc2-est').value,obs:$('nc2-obs').value.trim()};
@@ -3720,6 +3856,272 @@ function exportarTodo() {
   URL.revokeObjectURL(a.href);
 }
 
+// ============================================================
+// MANTENIMIENTO — ALARMAS DE SERVICE
+// ============================================================
+function verificarAlarmasService() {
+  const hoyMs = Date.now();
+  flota.forEach(u => {
+    const services = mantenimiento.filter(m => (m.tipo||'').toLowerCase().includes('service') && m.pat === u.pat)
+      .sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    if (!services.length) return;
+    const ultimo = services[0];
+    const kmAlService = parseFloat(ultimo.km || 0);
+    const kmActuales = km.filter(k => k.pat === u.pat).reduce((s,k) => s + (parseFloat(k.km)||0), 0);
+    const kmDesde = kmActuales - kmAlService;
+    if (kmDesde >= 9000) {
+      console.warn('[PKH] Alerta service REQUERIDO:', u.pat, 'km desde último service:', kmDesde);
+      enviarEmailService(u.pat, kmDesde, ultimo.fecha, kmActuales);
+    } else if (kmDesde >= 8000) {
+      console.warn('[PKH] Pre-alarma service:', u.pat, 'km desde último service:', kmDesde);
+    }
+  });
+}
+function enviarEmailService(patente, kmDesde, fechaService, kmActuales) {
+  // TODO: Integración EmailJS — configurar serviceId y templateId
+  // emailjs.send('SERVICE_ID', 'TEMPLATE_ID', { patente, kmDesde, fechaService, kmActuales })
+  console.warn('Email service pendiente:', patente, kmDesde);
+}
+setInterval(verificarAlarmasService, 24 * 60 * 60 * 1000);
+
+// ============================================================
+// FACTURACIÓN — EDITAR FACTURA
+// ============================================================
+function editarFactura(id) {
+  const f = facturas.find(x => String(x.id) === String(id)); if (!f) return;
+  document.getElementById('ef-id').value = id;
+  document.getElementById('ef-nro').value = f.num || '';
+  document.getElementById('ef-emp').value = f.emp || '';
+  document.getElementById('ef-monto').value = f.monto || '';
+  document.getElementById('ef-estado').value = f.est || 'PENDIENTE';
+  document.getElementById('ef-fecha').value = f.fecha || '';
+  document.getElementById('ef-venc').value = f.venc || '';
+  document.getElementById('ef-fpago').value = f.fpago || '';
+  document.getElementById('ef-obs').value = f.obs || '';
+  showModal('modal-editar-factura');
+}
+function guardarFacturaEdit() {
+  const id = document.getElementById('ef-id').value;
+  const idx = facturas.findIndex(x => String(x.id) === String(id)); if (idx < 0) return;
+  facturas[idx] = Object.assign({}, facturas[idx], {
+    num: document.getElementById('ef-nro').value,
+    emp: document.getElementById('ef-emp').value,
+    monto: parseFloat(document.getElementById('ef-monto').value)||0,
+    est: document.getElementById('ef-estado').value,
+    fecha: document.getElementById('ef-fecha').value,
+    venc: document.getElementById('ef-venc').value,
+    fpago: document.getElementById('ef-fpago').value,
+    obs: document.getElementById('ef-obs').value,
+  });
+  save('pkhv2_fac', facturas);
+  hideModal('modal-editar-factura');
+  showToast('✓ Factura actualizada');
+  typeof renderFacturacion === 'function' && renderFacturacion();
+}
+
+// ============================================================
+// CAJA MENSUAL — SUBALQUILER
+// ============================================================
+async function guardarSubalquilerCaja() {
+  const period = window.selectedPeriod || {type:'month', value:`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`};
+  const costo = parseFloat(document.getElementById('sc-costo').value)||0;
+  const precio = parseFloat(document.getElementById('sc-precio').value)||0;
+  const key = 'pkhv2_subalquiler_caja';
+  const existing = load(key, []);
+  existing.push({
+    id: Date.now(),
+    periodo: period.value,
+    vehiculo: document.getElementById('sc-vehiculo').value,
+    propietario: document.getElementById('sc-propietario').value,
+    costo, precio, margen: precio - costo
+  });
+  save(key, existing);
+  hideModal('modal-subalquiler-caja');
+  showToast('✓ Registro guardado');
+  renderCajaSubalquiler();
+}
+function renderCajaSubalquiler() {
+  const cont = document.getElementById('caja-subalquiler-tabla'); if (!cont) return;
+  const period = window.selectedPeriod || {type:'month', value:`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`};
+  const items = load('pkhv2_subalquiler_caja', []).filter(i => i.periodo === period.value);
+  if (!items.length) { cont.innerHTML = '<p style="color:var(--muted);font-size:13px">Sin registros este mes</p>'; return; }
+  cont.innerHTML = `<table><thead><tr><th>VEHÍCULO</th><th>PROPIETARIO</th><th>COSTO</th><th>PRECIO CLIENTE</th><th>MARGEN</th></tr></thead><tbody>${items.map(i=>`<tr><td>${i.vehiculo}</td><td>${i.propietario}</td><td>$${(i.costo||0).toLocaleString('es-AR')}</td><td>$${(i.precio||0).toLocaleString('es-AR')}</td><td style="color:${i.margen>=0?'var(--green)':'var(--red)'}">$${(i.margen||0).toLocaleString('es-AR')}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// ============================================================
+// GESTIÓN DE SUBALQUILER (panel nuevo)
+// ============================================================
+function resetSubalquilerModal() {
+  ['sv-patente','sv-modelo','sv-propietario','sv-telefono','sv-costo','sv-precio'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['sv-seguro','sv-rto','sv-tracking'].forEach(id => { const el=document.getElementById(id); if(el) el.checked=false; });
+  const cliUniq = [...new Set(flota.map(v=>v.cli).filter(Boolean))];
+  const sel = document.getElementById('sv-cliente');
+  if (sel) sel.innerHTML = '<option value="">—</option>' + cliUniq.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function guardarSubalquilerVehiculo() {
+  const data = {
+    id: Date.now(),
+    patente: document.getElementById('sv-patente').value,
+    modelo: document.getElementById('sv-modelo').value,
+    propietario: document.getElementById('sv-propietario').value,
+    telefono: document.getElementById('sv-telefono').value,
+    costoMensual: parseFloat(document.getElementById('sv-costo').value)||0,
+    precioCliente: parseFloat(document.getElementById('sv-precio').value)||0,
+    clienteId: document.getElementById('sv-cliente').value,
+    estado: document.getElementById('sv-estado').value,
+    seguro: document.getElementById('sv-seguro').checked,
+    rto: document.getElementById('sv-rto').checked,
+    tracking: document.getElementById('sv-tracking').checked,
+  };
+  const existing = load('pkhv2_subalquiler_vehiculos', []);
+  existing.push(data);
+  save('pkhv2_subalquiler_vehiculos', existing);
+  // Agregar a flota si no existe
+  if (!flota.find(u => u.pat === data.patente)) {
+    flota.push({ id: data.patente, pat: data.patente, tipo: 'subalquilada', cli: data.clienteId, modelo: data.modelo, fecha: '' });
+    save('pkhv2_flota', flota);
+  }
+  hideModal('modal-subalquiler-vehiculo');
+  showToast('✓ Vehículo agregado');
+  renderSubalquilerPanel();
+}
+function renderSubalquilerPanel() {
+  const tbody = document.getElementById('subalquiler-panel-tbody'); if (!tbody) return;
+  const items = load('pkhv2_subalquiler_vehiculos', []);
+  const check = v => v ? '✓' : '✗';
+  tbody.innerHTML = items.map(v => `<tr>
+    <td class="mono">${v.patente||'—'}</td><td>${v.modelo||'—'}</td><td>${v.propietario||'—'}</td><td>${v.telefono||'—'}</td>
+    <td>$${(v.costoMensual||0).toLocaleString('es-AR')}</td><td>$${(v.precioCliente||0).toLocaleString('es-AR')}</td>
+    <td>${v.clienteId||'—'}</td><td><span class="badge ${v.estado==='activo'?'badge-paid':'badge-pend'}">${v.estado||'—'}</span></td>
+    <td style="text-align:center;color:${v.seguro?'var(--green)':'var(--red)'}">${check(v.seguro)}</td>
+    <td style="text-align:center;color:${v.rto?'var(--green)':'var(--red)'}">${check(v.rto)}</td>
+    <td style="text-align:center;color:${v.tracking?'var(--green)':'var(--red)'}">${check(v.tracking)}</td>
+    <td style="text-align:center;color:var(--red)">✗</td>
+    <td style="text-align:center;color:var(--red)">✗</td>
+  </tr>`).join('') || '<tr><td colspan="13" class="empty">Sin vehículos en subalquiler</td></tr>';
+}
+
+// ============================================================
+// GESTIÓN DE INVERSIÓN (panel nuevo)
+// ============================================================
+let _inversionPieChart = null;
+function resetAporteModal() {
+  const sel = document.getElementById('ai-socio');
+  if (sel) sel.innerHTML = socios.map(s=>`<option value="${s.nombre}">${s.nombre}</option>`).join('');
+  const selV = document.getElementById('ai-vehiculo');
+  if (selV) selV.innerHTML = '<option value="">— Ninguno —</option>' + flota.map(u=>`<option value="${u.pat}">${u.pat}</option>`).join('');
+  ['ai-monto','ai-fecha'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+}
+function guardarAporte() {
+  const existing = load('pkhv2_inversion', []);
+  existing.push({
+    id: Date.now(),
+    socioId: document.getElementById('ai-socio').value,
+    monto: parseFloat(document.getElementById('ai-monto').value)||0,
+    fecha: document.getElementById('ai-fecha').value,
+    concepto: document.getElementById('ai-concepto').value,
+    vehiculoId: document.getElementById('ai-vehiculo').value,
+  });
+  save('pkhv2_inversion', existing);
+  hideModal('modal-aporte-inversion');
+  showToast('✓ Aporte registrado');
+  renderInversion();
+}
+function renderInversion() {
+  const aportes2 = load('pkhv2_inversion', []);
+  const totalGeneral = aportes2.reduce((s,a)=>s+(parseFloat(a.monto)||0),0);
+  const porSocio = {};
+  aportes2.forEach(a => { porSocio[a.socioId] = (porSocio[a.socioId]||0) + (parseFloat(a.monto)||0); });
+  const kpisEl = document.getElementById('inversion-kpis');
+  if (kpisEl) kpisEl.innerHTML = `
+    <div class="kpi gold"><div class="kpi-val c-gold">${fmt(totalGeneral)}</div><div class="kpi-lbl">CAPITAL TOTAL</div></div>
+    <div class="kpi blue"><div class="kpi-val c-blue">${Object.keys(porSocio).length}</div><div class="kpi-lbl">SOCIOS</div></div>
+  `;
+  const tbody = document.getElementById('inversion-tbody');
+  if (tbody) tbody.innerHTML = aportes2.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).map(a=>`<tr>
+    <td>${a.socioId||'—'}</td>
+    <td>$${(parseFloat(a.monto)||0).toLocaleString('es-AR')}</td>
+    <td>${a.fecha||'—'}</td><td>${a.concepto||'—'}</td><td>${a.vehiculoId||'—'}</td>
+  </tr>`).join('')||'<tr><td colspan="5" class="empty">Sin aportes</td></tr>';
+  const porSocioEl = document.getElementById('inversion-por-socio');
+  if (porSocioEl) porSocioEl.innerHTML = '<div style="font-weight:700;font-size:14px;margin-bottom:12px">Por socio</div>' + Object.entries(porSocio).map(([sid,tot])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)"><span>${sid}</span><span style="font-weight:600">$${tot.toLocaleString('es-AR')}</span></div>`).join('');
+  const canvas = document.getElementById('chart-inversion-pie');
+  if (canvas) {
+    if (_inversionPieChart) _inversionPieChart.destroy();
+    const labels = Object.keys(porSocio);
+    const data = Object.values(porSocio);
+    _inversionPieChart = new Chart(canvas, { type:'pie', data:{ labels, datasets:[{ data, backgroundColor:['#1D3557','#E24B4A','#BA7517','#1D9E75','#7c3aed'] }] }, options:{ responsive:true, plugins:{ legend:{ position:'bottom' } } } });
+  }
+}
+
+// ============================================================
+// CONTRATOS — FILTRO POR ESTADO
+// ============================================================
+let _contratosCache = [];
+let _contratosFiltro = 'activos';
+function filtrarContratos(filtro) {
+  _contratosFiltro = filtro;
+  ['activos','finalizados','todos'].forEach(f => {
+    const btn = document.getElementById('cf-'+f);
+    if(btn) btn.classList.toggle('active', f === filtro);
+  });
+  const today2 = new Date();
+  const filtered = _contratosCache.filter(c => {
+    if (filtro === 'activos') return c.est === 'activo' || (!c.est && new Date(c.fin||'9999') >= today2);
+    if (filtro === 'finalizados') return c.est === 'finalizado' || new Date(c.fin||'9999') < today2;
+    return true;
+  });
+  renderContratosTabla(filtered);
+}
+function renderContratosTabla(lista) {
+  const el = document.getElementById('cont-cards'); if (!el) return;
+  const hoy = new Date();
+  const cards = lista.map(c=>{
+    const total=Math.round(c.precio*(1+(c.iva||0)));
+    const ivaM=Math.round(c.precio*(c.iva||0));
+    const facEmp=facturas.filter(f=>f.est!=='NOTA'&&f.emp===c.emp);
+    const totalFac=facEmp.reduce((a,b)=>a+(b.monto||0),0);
+    const totalCob=facEmp.filter(f=>f.est==='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+    const totalPend=facEmp.filter(f=>f.est!=='PAGO').reduce((a,b)=>a+(b.monto||0),0);
+    const ratio=totalFac>0?Math.round(totalCob/totalFac*100):0;
+    const inicio=c.inicio?new Date(c.inicio):null;
+    const mesesActivo=inicio?Math.round((hoy-inicio)/(1000*60*60*24*30)):0;
+    const estCls=c.est==='activo'?'badge-paid':c.est==='suspendido'?'badge-warn':'badge-pend';
+    const estTxt=c.est==='activo'?'ACTIVO':c.est==='suspendido'?'SUSPENDIDO':'FINALIZADO';
+    return `<div class="card ${c.est!=='activo'?'red-top':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+        <div><div style="font-weight:700;font-size:15px;margin-bottom:2px">${c.emp}</div><div class="plate" style="font-size:13px">${c.pat}</div></div>
+        <span class="badge ${estCls}">${estTxt}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center"><div class="mono c-gold" style="font-size:13px">${fmt(c.precio)}</div><div style="font-size:9px;color:var(--muted)">NETO/MES</div></div>
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center"><div class="mono c-muted" style="font-size:13px">${fmt(ivaM)}</div><div style="font-size:9px;color:var(--muted)">IVA (${Math.round((c.iva||0)*100)}%)</div></div>
+        <div style="background:var(--bg);border-radius:4px;padding:8px;text-align:center"><div class="mono c-blue" style="font-size:13px">${fmt(total)}</div><div style="font-size:9px;color:var(--muted)">TOTAL/MES</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <span>📅 Inicio: ${fmtD(c.inicio)}</span>${c.fin?`<span>🔚 Fin: ${fmtD(c.fin)}</span>`:''}<span>📆 Día: ${c.dia||'—'}</span><span>⏱ ${mesesActivo} meses activo</span>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="editContratoModal(${c.id})">✏ Editar</button>
+        <button class="btn btn-ghost btn-sm" onclick="actualizarVencimientoContrato(${c.id})">📅 Venc.</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = `<div class="cards">${cards.join('')}</div>`;
+}
+
+// ============================================================
+// CAJA MENSUAL — PAGINACIÓN ANUAL
+// ============================================================
+let cajaMensualAno = new Date().getFullYear();
+function cambiarAnoCaja(delta) {
+  cajaMensualAno += delta;
+  const nextBtn = document.getElementById('caja-ano-next');
+  if(nextBtn) nextBtn.disabled = cajaMensualAno >= new Date().getFullYear();
+  const lbl = document.getElementById('caja-ano-label'); if(lbl) lbl.textContent = cajaMensualAno;
+  typeof renderCostos === 'function' && renderCostos();
+}
+
 async function startApp() {
   if (firebaseReady) {
     $('login-status') && ($('login-status').textContent = 'Cargando datos de la nube...');
@@ -3734,6 +4136,7 @@ async function startApp() {
   populateSelects();
   renderDashboard();
   verificarNotificacionDia();
+  verificarAlarmasService();
 }
 
 // PWA Install
@@ -5133,6 +5536,97 @@ function applyRoleUI() {
       <button class="btn btn-secondary" onclick="hideModal('modal-usuario')">Cancelar</button>
       <button class="btn btn-primary" onclick="guardarUsuario()">Guardar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal editar vehículo -->
+<div class="modal-overlay" id="modal-editar-vehiculo" style="display:none">
+  <div class="modal" style="max-width:480px">
+    <h2>Editar Vehículo</h2>
+    <div style="display:grid;gap:12px">
+      <input type="hidden" id="ev-id">
+      <label>Patente<input id="ev-patente" class="form-input" type="text"></label>
+      <label>Marca<input id="ev-marca" class="form-input" type="text"></label>
+      <label>Modelo<input id="ev-modelo" class="form-input" type="text"></label>
+      <label>Año<input id="ev-ano" class="form-input" type="number"></label>
+      <label>Color<input id="ev-color" class="form-input" type="text"></label>
+      <label>Cliente<select id="ev-cliente" class="form-input"></select></label>
+      <label>Fecha de alta<input id="ev-fechaAlta" class="form-input" type="date"></label>
+      <label>Estado<select id="ev-estado" class="form-input"><option>activo</option><option>en service</option><option>inactivo</option></select></label>
+      <label>Propietario<select id="ev-propietario" class="form-input"><option value="propio">Propio</option><option value="subalquiler">Subalquiler</option></select></label>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="guardarVehiculo()">Guardar</button><button class="btn btn-secondary" onclick="hideModal('modal-editar-vehiculo')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- Modal editar factura -->
+<div class="modal-overlay" id="modal-editar-factura" style="display:none">
+  <div class="modal" style="max-width:520px">
+    <h2>Editar Factura</h2>
+    <div style="display:grid;gap:12px">
+      <input type="hidden" id="ef-id">
+      <label>N° Factura<input id="ef-nro" class="form-input" type="text"></label>
+      <label>Empresa/Cliente<input id="ef-emp" class="form-input" type="text"></label>
+      <label>Monto<input id="ef-monto" class="form-input" type="number" step="0.01"></label>
+      <label>Estado<select id="ef-estado" class="form-input"><option value="PENDIENTE">Pendiente</option><option value="PAGO">Pagado</option><option value="NOTA">Nota Crédito</option></select></label>
+      <label>Fecha emisión<input id="ef-fecha" class="form-input" type="date"></label>
+      <label>Fecha vencimiento<input id="ef-venc" class="form-input" type="date"></label>
+      <label>Fecha pago<input id="ef-fpago" class="form-input" type="date"></label>
+      <label>Observaciones<textarea id="ef-obs" class="form-input"></textarea></label>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="guardarFacturaEdit()">Guardar</button><button class="btn btn-secondary" onclick="hideModal('modal-editar-factura')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- Modal subalquiler caja -->
+<div class="modal-overlay" id="modal-subalquiler-caja" style="display:none">
+  <div class="modal" style="max-width:440px">
+    <h2>Registro de Subalquiler</h2>
+    <div style="display:grid;gap:12px">
+      <label>Vehículo (patente)<input id="sc-vehiculo" class="form-input" type="text"></label>
+      <label>Propietario externo<input id="sc-propietario" class="form-input" type="text"></label>
+      <label>Costo subalquiler (lo que PKH paga)<input id="sc-costo" class="form-input" type="number"></label>
+      <label>Precio al cliente final<input id="sc-precio" class="form-input" type="number"></label>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="guardarSubalquilerCaja()">Guardar</button><button class="btn btn-secondary" onclick="hideModal('modal-subalquiler-caja')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- Modal subalquiler vehículo -->
+<div class="modal-overlay" id="modal-subalquiler-vehiculo" style="display:none">
+  <div class="modal" style="max-width:500px">
+    <h2>Vehículo en Subalquiler</h2>
+    <div style="display:grid;gap:12px">
+      <label>Patente<input id="sv-patente" class="form-input" type="text"></label>
+      <label>Modelo<input id="sv-modelo" class="form-input" type="text"></label>
+      <label>Propietario externo<input id="sv-propietario" class="form-input" type="text"></label>
+      <label>Teléfono propietario<input id="sv-telefono" class="form-input" type="text"></label>
+      <label>Costo mensual (PKH paga)<input id="sv-costo" class="form-input" type="number"></label>
+      <label>Precio al cliente final<input id="sv-precio" class="form-input" type="number"></label>
+      <label>Cliente asignado<select id="sv-cliente" class="form-input"></select></label>
+      <label>Estado<select id="sv-estado" class="form-input"><option>activo</option><option>finalizado</option></select></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <label><input type="checkbox" id="sv-seguro"> Seguro</label>
+        <label><input type="checkbox" id="sv-rto"> RTO</label>
+        <label><input type="checkbox" id="sv-tracking"> Tracking</label>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="guardarSubalquilerVehiculo()">Guardar</button><button class="btn btn-secondary" onclick="hideModal('modal-subalquiler-vehiculo')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- Modal aporte inversión -->
+<div class="modal-overlay" id="modal-aporte-inversion" style="display:none">
+  <div class="modal" style="max-width:440px">
+    <h2>Registrar Aporte</h2>
+    <div style="display:grid;gap:12px">
+      <label>Socio<select id="ai-socio" class="form-input"></select></label>
+      <label>Monto<input id="ai-monto" class="form-input" type="number" step="0.01"></label>
+      <label>Fecha<input id="ai-fecha" class="form-input" type="date"></label>
+      <label>Concepto<select id="ai-concepto" class="form-input"><option>compra de vehículo</option><option>capital operativo</option><option>otro</option></select></label>
+      <label>Vehículo asociado (opcional)<select id="ai-vehiculo" class="form-input"></select></label>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="guardarAporte()">Guardar</button><button class="btn btn-secondary" onclick="hideModal('modal-aporte-inversion')">Cancelar</button></div>
   </div>
 </div>
 
