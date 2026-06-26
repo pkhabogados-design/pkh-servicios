@@ -2059,8 +2059,8 @@ function renderDashResumenFinanciero() {
     return d.getMonth()+1 === mes && d.getFullYear() === ano;
   };
   const cobrado = facturas.filter(f => f.est === 'PAGO' && fmtMes(f)).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
-  const pendientes = facturas.filter(f => ['PENDIENTE','VENCIDO'].includes((f.est||'').toUpperCase()) && fmtMes(f)).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
-  const gastosMes = gastos.filter(g => { const d = new Date((g.fecha||'0').length <= 7 ? (g.fecha||'0')+'-01' : (g.fecha||0)); return d.getMonth()+1 === mes && d.getFullYear() === ano; }).reduce((a,g) => a + (parseFloat(g.monto)||0), 0);
+  const pendientes = facturas.filter(f => !['PAGO','NOTA','ANULADA'].includes((f.est||'').toUpperCase()) && fmtMes(f)).reduce((a,f) => a + (parseFloat(f.total||f.monto)||0), 0);
+  const gastosMes = gastos.filter(g => { const d = new Date(g.fecha||0); return d.getMonth()+1 === mes && d.getFullYear() === ano; }).reduce((a,g) => a + (parseFloat(g.monto)||0), 0);
   const fmtV = v => '$' + v.toLocaleString('es-AR');
   const el1 = document.getElementById('dash-res-cobrado'); if(el1) el1.textContent = fmtV(cobrado);
   const el2 = document.getElementById('dash-res-pendientes'); if(el2) el2.textContent = fmtV(pendientes);
